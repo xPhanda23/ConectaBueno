@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#2a7d4f">
+    <meta name="description" content="Conecta Bueno - Explore os pontos culturais e turísticos de Bueno Brandão, MG">
+    <title>Acesso - Conecta Bueno</title>
+    <link rel="stylesheet" href="../css/auth.css">
+    <link rel="stylesheet" href="../css/legal.css">
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Fundo com overlay gradiente -->
+    <div class="bg-overlay"></div>
+
+    <div class="auth-wrapper">
+
+        <!-- Painel Esquerdo: Identidade Visual -->
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <h1 class="brand-title">Conecta Bueno</h1>
+                <p class="brand-subtitle">Bueno Brandão - MG</p>
+                <p class="brand-description">
+                    Explore os pontos históricos, culturais e naturais da cidade mais encantadora da Serra da
+                    Mantiqueira.
+                </p>
+                <div class="brand-features">
+                    <div class="feature-item">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>Patrimônio histórico</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-tree"></i>
+                        <span>Natureza e ecoturismo</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Gastronomia local</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel Direito: Formulários -->
+        <div class="form-panel">
+            <div class="form-box">
+
+                <!-- Cabeçalho com abas -->
+                <div class="tab-header">
+                    <button class="tab-btn active" id="tab-login" onclick="showTab('login')">Entrar</button>
+                    <button class="tab-btn" id="tab-register" onclick="showTab('register')">Cadastrar</button>
+                    <div class="tab-indicator" id="tab-indicator"></div>
+                </div>
+
+                <!-- Container dos formulários -->
+                <div class="forms-container">
+
+                    <!-- Formulário de Login -->
+                    <form id="form-login" class="auth-form active" novalidate>
+
+                        <div class="input-group">
+                            <label for="login-email">E-mail</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope input-icon"></i>
+                                <input type="email" id="login-email" name="email" placeholder="seu@email.com"
+                                    autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="login-senha">Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="login-senha" name="senha" placeholder="Sua senha"
+                                    autocomplete="current-password" required>
+                                <button type="button" class="btn-toggle-senha"
+                                    onclick="toggleSenha('login-senha', this)" aria-label="Mostrar/ocultar senha">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="lembrar-me">
+                                <span class="checkmark"></span>
+                                Lembrar de mim
+                            </label>
+                            <a href="#" class="link-esqueci">Esqueci minha senha</a>
+                        </div>
+
+                        <div class="feedback-message" id="feedback-login"></div>
+
+                        <button type="submit" class="btn-primary" id="btn-login">
+                            <span class="btn-text">Entrar no Mapa</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <div class="divider"><span>ou continue com</span></div>
+
+                        <div class="social-buttons">
+                            <button type="button" class="btn-social btn-google">
+                                <i class="fa-brands fa-google"></i>
+                                <span>Google</span>
+                            </button>
+                            <button type="button" class="btn-social btn-visitante">
+                                <i class="fa-solid fa-user-secret"></i>
+                                <span>Visitante</span>
+                            </button>
+                        </div>
+
+                        <p class="switch-text">
+                            Não tem uma conta?
+                            <a href="#" onclick="showTab('register'); return false;">Criar conta grátis</a>
+                        </p>
+
+                    </form>
+
+                    <!-- Formulário de Cadastro -->
+                    <form id="form-register" class="auth-form" novalidate>
+
+                        <div class="input-group">
+                            <label for="reg-nome">Nome completo</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="reg-nome" name="nome" placeholder="Seu nome completo"
+                                    autocomplete="name" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="reg-email">E-mail</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-envelope input-icon"></i>
+                                <input type="email" id="reg-email" name="email" placeholder="seu@email.com"
+                                    autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="reg-senha">Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="reg-senha" name="senha" placeholder="Mínimo 8 caracteres"
+                                    autocomplete="new-password" required>
+                                <button type="button" class="btn-toggle-senha" onclick="toggleSenha('reg-senha', this)"
+                                    aria-label="Mostrar/ocultar senha">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                            <!-- Barra de força da senha -->
+                            <div class="senha-strength" id="senha-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strength-fill"></div>
+                                </div>
+                                <span class="strength-label" id="strength-label"></span>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="reg-confirmar-senha">Confirmar senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="reg-confirmar-senha" name="confirmarSenha"
+                                    placeholder="Repita a senha" autocomplete="new-password" required>
+                                <button type="button" class="btn-toggle-senha"
+                                    onclick="toggleSenha('reg-confirmar-senha', this)"
+                                    aria-label="Mostrar/ocultar senha">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <label class="checkbox-label termos">
+                            <input type="checkbox" id="aceitar-termos" required>
+                            <span class="checkmark"></span>
+                            <span class="texto-termos">
+                                Li e aceito os <a href="#" class="link-termos" data-modal="termos">Termos de Uso</a> e a
+                                <a href="#" class="link-termos" data-modal="privacidade">Política de Privacidade</a>
+                            </span>
+                        </label>
+
+                        <span class="field-error" id="error-termos"></span>
+
+                        <div class="feedback-message" id="feedback-register"></div>
+
+                        <button type="submit" class="btn-primary" id="btn-register">
+                            <span class="btn-text">Criar minha conta</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <p class="switch-text">
+                            Já tem uma conta?
+                            <a href="#" onclick="showTab('login'); return false;">Fazer login</a>
+                        </p>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Rodapé -->
+            <p class="footer-text">
+                &copy; 2026 Conecta Bueno &mdash; Todos os direitos reservados
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Modais para Termos e Política -->
+    <div class="modal-overlay" id="modal-overlay"></div>
+
+    <!-- Modal Termos de Uso -->
+    <div class="modal-box" id="modal-termos">
+        <div class="modal-header">
+            <h2>📜 Termos de Uso</h2>
+            <button class="modal-close" onclick="fecharModal('termos')">&times;</button>
+        </div>
+        <div class="modal-content" id="content-termos">
+            <p style="text-align: center; padding: 40px; color: #6b7c75;">Carregando...</p>
+        </div>
+    </div>
+
+    <!-- Modal Política de Privacidade -->
+    <div class="modal-box" id="modal-privacidade">
+        <div class="modal-header">
+            <h2>🔒 Política de Privacidade</h2>
+            <button class="modal-close" onclick="fecharModal('privacidade')">&times;</button>
+        </div>
+        <div class="modal-content" id="content-privacidade">
+            <p style="text-align: center; padding: 40px; color: #6b7c75;">Carregando...</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Configuração e módulos customizados -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/firebase-auth.js"></script>
+    <script src="../js/modal-legal.js"></script>
+    <script src="../js/auth.js"></script>
+</body>
+
+</html>

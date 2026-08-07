@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#2a7d4f">
+    <meta name="description" content="Conecta Bueno - Descubra os pontos culturais e turísticos de Bueno Brandão">
+    <title>Conecta Bueno - Mapa Cultural</title>
+    
+    <!-- CSS do Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="css/map.css" />
+
+</head>
+<body>
+
+    <div id="app-container">
+        <!-- Interface do Cabeçalho -->
+        <header class="app-header">
+            <div>
+                <h1>Conecta Bueno</h1>
+                <p>Descubra Bueno Brandão</p>
+            </div>
+            <!-- Menu do usuário -->
+            <div id="user-menu" style="display: none; margin-left: auto;">
+                <button id="btn-logout" style="padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <!-- Div do Mapa -->
+        <div id="meu-mapa"></div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Configuração Firebase -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-auth.js"></script>
+
+    <!-- Proteção de Rota -->
+    <script>
+        // Verifica autenticação antes de carregar o resto
+        firebaseAuth.onAuthStateChanged((user) => {
+            if (!user) {
+                // Não está logado, redireciona para login
+                console.log('⚠️ Usuário não autenticado, redirecionando...');
+                window.location.href = 'pages/login.html';
+            } else {
+                // Usuário autenticado, mostra o menu
+                const isAnonimo = user.isAnonymous;
+                const nomeUsuario = user.displayName || (isAnonimo ? 'Visitante' : user.email.split('@')[0]);
+                
+                console.log(`✅ Usuário autenticado: ${nomeUsuario}${isAnonimo ? ' (visitante)' : ''}`);
+                
+                const userMenu = document.getElementById('user-menu');
+                if (userMenu) {
+                    userMenu.style.display = 'flex';
+                    userMenu.style.alignItems = 'center';
+                    userMenu.style.gap = '12px';
+                    
+                    // Se for visitante, mostra badge e botão de criar conta
+                    if (isAnonimo) {
+                        const badge = document.createElement('span');
+                        badge.textContent = '👤 Visitante';
+                        badge.style.fontSize = '0.85rem';
+                        badge.style.color = '#6b7c75';
+                        badge.style.fontWeight = '600';
+                        badge.style.background = 'rgba(107, 124, 117, 0.1)';
+                        badge.style.padding = '6px 12px';
+                        badge.style.borderRadius = '6px';
+                        userMenu.insertBefore(badge, userMenu.firstChild);
+                        
+                        const btnCriarConta = document.createElement('button');
+                        btnCriarConta.textContent = 'Criar Conta';
+                        btnCriarConta.style.cssText = 'padding: 8px 16px; background: #2a7d4f; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; margin-right: 8px;';
+                        btnCriarConta.onclick = () => {
+                            // Redireciona para login com mensagem
+                            localStorage.setItem('converterVisitante', 'true');
+                            window.location.href = 'pages/login.html';
+                        };
+                        userMenu.insertBefore(btnCriarConta, userMenu.firstChild);
+                    } else {
+                        // Usuário permanente
+                        const userName = document.createElement('span');
+                        userName.textContent = nomeUsuario;
+                        userName.style.fontSize = '0.9rem';
+                        userName.style.color = '#2c3e50';
+                        userName.style.fontWeight = '600';
+                        userMenu.insertBefore(userName, userMenu.firstChild);
+                    }
+                }
+                
+                // Botão de logout
+                const btnLogout = document.getElementById('btn-logout');
+                if (btnLogout) {
+                    btnLogout.addEventListener('click', async () => {
+                        const resultado = await fazerLogout();
+                        if (resultado.success) {
+                            window.location.href = 'pages/login.html';
+                        }
+                    });
+                }
+                
+                // Salva o estado de visitante globalmente
+                window.usuarioVisitante = isAnonimo;
+                
+                // Carrega os scripts do mapa somente se autenticado
+                carregarMapa();
+            }
+        });
+
+        function carregarMapa() {
+            // Carrega Leaflet
+            const scriptLeaflet = document.createElement('script');
+            scriptLeaflet.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            scriptLeaflet.onload = () => {
+                // Depois carrega o código do mapa
+                const scriptMap = document.createElement('script');
+                scriptMap.src = 'js/map.js';
+                document.body.appendChild(scriptMap);
+            };
+            document.body.appendChild(scriptLeaflet);
+        }
+    </script>
+</body>
+</html>

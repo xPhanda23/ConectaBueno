@@ -1,0 +1,29 @@
+# Firebase - Credenciais sensíveis
+js/firebase-config.js
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (caso adicione depois)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Env
+.env
+.env.local
+.env.production

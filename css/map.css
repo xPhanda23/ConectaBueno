@@ -1,0 +1,181 @@
+/* Tipografia moderna para o app */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body { 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f4f9;
+}
+
+#app-container {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+
+.app-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px 20px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.app-header p {
+    margin: 2px 0 0 0;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    line-height: 1.2;
+}
+
+#meu-mapa {
+    height: 100%; 
+    width: 100%;
+    z-index: 1;
+}
+
+.leaflet-container {
+    outline: 0;
+}
+
+/* Responsividade do Header */
+@media (max-width: 768px) {
+    .app-header {
+        padding: 12px 16px;
+    }
+
+    .app-header h1 {
+        font-size: 1.05rem;
+    }
+
+    .app-header p {
+        font-size: 0.75rem;
+    }
+
+    #user-menu button {
+        padding: 7px 12px !important;
+        font-size: 0.8rem !important;
+    }
+
+    #user-menu span {
+        font-size: 0.82rem !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .app-header {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .app-header h1 {
+        font-size: 0.95rem;
+    }
+
+    .app-header p {
+        font-size: 0.7rem;
+    }
+
+    #user-menu {
+        flex-wrap: wrap;
+        gap: 6px !important;
+        width: 100%;
+        justify-content: flex-end !important;
+    }
+
+    #user-menu button {
+        padding: 6px 10px !important;
+        font-size: 0.75rem !important;
+    }
+
+    #user-menu span {
+        font-size: 0.78rem !important;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-header {
+        padding: 8px 10px;
+    }
+
+    .app-header h1 {
+        font-size: 0.9rem;
+    }
+
+    .app-header p {
+        display: none; /* Oculta subtitle em telas muito pequenas */
+    }
+
+    #user-menu button {
+        padding: 5px 8px !important;
+        font-size: 0.72rem !important;
+        border-radius: 4px !important;
+    }
+
+    #user-menu span {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* Ajustes nos controles do Leaflet em Mobile */
+@media (max-width: 640px) {
+    .leaflet-control-zoom {
+        margin-bottom: 20px !important;
+        margin-right: 10px !important;
+    }
+
+    .leaflet-control-zoom a {
+        width: 32px !important;
+        height: 32px !important;
+        line-height: 32px !important;
+        font-size: 18px !important;
+    }
+
+    .leaflet-popup-content-wrapper {
+        border-radius: 8px !important;
+        padding: 4px !important;
+    }
+
+    .leaflet-popup-content {
+        margin: 8px 10px !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .leaflet-control-zoom {
+        margin-bottom: 15px !important;
+        margin-right: 8px !important;
+    }
+
+    .leaflet-control-zoom a {
+        width: 28px !important;
+        height: 28px !important;
+        line-height: 28px !important;
+        font-size: 16px !important;
+    }
+}

@@ -1,0 +1,1188 @@
+/* ============================================
+   AUTH.CSS — Mapa Cultural de Bueno Brandão
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --color-primary:    #2a7d4f;   /* verde serra */
+    --color-primary-dk: #1e5c3a;
+    --color-accent:     #e8a020;   /* âmbar / terra */
+    --color-dark:       #1a2e22;   /* verde escuro quase preto */
+    --color-text:       #2c3e50;
+    --color-muted:      #6b7c75;
+    --color-border:     #d4e3db;
+    --color-bg:         #f4f7f5;
+    --color-white:      #ffffff;
+    --color-error:      #e53e3e;
+    --color-success:    #2a7d4f;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+
+    --shadow-card: 0 20px 60px rgba(26, 46, 34, 0.15);
+    --shadow-input: 0 2px 8px rgba(0,0,0,0.06);
+
+    --transition: 0.3s ease;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Background ---------- */
+body {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Fundo com padrão geométrico sutil inspirado em topografia */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(42, 125, 79, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(232, 160, 32, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(42, 125, 79, 0.06) 0%, transparent 40%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.bg-overlay {
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232a7d4f' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ---------- Layout Principal ---------- */
+.auth-wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ---------- Painel Esquerdo (Brand) ---------- */
+.brand-panel {
+    flex: 0 0 42%;
+    background: linear-gradient(155deg, var(--color-dark) 0%, var(--color-primary) 50%, #3a9e64 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decoração — círculos de fundo */
+.brand-panel::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    top: -100px;
+    right: -100px;
+}
+
+.brand-panel::after {
+    content: '';
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    bottom: -60px;
+    left: -60px;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+    color: var(--color-white);
+    max-width: 340px;
+}
+
+.brand-logo {
+    width: 72px;
+    height: 72px;
+    background: rgba(255,255,255,0.15);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.brand-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.brand-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+.brand-description {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 36px;
+}
+
+.brand-features {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.feature-item i {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.12);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+/* ---------- Painel Direito (Forms) ---------- */
+.form-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 30px;
+    overflow-y: auto;
+}
+
+.form-box {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+}
+
+/* ---------- Abas ---------- */
+.tab-header {
+    display: flex;
+    position: relative;
+    background: var(--color-bg);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.tab-header.single {
+    justify-content: flex-start;
+    pointer-events: none;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 18px 20px;
+    background: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: color var(--transition);
+    position: relative;
+    z-index: 1;
+}
+
+.tab-btn.active {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* Indicador deslizante */
+.tab-indicator {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    height: 2px;
+    width: 50%;
+    background: var(--color-primary);
+    transition: transform var(--transition);
+    border-radius: 2px 2px 0 0;
+}
+
+.tab-indicator.right {
+    transform: translateX(100%);
+}
+
+/* ---------- Container dos Formulários ---------- */
+.forms-container {
+    position: relative;
+    padding: 32px 36px;
+    overflow: hidden;
+}
+
+/* ---------- Formulário ---------- */
+.auth-form {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    animation: fadeSlideIn 0.35s ease;
+}
+
+.auth-form.active {
+    display: flex;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-welcome {
+    font-size: 1rem;
+    color: var(--color-muted);
+    margin-bottom: 24px;
+}
+
+/* ---------- Grupos de Input ---------- */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    color: var(--color-muted);
+    font-size: 14px;
+    pointer-events: none;
+    transition: color var(--transition);
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 42px 12px 40px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    color: var(--color-text);
+    background: var(--color-white);
+    box-shadow: var(--shadow-input);
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(42, 125, 79, 0.12);
+}
+
+.input-wrapper input:focus + .input-icon,
+.input-wrapper:focus-within .input-icon {
+    color: var(--color-primary);
+}
+
+/* Estado de erro */
+.input-wrapper input.is-invalid {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+/* Estado de sucesso */
+.input-wrapper input.is-valid {
+    border-color: var(--color-success);
+}
+
+.field-error {
+    font-size: 0.78rem;
+    color: var(--color-error);
+    margin-top: 4px;
+    min-height: 16px;
+    display: block;
+}
+
+/* ---------- Botão Toggle Senha ---------- */
+.btn-toggle-senha {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-muted);
+    font-size: 14px;
+    padding: 4px;
+    transition: color var(--transition);
+    line-height: 1;
+}
+
+.btn-toggle-senha:hover {
+    color: var(--color-primary);
+}
+
+/* ---------- Força da Senha ---------- */
+.senha-strength {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.senha-strength.visible {
+    opacity: 1;
+}
+
+.strength-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.strength-fill.fraca    { width: 25%; background: #e53e3e; }
+.strength-fill.media    { width: 55%; background: var(--color-accent); }
+.strength-fill.boa      { width: 80%; background: #3182ce; }
+.strength-fill.forte    { width: 100%; background: var(--color-primary); }
+
+.strength-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 48px;
+    text-align: right;
+}
+
+.strength-label.fraca { color: #e53e3e; }
+.strength-label.media { color: var(--color-accent); }
+.strength-label.boa   { color: #3182ce; }
+.strength-label.forte { color: var(--color-primary); }
+
+/* ---------- Opções do Form ---------- */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 0.83rem;
+}
+
+.link-esqueci {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity var(--transition);
+}
+
+.link-esqueci:hover {
+    opacity: 0.75;
+    text-decoration: underline;
+}
+
+/* ---------- Checkbox Customizado ---------- */
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.83rem;
+    color: var(--color-text);
+    user-select: none;
+    line-height: 1.5;
+}
+
+.checkbox-label.termos {
+    margin-bottom: 6px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkmark {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 4px;
+    background: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    margin-top: 2px;
+}
+
+.checkbox-label input:checked ~ .checkmark {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.checkbox-label input:checked ~ .checkmark::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 9px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+}
+
+.link-termos {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+/* ---------- Feedback ---------- */
+.feedback-message {
+    font-size: 0.85rem;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.feedback-message.show {
+    padding: 10px 14px;
+    max-height: 80px;
+    margin-bottom: 14px;
+}
+
+.feedback-message.success {
+    background: rgba(42, 125, 79, 0.1);
+    color: var(--color-success);
+    border: 1px solid rgba(42, 125, 79, 0.3);
+}
+
+.feedback-message.error {
+    background: rgba(229, 62, 62, 0.08);
+    color: var(--color-error);
+    border: 1px solid rgba(229, 62, 62, 0.25);
+}
+
+/* ---------- Botão Principal ---------- */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dk) 100%);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    box-shadow: 0 4px 15px rgba(42, 125, 79, 0.35);
+    margin-bottom: 20px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(42, 125, 79, 0.45);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary .fa-arrow-right {
+    transition: transform var(--transition);
+}
+
+.btn-primary:hover .fa-arrow-right {
+    transform: translateX(4px);
+}
+
+/* ---------- Divisor ---------- */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+}
+
+/* ---------- Botões Sociais ---------- */
+.social-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-white);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-social:hover {
+    background: var(--color-bg);
+    border-color: #b0c4ba;
+}
+
+.btn-google i  { color: #ea4335; }
+.btn-visitante i { color: #6b7c75; }
+
+.btn-visitante {
+    background: linear-gradient(135deg, #f4f7f5 0%, #e8ede9 100%);
+    border-color: #c4d4cc;
+}
+
+.btn-visitante:hover {
+    background: linear-gradient(135deg, #e8ede9 0%, #dce6df 100%);
+    border-color: #a8c0b0;
+}
+
+/* ---------- Texto de troca ---------- */
+.switch-text {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+}
+
+.switch-text a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.switch-text a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Rodapé ---------- */
+.footer-text {
+    margin-top: 24px;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    text-align: center;
+}
+
+/* ---------- Loading no botão ---------- */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.btn-primary.loading .btn-text::after {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.btn-primary.loading i {
+    display: none;
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+
+/* Notebooks pequenos e tablets landscape (até 1280px) */
+@media (max-width: 1280px) {
+    .brand-panel {
+        flex: 0 0 38%;
+        padding: 40px 35px;
+    }
+
+    .brand-content {
+        max-width: 320px;
+    }
+
+    .brand-title {
+        font-size: 1.75rem;
+    }
+
+    .brand-description {
+        font-size: 0.9rem;
+    }
+
+    .form-box {
+        max-width: 420px;
+    }
+
+    .forms-container {
+        padding: 28px 32px;
+    }
+}
+
+/* Notebooks pequenos (até 1024px) */
+@media (max-width: 1024px) {
+    .brand-panel {
+        flex: 0 0 35%;
+        padding: 35px 28px;
+    }
+
+    .brand-logo {
+        width: 64px;
+        height: 64px;
+        font-size: 28px;
+    }
+
+    .brand-title {
+        font-size: 1.6rem;
+    }
+
+    .brand-features {
+        gap: 12px;
+    }
+
+    .feature-item {
+        font-size: 0.85rem;
+    }
+
+    .feature-item i {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .form-box {
+        max-width: 400px;
+    }
+
+    .forms-container {
+        padding: 24px 28px;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="password"] {
+        padding: 11px 40px 11px 38px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Tablets portrait (até 900px) */
+@media (max-width: 900px) {
+    .auth-wrapper {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Painel de marca vira header compacto */
+    .brand-panel {
+        flex: none;
+        padding: 32px 24px;
+        background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-primary) 100%);
+    }
+
+    .brand-panel::before,
+    .brand-panel::after {
+        display: none;
+    }
+
+    .brand-content {
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .brand-logo {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+        margin-bottom: 14px;
+    }
+
+    .brand-title {
+        font-size: 1.5rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+
+    .brand-description {
+        font-size: 0.88rem;
+        max-width: 500px;
+        margin-bottom: 20px;
+    }
+
+    .brand-features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .feature-item {
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .feature-item i {
+        margin: 0;
+    }
+
+    /* Painel de formulário */
+    .form-panel {
+        flex: 1;
+        padding: 28px 20px;
+        justify-content: flex-start;
+    }
+
+    .form-box {
+        max-width: 500px;
+    }
+
+    .forms-container {
+        padding: 24px 28px;
+    }
+}
+
+/* Mobile landscape e tablets pequenos (até 768px) */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+
+    .brand-panel {
+        padding: 28px 20px;
+    }
+
+    .brand-description {
+        display: none;
+    }
+
+    .brand-features {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .feature-item {
+        font-size: 0.75rem;
+    }
+
+    .feature-item i {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .form-panel {
+        padding: 24px 16px;
+    }
+
+    .form-box {
+        border-radius: var(--radius-md);
+        max-width: 100%;
+    }
+
+    .forms-container {
+        padding: 20px 24px;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+    .form-welcome {
+        font-size: 0.92rem;
+        margin-bottom: 20px;
+    }
+
+    .input-group {
+        margin-bottom: 16px;
+    }
+
+    .input-group label {
+        font-size: 0.8rem;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="password"] {
+        padding: 11px 40px 11px 38px;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        padding: 13px 18px;
+        font-size: 0.92rem;
+    }
+
+    .social-buttons {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .btn-social {
+        padding: 10px 14px;
+        font-size: 0.82rem;
+    }
+
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.8rem;
+    }
+
+    .checkbox-label {
+        font-size: 0.8rem;
+    }
+
+    .footer-text {
+        font-size: 0.72rem;
+    }
+}
+
+/* Mobile portrait (até 640px) */
+@media (max-width: 640px) {
+    .brand-panel {
+        padding: 24px 16px;
+    }
+
+    .brand-logo {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .brand-title {
+        font-size: 1.3rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .brand-features {
+        display: none; /* Oculta features em mobile muito pequeno */
+    }
+
+    .form-panel {
+        padding: 20px 12px;
+    }
+
+    .form-box {
+        box-shadow: none; /* Remove sombra em mobile */
+    }
+
+    .tab-header {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .tab-btn {
+        padding: 16px 16px;
+        font-size: 0.9rem;
+    }
+
+    .forms-container {
+        padding: 20px 20px;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+    }
+
+    .input-group {
+        margin-bottom: 14px;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="password"] {
+        padding: 10px 38px 10px 36px;
+        font-size: 0.88rem;
+    }
+
+    .input-icon {
+        font-size: 13px;
+        left: 12px;
+    }
+
+    .btn-toggle-senha {
+        right: 10px;
+        font-size: 13px;
+    }
+
+    .btn-primary {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        gap: 8px;
+    }
+
+    .divider {
+        font-size: 0.75rem;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .social-buttons {
+        gap: 8px;
+    }
+
+    .btn-social {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        gap: 6px;
+    }
+
+    .switch-text {
+        font-size: 0.82rem;
+    }
+
+    .checkbox-label {
+        font-size: 0.78rem;
+    }
+
+    .checkmark {
+        width: 16px;
+        height: 16px;
+    }
+
+    .footer-text {
+        margin-top: 20px;
+    }
+}
+
+/* Mobile pequeno (até 480px) */
+@media (max-width: 480px) {
+    .brand-panel {
+        padding: 20px 16px;
+    }
+
+    .brand-title {
+        font-size: 1.2rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .form-panel {
+        padding: 16px 12px;
+    }
+
+    .forms-container {
+        padding: 16px 16px;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+        margin-bottom: 16px;
+    }
+
+    .form-welcome {
+        font-size: 0.88rem;
+        margin-bottom: 16px;
+    }
+
+    .input-group {
+        margin-bottom: 12px;
+    }
+
+    .input-group label {
+        font-size: 0.78rem;
+        margin-bottom: 5px;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="password"] {
+        padding: 10px 36px 10px 34px;
+        font-size: 0.86rem;
+    }
+
+    .senha-strength {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+    }
+
+    .strength-label {
+        text-align: left;
+        min-width: auto;
+    }
+
+    .btn-primary {
+        padding: 12px 14px;
+        font-size: 0.88rem;
+    }
+
+    .social-buttons {
+        grid-template-columns: 1fr; /* Uma coluna em telas muito pequenas */
+        gap: 8px;
+    }
+
+    .btn-social {
+        padding: 11px 14px;
+    }
+
+    .form-options {
+        font-size: 0.78rem;
+    }
+
+    .checkbox-label.termos {
+        line-height: 1.4;
+    }
+}
+
+/* Mobile extra pequeno (até 380px) */
+@media (max-width: 380px) {
+    .brand-logo {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    .brand-title {
+        font-size: 1.15rem;
+    }
+
+    .tab-btn {
+        padding: 14px 12px;
+        font-size: 0.85rem;
+    }
+
+    .forms-container {
+        padding: 14px 14px;
+    }
+
+    h2 {
+        font-size: 1.05rem;
+    }
+
+    input[type="email"],
+    input[type="text"],
+    input[type="password"] {
+        padding: 9px 34px 9px 32px;
+        font-size: 0.85rem;
+    }
+
+    .btn-primary {
+        padding: 11px 12px;
+        font-size: 0.86rem;
+    }
+
+    .btn-social {
+        padding: 10px 12px;
+        font-size: 0.78rem;
+    }
+}
