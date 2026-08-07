@@ -3,6 +3,39 @@
  * Funções para cadastro, login, logout e gerenciamento de usuários
  */
 
+// Aguarda Firebase estar disponível
+let auth, db;
+
+// Aguarda evento personalizado do firebase-config.js
+window.addEventListener('load', function() {
+    // Aguardar Firebase estar completamente inicializado
+    setTimeout(initializeFirebaseRefs, 500);
+});
+
+function initializeFirebaseRefs() {
+    if (typeof firebase === 'undefined') {
+        console.warn('⚠️ Firebase SDK não carregado ainda, tentando novamente...');
+        setTimeout(initializeFirebaseRefs, 500);
+        return;
+    }
+    
+    // Verificar se Firebase foi inicializado
+    if (firebase.apps.length === 0) {
+        console.warn('⚠️ Firebase não inicializado, tentando novamente...');
+        setTimeout(initializeFirebaseRefs, 500);
+        return;
+    }
+    
+    try {
+        auth = firebase.auth();
+        db = firebase.firestore();
+        console.log('✅ Referências Firebase Auth inicializadas');
+    } catch (error) {
+        console.error('❌ Erro ao inicializar referências Firebase:', error);
+        setTimeout(initializeFirebaseRefs, 500);
+    }
+}
+
 /**
  * Cadastra um novo usuário no Firebase Authentication e cria seu perfil no Firestore
  * @param {string} nome - Nome completo do usuário
@@ -12,8 +45,12 @@
  */
 async function cadastrarUsuario(nome, email, senha) {
     try {
+        if (!auth || !db) {
+            throw new Error('Firebase não inicializado. Aguarde...');
+        }
+        
         // Cria o usuário no Firebase Authentication
-        const userCredential = await firebaseAuth.createUserWithEmailAndPassword(email, senha);
+        const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
         const user = userCredential.user;
 
         // Atualiza o perfil com o nome
@@ -22,7 +59,7 @@ async function cadastrarUsuario(nome, email, senha) {
         });
 
         // Cria documento do usuário no Firestore
-        await firebaseDb.collection('usuarios').doc(user.uid).set({
+        await db.collection('users').doc(user.uid).set({
             uid: user.uid,
             nome: nome,
             email: email,
@@ -79,11 +116,15 @@ async function cadastrarUsuario(nome, email, senha) {
  */
 async function fazerLogin(email, senha) {
     try {
-        const userCredential = await firebaseAuth.signInWithEmailAndPassword(email, senha);
+        if (!auth || !db) {
+            throw new Error('Firebase não inicializado. Recarregue a página.');
+        }
+        
+        const userCredential = await auth.signInWithEmailAndPassword(email, senha);
         const user = userCredential.user;
 
         // Atualiza último acesso no Firestore
-        await firebaseDb.collection('usuarios').doc(user.uid).update({
+        await db.collection('users').doc(user.uid).update({
             ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -135,7 +176,7 @@ async function fazerLogin(email, senha) {
  */
 async function fazerLogout() {
     try {
-        await firebaseAuth.signOut();
+        await auth.signOut();
         console.log('✅ Logout realizado com sucesso');
         return { success: true };
     } catch (error) {
@@ -158,11 +199,11 @@ async function loginComGoogle() {
             prompt: 'select_account'
         });
 
-        const result = await firebaseAuth.signInWithPopup(provider);
+        const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
         // Verifica se é a primeira vez do usuário
-        const docRef = firebaseDb.collection('usuarios').doc(user.uid);
+        const docRef = db.collection('users').doc(user.uid);
         const doc = await docRef.get();
 
         if (!doc.exists) {
@@ -220,11 +261,11 @@ async function loginComGoogle() {
  */
 async function loginComoVisitante() {
     try {
-        const result = await firebaseAuth.signInAnonymously();
+        const result = await auth.signInAnonymously();
         const user = result.user;
 
         // Cria perfil básico para visitante
-        const docRef = firebaseDb.collection('usuarios').doc(user.uid);
+        const docRef = db.collection('users').doc(user.uid);
         await docRef.set({
             uid: user.uid,
             nome: 'Visitante',
@@ -266,7 +307,7 @@ async function loginComoVisitante() {
  */
 async function converterVisitanteEmConta(nome, email, senha) {
     try {
-        const user = firebaseAuth.currentUser;
+        const user = auth.currentUser;
         
         if (!user || !user.isAnonymous) {
             return {
@@ -287,7 +328,7 @@ async function converterVisitanteEmConta(nome, email, senha) {
         });
 
         // Atualiza dados no Firestore
-        await firebaseDb.collection('usuarios').doc(user.uid).update({
+        await db.collection('users').doc(user.uid).update({
             nome: nome,
             email: email,
             tipoUsuario: 'permanente',
@@ -333,7 +374,7 @@ async function converterVisitanteEmConta(nome, email, senha) {
  */
 async function recuperarSenha(email) {
     try {
-        await firebaseAuth.sendPasswordResetEmail(email);
+        await auth.sendPasswordResetEmail(email);
         console.log('✅ Email de recuperação enviado para:', email);
 
         return {
@@ -367,7 +408,7 @@ async function recuperarSenha(email) {
  * @returns {boolean} true se for visitante
  */
 function eVisitante() {
-    const user = firebaseAuth.currentUser;
+    const user = auth.currentUser;
     return user ? user.isAnonymous : false;
 }
 
@@ -376,7 +417,7 @@ function eVisitante() {
  * @returns {Object|null} Dados do usuário ou null se não estiver logado
  */
 function obterUsuarioAtual() {
-    const user = firebaseAuth.currentUser;
+    const user = auth.currentUser;
     if (user) {
         return {
             uid: user.uid,
@@ -395,7 +436,7 @@ function obterUsuarioAtual() {
  * @returns {boolean} true se houver usuário logado
  */
 function estaLogado() {
-    return firebaseAuth.currentUser !== null;
+    return auth.currentUser !== null;
 }
 
 /**
@@ -403,7 +444,7 @@ function estaLogado() {
  * @param {Function} callback - Função a ser chamada quando o estado mudar
  */
 function observarEstadoAuth(callback) {
-    firebaseAuth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged((user) => {
         if (user) {
             callback({
                 logado: true,

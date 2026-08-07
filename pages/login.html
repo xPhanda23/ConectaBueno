@@ -1,242 +1,410 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="theme-color" content="#2a7d4f">
-    <meta name="description" content="Conecta Bueno - Explore os pontos culturais e turísticos de Bueno Brandão, MG">
-    <title>Acesso - Conecta Bueno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2d5a3d">
+    <title>Login - Conecta Bueno | Bueno Brandão, MG</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/auth.css">
-    <link rel="stylesheet" href="../css/legal.css">
-    <!-- Ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
-<body>
-
-    <!-- Fundo com overlay gradiente -->
-    <div class="bg-overlay"></div>
-
-    <div class="auth-wrapper">
-
-        <!-- Painel Esquerdo: Identidade Visual -->
-        <div class="brand-panel">
-            <div class="brand-content">
-                <div class="brand-logo">
-                    <i class="fa-solid fa-map-location-dot"></i>
+<body class="auth-page">
+    <!-- Container Principal -->
+    <div class="auth-container">
+        <!-- Painel Esquerdo - Identidade Visual -->
+        <aside class="auth-visual">
+            <div class="visual-overlay"></div>
+            <div class="visual-content">
+                <!-- Logos Institucionais -->
+                <div class="institutional-logos">
+                    <div class="logo-item">
+                        <div class="logo-placeholder">
+                            <img src="../assets/images/bueno.png" alt="Prefeitura Bueno Brandão" width="60" height="60">
+                            <span class="logo-text">Prefeitura<br>Bueno Brandão</span>
+                        </div>
+                    </div>
+                    <div class="logo-separator"></div>
+                    <div class="logo-item">
+                        <div class="logo-placeholder">
+                            <img src="../assets/images/turismo.png" alt="Secretaria de Cultura" width="60" height="60">
+                            <span class="logo-text">Secretaria<br>de Cultura</span>
+                        </div>
+                    </div>
                 </div>
-                <h1 class="brand-title">Conecta Bueno</h1>
-                <p class="brand-subtitle">Bueno Brandão - MG</p>
-                <p class="brand-description">
-                    Explore os pontos históricos, culturais e naturais da cidade mais encantadora da Serra da
-                    Mantiqueira.
-                </p>
-                <div class="brand-features">
+
+                <!-- Branding -->
+                <div class="brand-main">
+                    <h1>Conecta Bueno</h1>
+                    <p class="brand-tagline">Mapa Cultural de Bueno Brandão</p>
+                    <div class="brand-location">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 0C5.2 0 3 2.2 3 5c0 3.9 5 11 5 11s5-7.1 5-11c0-2.8-2.2-5-5-5zm0 7.5c-1.4 0-2.5-1.1-2.5-2.5S6.6 2.5 8 2.5s2.5 1.1 2.5 2.5S9.4 7.5 8 7.5z"/>
+                        </svg>
+                        Serra da Mantiqueira, Minas Gerais
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="features-list">
                     <div class="feature-item">
-                        <i class="fa-solid fa-landmark"></i>
-                        <span>Patrimônio histórico</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                        </svg>
+                        <span>Espaços Culturais e Históricos</span>
                     </div>
                     <div class="feature-item">
-                        <i class="fa-solid fa-tree"></i>
-                        <span>Natureza e ecoturismo</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 2C10 2 4 6 4 10C4 13 6 15 10 18C14 15 16 13 16 10C16 6 10 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M7 11L9 13L13 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Cachoeiras e Natureza</span>
                     </div>
                     <div class="feature-item">
-                        <i class="fa-solid fa-utensils"></i>
-                        <span>Gastronomia local</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M10 6V10L13 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Roteiros e Eventos</span>
                     </div>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="visual-footer">
+                    <p>Plataforma oficial de turismo cultural</p>
+                    <p class="small">© 2024 Prefeitura Municipal de Bueno Brandão</p>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Painel Direito: Formulários -->
-        <div class="form-panel">
-            <div class="form-box">
-
-                <!-- Cabeçalho com abas -->
-                <div class="tab-header">
-                    <button class="tab-btn active" id="tab-login" onclick="showTab('login')">Entrar</button>
-                    <button class="tab-btn" id="tab-register" onclick="showTab('register')">Cadastrar</button>
-                    <div class="tab-indicator" id="tab-indicator"></div>
-                </div>
-
-                <!-- Container dos formulários -->
-                <div class="forms-container">
-
-                    <!-- Formulário de Login -->
-                    <form id="form-login" class="auth-form active" novalidate>
-
-                        <div class="input-group">
-                            <label for="login-email">E-mail</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-envelope input-icon"></i>
-                                <input type="email" id="login-email" name="email" placeholder="seu@email.com"
-                                    autocomplete="email" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="login-senha">Senha</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="login-senha" name="senha" placeholder="Sua senha"
-                                    autocomplete="current-password" required>
-                                <button type="button" class="btn-toggle-senha"
-                                    onclick="toggleSenha('login-senha', this)" aria-label="Mostrar/ocultar senha">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-options">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="lembrar-me">
-                                <span class="checkmark"></span>
-                                Lembrar de mim
-                            </label>
-                            <a href="#" class="link-esqueci">Esqueci minha senha</a>
-                        </div>
-
-                        <div class="feedback-message" id="feedback-login"></div>
-
-                        <button type="submit" class="btn-primary" id="btn-login">
-                            <span class="btn-text">Entrar no Mapa</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-
-                        <div class="divider"><span>ou continue com</span></div>
-
-                        <div class="social-buttons">
-                            <button type="button" class="btn-social btn-google">
-                                <i class="fa-brands fa-google"></i>
-                                <span>Google</span>
-                            </button>
-                            <button type="button" class="btn-social btn-visitante">
-                                <i class="fa-solid fa-user-secret"></i>
-                                <span>Visitante</span>
-                            </button>
-                        </div>
-
-                        <p class="switch-text">
-                            Não tem uma conta?
-                            <a href="#" onclick="showTab('register'); return false;">Criar conta grátis</a>
-                        </p>
-
-                    </form>
-
-                    <!-- Formulário de Cadastro -->
-                    <form id="form-register" class="auth-form" novalidate>
-
-                        <div class="input-group">
-                            <label for="reg-nome">Nome completo</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-user input-icon"></i>
-                                <input type="text" id="reg-nome" name="nome" placeholder="Seu nome completo"
-                                    autocomplete="name" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="reg-email">E-mail</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-envelope input-icon"></i>
-                                <input type="email" id="reg-email" name="email" placeholder="seu@email.com"
-                                    autocomplete="email" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="reg-senha">Senha</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="reg-senha" name="senha" placeholder="Mínimo 8 caracteres"
-                                    autocomplete="new-password" required>
-                                <button type="button" class="btn-toggle-senha" onclick="toggleSenha('reg-senha', this)"
-                                    aria-label="Mostrar/ocultar senha">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                            <!-- Barra de força da senha -->
-                            <div class="senha-strength" id="senha-strength">
-                                <div class="strength-bar">
-                                    <div class="strength-fill" id="strength-fill"></div>
-                                </div>
-                                <span class="strength-label" id="strength-label"></span>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="reg-confirmar-senha">Confirmar senha</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" id="reg-confirmar-senha" name="confirmarSenha"
-                                    placeholder="Repita a senha" autocomplete="new-password" required>
-                                <button type="button" class="btn-toggle-senha"
-                                    onclick="toggleSenha('reg-confirmar-senha', this)"
-                                    aria-label="Mostrar/ocultar senha">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <label class="checkbox-label termos">
-                            <input type="checkbox" id="aceitar-termos" required>
-                            <span class="checkmark"></span>
-                            <span class="texto-termos">
-                                Li e aceito os <a href="#" class="link-termos" data-modal="termos">Termos de Uso</a> e a
-                                <a href="#" class="link-termos" data-modal="privacidade">Política de Privacidade</a>
-                            </span>
-                        </label>
-
-                        <span class="field-error" id="error-termos"></span>
-
-                        <div class="feedback-message" id="feedback-register"></div>
-
-                        <button type="submit" class="btn-primary" id="btn-register">
-                            <span class="btn-text">Criar minha conta</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-
-                        <p class="switch-text">
-                            Já tem uma conta?
-                            <a href="#" onclick="showTab('login'); return false;">Fazer login</a>
-                        </p>
-
-                    </form>
-
-                </div>
+        <!-- Painel Direito - Formulários -->
+        <main class="auth-forms">
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="tab-button active" data-tab="login">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 15C3 12.7909 4.79086 11 7 11H11C13.2091 11 15 12.7909 15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Entrar</span>
+                </button>
+                <button class="tab-button" data-tab="register">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Cadastrar</span>
+                </button>
             </div>
 
-            <!-- Rodapé -->
-            <p class="footer-text">
-                &copy; 2026 Conecta Bueno &mdash; Todos os direitos reservados
-            </p>
-        </div>
+            <!-- Formulário de Login -->
+            <form id="formLogin" class="auth-form active">
+                <div class="form-header">
+                    <h2>Bem-vindo de volta</h2>
+                    <p>Entre com suas credenciais para continuar</p>
+                </div>
 
+                <div class="form-group">
+                    <label for="loginEmail">E-mail</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 6L10 11L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <input 
+                            type="email" 
+                            id="loginEmail" 
+                            class="form-input" 
+                            placeholder="seu@email.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="5" y="9" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            class="form-input" 
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 7C8.34315 7 7 8.34315 7 10C7 11.6569 8.34315 13 10 13C11.6569 13 13 11.6569 13 10C13 8.34315 11.6569 7 10 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M2 10C2 10 5 4 10 4C15 4 18 10 18 10C18 10 15 16 10 16C5 16 2 10 2 10Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe" style="display: none;">
+                        <span class="checkmark"></span>
+                        <span>Lembrar de mim</span>
+                    </label>
+                    <a href="#" class="link-secondary" onclick="showForgotPassword(); return false;">
+                        Esqueceu a senha?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Entrar
+                </button>
+
+                <div class="divider">
+                    <span>ou continue com</span>
+                </div>
+
+                <button type="button" class="btn btn-google" onclick="loginWithGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/>
+                        <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.7-5.6-4.1H1v2.6C2.7 17.9 6.2 20 10 20z"/>
+                        <path fill="#FBBC05" d="M4.4 11.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V5.5H1C.4 6.8 0 8.4 0 10s.4 3.2 1 4.5l2.6-2 .8-.6z"/>
+                        <path fill="#EA4335" d="M10 3.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9C15 1 12.7 0 10 0 6.2 0 2.7 2.1 1 5.5l3.4 2.6C5.2 5.6 7.4 3.9 10 3.9z"/>
+                    </svg>
+                    <span>Google</span>
+                </button>
+            </form>
+
+            <!-- Formulário de Cadastro -->
+            <form id="formRegister" class="auth-form">
+                <div class="form-header">
+                    <h2>Criar nova conta</h2>
+                    <p>Junte-se à comunidade do Conecta Bueno</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerName">Nome completo</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M4 15C4 12.7909 5.79086 11 8 11H12C14.2091 11 16 12.7909 16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="registerName" 
+                            class="form-input" 
+                            placeholder="Seu nome completo"
+                            autocomplete="name"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">E-mail</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 6L10 11L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <input 
+                            type="email" 
+                            id="registerEmail" 
+                            class="form-input" 
+                            placeholder="seu@email.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Senha</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="5" y="9" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <input 
+                            type="password" 
+                            id="registerPassword" 
+                            class="form-input" 
+                            placeholder="Mínimo 6 caracteres"
+                            autocomplete="new-password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('registerPassword')">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 7C8.34315 7 7 8.34315 7 10C7 11.6569 8.34315 13 10 13C11.6569 13 13 11.6569 13 10C13 8.34315 11.6569 7 10 7Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M2 10C2 10 5 4 10 4C15 4 18 10 18 10C18 10 15 16 10 16C5 16 2 10 2 10Z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <small class="input-hint">A senha deve ter no mínimo 6 caracteres</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">Confirmar senha</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7 9L9 11L13 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <rect x="5" y="9" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <input 
+                            type="password" 
+                            id="registerPasswordConfirm" 
+                            class="form-input" 
+                            placeholder="Digite a senha novamente"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <label class="checkbox-label checkbox-terms">
+                    <input type="checkbox" id="acceptTerms" required style="display: none;">
+                    <span class="checkmark"></span>
+                    <span>Li e aceito os <a href="#" onclick="showTerms(); return false;" class="link-primary">Termos de Uso</a> e a <a href="#" onclick="showPrivacy(); return false;" class="link-primary">Política de Privacidade</a></span>
+                </label>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Criar Conta
+                </button>
+
+                <div class="divider">
+                    <span>ou continue com</span>
+                </div>
+
+                <button type="button" class="btn btn-google" onclick="loginWithGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/>
+                        <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.7-5.6-4.1H1v2.6C2.7 17.9 6.2 20 10 20z"/>
+                        <path fill="#FBBC05" d="M4.4 11.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V5.5H1C.4 6.8 0 8.4 0 10s.4 3.2 1 4.5l2.6-2 .8-.6z"/>
+                        <path fill="#EA4335" d="M10 3.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9C15 1 12.7 0 10 0 6.2 0 2.7 2.1 1 5.5l3.4 2.6C5.2 5.6 7.4 3.9 10 3.9z"/>
+                    </svg>
+                    <span>Google</span>
+                </button>
+            </form>
+
+            <!-- Formulário de Recuperação de Senha -->
+            <div id="forgotPasswordForm" class="auth-form">
+                <button class="btn-back" onclick="hideForgotPassword()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Voltar</span>
+                </button>
+                
+                <div class="form-header">
+                    <h2>Recuperar senha</h2>
+                    <p>Digite seu e-mail e enviaremos um link para redefinir sua senha</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="forgotEmail">E-mail</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 6L10 11L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <input 
+                            type="email" 
+                            id="forgotEmail" 
+                            class="form-input" 
+                            placeholder="seu@email.com"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-block" onclick="sendPasswordReset()">
+                    Enviar Link de Recuperação
+                </button>
+            </div>
+        </main>
     </div>
 
-    <!-- Modais para Termos e Política -->
-    <div class="modal-overlay" id="modal-overlay"></div>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Modal Termos de Uso -->
-    <div class="modal-box" id="modal-termos">
-        <div class="modal-header">
-            <h2>📜 Termos de Uso</h2>
-            <button class="modal-close" onclick="fecharModal('termos')">&times;</button>
-        </div>
-        <div class="modal-content" id="content-termos">
-            <p style="text-align: center; padding: 40px; color: #6b7c75;">Carregando...</p>
+    <!-- Modal de Termos -->
+    <div id="modalTerms" class="modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3>Termos de Uso - Conecta Bueno</h3>
+                <button class="btn-close-modal" onclick="closeTerms()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="terms-content">
+                    <h4>1. Aceitação dos Termos</h4>
+                    <p>Ao acessar e usar o Conecta Bueno, você concorda com estes termos de uso.</p>
+                    
+                    <h4>2. Uso da Plataforma</h4>
+                    <p>O Conecta Bueno é uma plataforma oficial da Prefeitura Municipal de Bueno Brandão para divulgação de espaços culturais, turísticos e eventos da cidade.</p>
+                    
+                    <h4>3. Cadastro e Conta</h4>
+                    <p>Para acessar recursos completos, você pode criar uma conta fornecendo informações verdadeiras e atualizadas. Você é responsável por manter a confidencialidade de sua senha.</p>
+                    
+                    <h4>4. Propriedade Intelectual</h4>
+                    <p>Todo o conteúdo da plataforma, incluindo textos, imagens e marcas, são de propriedade da Prefeitura de Bueno Brandão ou licenciados para uso.</p>
+                    
+                    <h4>5. Conduta do Usuário</h4>
+                    <p>Você concorda em não usar a plataforma para fins ilegais ou não autorizados.</p>
+                    
+                    <h4>6. Modificações</h4>
+                    <p>Reservamo-nos o direito de modificar estes termos a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação.</p>
+                    
+                    <h4>7. Contato</h4>
+                    <p>Para dúvidas sobre estes termos, entre em contato com a Secretaria de Cultura de Bueno Brandão.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeTerms()">Fechar</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Política de Privacidade -->
-    <div class="modal-box" id="modal-privacidade">
-        <div class="modal-header">
-            <h2>🔒 Política de Privacidade</h2>
-            <button class="modal-close" onclick="fecharModal('privacidade')">&times;</button>
-        </div>
-        <div class="modal-content" id="content-privacidade">
-            <p style="text-align: center; padding: 40px; color: #6b7c75;">Carregando...</p>
+    <!-- Modal de Privacidade -->
+    <div id="modalPrivacy" class="modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3>Política de Privacidade - Conecta Bueno</h3>
+                <button class="btn-close-modal" onclick="closePrivacy()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="terms-content">
+                    <h4>1. Informações Coletadas</h4>
+                    <p>Coletamos informações fornecidas voluntariamente, como nome e e-mail ao criar uma conta.</p>
+                    
+                    <h4>2. Uso das Informações</h4>
+                    <p>As informações são usadas para:</p>
+                    <ul>
+                        <li>Fornecer e melhorar nossos serviços</li>
+                        <li>Personalizar sua experiência</li>
+                        <li>Enviar comunicações sobre eventos e novidades</li>
+                    </ul>
+                    
+                    <h4>3. Compartilhamento de Dados</h4>
+                    <p>Não vendemos ou compartilhamos suas informações pessoais com terceiros, exceto quando exigido por lei.</p>
+                    
+                    <h4>4. Segurança</h4>
+                    <p>Implementamos medidas de segurança para proteger suas informações, incluindo criptografia e acesso restrito.</p>
+                    
+                    <h4>5. Cookies</h4>
+                    <p>Utilizamos cookies para melhorar a funcionalidade e experiência do usuário.</p>
+                    
+                    <h4>6. Seus Direitos</h4>
+                    <p>Você tem direito de acessar, corrigir ou excluir seus dados pessoais. Entre em contato conosco para exercer esses direitos.</p>
+                    
+                    <h4>7. Alterações</h4>
+                    <p>Esta política pode ser atualizada periodicamente. Recomendamos revisar regularmente.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePrivacy()">Fechar</button>
+            </div>
         </div>
     </div>
 
@@ -244,12 +412,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-    <!-- Configuração e módulos customizados -->
+    
+    <!-- Configuração e Autenticação -->
     <script src="../js/firebase-config.js"></script>
     <script src="../js/firebase-auth.js"></script>
-    <script src="../js/modal-legal.js"></script>
     <script src="../js/auth.js"></script>
 </body>
-
 </html>

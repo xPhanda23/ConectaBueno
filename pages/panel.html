@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2d5a3d">
+    <title>Painel Admin - Conecta Bueno</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/panel.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Carregando painel...</p>
+    </div>
+
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="14" fill="#2d5a3d"/>
+                        <path d="M16 8L12 18H20L16 8Z" fill="white"/>
+                        <circle cx="16" cy="20" r="2" fill="white"/>
+                    </svg>
+                    <div>
+                        <h1>Conecta Bueno</h1>
+                        <span>Painel Admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
+                
+                <button class="nav-item" data-section="lugares">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2C7.2 2 5 4.2 5 7c0 3.9 5 11 5 11s5-7.1 5-11c0-2.8-2.2-5-5-5zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="currentColor"/>
+                    </svg>
+                    <span>Lugares</span>
+                </button>
+                
+                <button class="nav-item" data-section="usuarios">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4 17C4 13.7 6.7 11 10 11C13.3 11 16 13.7 16 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Usuários</span>
+                </button>
+                
+                <button class="nav-item" data-section="categorias">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="3" y="12" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="12" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="12" y="12" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Categorias</span>
+                </button>
+
+                <button class="nav-item" data-section="configuracoes">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 2V4M10 16V18M18 10H16M4 10H2M15.5 4.5L14 6M6 14L4.5 15.5M15.5 15.5L14 14M6 6L4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Configurações</span>
+                </button>
+                
+                <button class="nav-item" data-section="logs">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="4" y="3" width="12" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 7H13M7 10H13M7 13H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Logs</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="btn-back-map">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M7 4L2 9L7 14M2 9H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Ver Mapa</span>
+                </a>
+                <button class="btn-logout" id="btnLogout">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M7 16H4C3.4 16 3 15.6 3 15V3C3 2.4 3.4 2 4 2H7M11 13L15 9L11 5M15 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="btn-menu-toggle" id="btnMenuToggle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <h2 id="pageTitle">Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <div class="user-badge">
+                        <div class="user-avatar-small" id="userAvatarSmall">?</div>
+                        <div class="user-info-small">
+                            <strong id="userNameHeader">Admin</strong>
+                            <span id="userRoleHeader">Administrador</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="sectionDashboard" class="section-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C8.7 2 6 4.7 6 8c0 5.2 6 14 6 14s6-8.8 6-14c0-3.3-2.7-6-6-6zm0 8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statLugares">0</h3>
+                            <p>Lugares</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                                <path d="M6 20C6 16.7 8.7 14 12 14C15.3 14 18 16.7 18 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statUsuarios">0</h3>
+                            <p>Usuários</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="13" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="4" y="13" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="13" y="13" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statCategorias">0</h3>
+                            <p>Categorias</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L15.5 8.5L22 9.5L17 14.5L18 21L12 18L6 21L7 14.5L2 9.5L8.5 8.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statAtivos">0</h3>
+                            <p>Lugares Ativos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-cards">
+                    <div class="welcome-card">
+                        <h3>Bem-vindo ao Painel Administrativo</h3>
+                        <p>Gerencie os lugares turísticos, usuários e configurações do Conecta Bueno - Bueno Brandão, MG</p>
+                        <div class="quick-actions">
+                            <button class="btn btn-primary" onclick="showSection('lugares')">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <path d="M9 2L5 8H13L9 2Z" fill="currentColor"/>
+                                    <circle cx="9" cy="10" r="2" fill="currentColor"/>
+                                </svg>
+                                Gerenciar Lugares
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('configuracoes')">
+                                Configurações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Lugares Section -->
+            <section id="sectionLugares" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Gerenciar Lugares</h3>
+                        <p>Adicione, edite ou remova lugares turísticos</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddLugar">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Novo Lugar
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Endereço</th>
+                                <th>Status</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableLugares">
+                            <tr class="loading-row">
+                                <td colspan="5">
+                                    <div class="loading-spinner-small"></div>
+                                    <span>Carregando lugares...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Usuários Section -->
+            <section id="sectionUsuarios" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Gerenciar Usuários</h3>
+                        <p>Gerencie permissões e acesso dos usuários</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddUsuario">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Novo Usuário
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Função</th>
+                                <th>Status</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableUsuarios">
+                            <tr class="loading-row">
+                                <td colspan="5">
+                                    <div class="loading-spinner-small"></div>
+                                    <span>Carregando usuários...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categorias Section -->
+            <section id="sectionCategorias" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Gerenciar Categorias</h3>
+                        <p>Organize os lugares por categorias</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddCategoria">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Nova Categoria
+                    </button>
+                </div>
+
+                <div class="categories-grid" id="categoriesGrid">
+                    <div class="loading-state">
+                        <div class="loading-spinner-small"></div>
+                        <span>Carregando categorias...</span>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Configurações Section -->
+            <section id="sectionConfiguracoes" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Configurações do Sistema</h3>
+                        <p>Configure parâmetros gerais da plataforma</p>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <div class="setting-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 7H17M7 12H17M7 17H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <div>
+                                <h4>Informações do Site</h4>
+                                <p>Nome, descrição e contatos</p>
+                            </div>
+                        </div>
+                        <div class="setting-body">
+                            <div class="form-group">
+                                <label>Nome do Site</label>
+                                <input type="text" id="settingSiteName" class="form-control" value="Conecta Bueno">
+                            </div>
+                            <div class="form-group">
+                                <label>Descrição</label>
+                                <textarea id="settingSiteDesc" class="form-control" rows="3">Mapa cultural de Bueno Brandão, MG</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Email de Contato</label>
+                                <input type="email" id="settingSiteEmail" class="form-control" value="contato@conectabueno.com.br">
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="saveSiteInfo()">Salvar</button>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="setting-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C8.7 2 6 4.7 6 8c0 5.2 6 14 6 14s6-8.8 6-14c0-3.3-2.7-6-6-6z" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="12" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <div>
+                                <h4>Configurações do Mapa</h4>
+                                <p>Centro, zoom e limites</p>
+                            </div>
+                        </div>
+                        <div class="setting-body">
+                            <div class="form-group">
+                                <label>Centro do Mapa (Latitude)</label>
+                                <input type="number" step="0.0001" id="settingMapLat" class="form-control" value="-22.4408">
+                            </div>
+                            <div class="form-group">
+                                <label>Centro do Mapa (Longitude)</label>
+                                <input type="number" step="0.0001" id="settingMapLng" class="form-control" value="-46.3511">
+                            </div>
+                            <div class="form-group">
+                                <label>Zoom Inicial</label>
+                                <input type="number" min="1" max="18" id="settingMapZoom" class="form-control" value="14">
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="saveMapSettings()">Salvar</button>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="setting-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M17 3H21V7M7 21H3V17M21 17V21H17M3 7V3H7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <div>
+                                <h4>Moderação de Conteúdo</h4>
+                                <p>Aprovação automática de lugares</p>
+                            </div>
+                        </div>
+                        <div class="setting-body">
+                            <div class="form-group">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="settingAutoApprove" checked>
+                                    <span class="toggle-switch"></span>
+                                    <span>Aprovar lugares automaticamente</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="settingRequireReview">
+                                    <span class="toggle-switch"></span>
+                                    <span>Exigir revisão de edições</span>
+                                </label>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="saveModerationSettings()">Salvar</button>
+                        </div>
+                    </div>
+
+                    <div class="setting-card">
+                        <div class="setting-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <div>
+                                <h4>Backup Automático</h4>
+                                <p>Backup regular dos dados</p>
+                            </div>
+                        </div>
+                        <div class="setting-body">
+                            <div class="form-group">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="settingAutoBackup" checked>
+                                    <span class="toggle-switch"></span>
+                                    <span>Backup automático ativado</span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Frequência</label>
+                                <select id="settingBackupFreq" class="form-control">
+                                    <option value="daily" selected>Diário</option>
+                                    <option value="weekly">Semanal</option>
+                                    <option value="monthly">Mensal</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="saveBackupSettings()">Salvar</button>
+                            <button class="btn btn-secondary btn-sm" onclick="backupNow()">Backup Agora</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Logs Section -->
+            <section id="sectionLogs" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Logs de Atividade</h3>
+                        <p>Acompanhe as ações realizadas no sistema</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearLogs()">Limpar Logs</button>
+                </div>
+
+                <div class="logs-container">
+                    <div class="logs-filters">
+                        <select id="filterLogType" class="form-control" onchange="filterLogs()">
+                            <option value="all">Todos os tipos</option>
+                            <option value="create">Criação</option>
+                            <option value="update">Edição</option>
+                            <option value="delete">Exclusão</option>
+                            <option value="login">Login</option>
+                        </select>
+                        <input type="date" id="filterLogDate" class="form-control" onchange="filterLogs()">
+                    </div>
+                    <div class="logs-list" id="logsList">
+                        <div class="loading-state">
+                            <div class="loading-spinner-small"></div>
+                            <span>Carregando logs...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Lugar -->
+    <div id="modalLugar" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalLugarTitle">Novo Lugar</h3>
+                <button class="btn-close" onclick="closeModal('modalLugar')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formLugar">
+                    <input type="hidden" id="lugarId">
+                    
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label>Nome do Lugar *</label>
+                            <input type="text" id="lugarNome" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria *</label>
+                            <select id="lugarCategoria" class="form-control" required>
+                                <option value="">Selecione...</option>
+                                <option value="Cachoeira">🌊 Cachoeira</option>
+                                <option value="Montanha">⛰️ Montanha</option>
+                                <option value="Trilha">🥾 Trilha</option>
+                                <option value="Mirante">👁️ Mirante</option>
+                                <option value="Parque">🌳 Parque</option>
+                                <option value="Cultura">🎭 Cultura</option>
+                                <option value="Gastronomia">🍴 Gastronomia</option>
+                                <option value="Hotel">🏨 Hotel/Pousada</option>
+                                <option value="Comercio">🛍️ Comércio</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status *</label>
+                            <select id="lugarStatus" class="form-control" required>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="lugarDescricao" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="lugarEndereco" class="form-control">
+                    </div>
+
+                    <!-- Novos campos expandidos -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>📞 Telefone/WhatsApp</label>
+                            <input type="tel" id="lugarTelefone" class="form-control" placeholder="(35) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>🌐 Site/Instagram</label>
+                            <input type="url" id="lugarWebsite" class="form-control" placeholder="https://instagram.com/...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>🕐 Horário de Funcionamento</label>
+                            <input type="text" id="lugarHorario" class="form-control" placeholder="Segunda a Sexta, 8h às 18h">
+                        </div>
+                        <div class="form-group">
+                            <label>💰 Entrada</label>
+                            <select id="lugarEntrada" class="form-control">
+                                <option value="gratuita">Gratuita</option>
+                                <option value="paga">Paga</option>
+                                <option value="nao_informado">Não informado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔗 Link do Google Maps/Google Reviews</label>
+                        <input type="url" id="lugarGoogleLink" class="form-control" placeholder="https://maps.google.com/...">
+                        <p class="help-text">Cole o link do Google Maps para integrar avaliações e direções</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📸 URL da Foto Principal</label>
+                        <input type="url" id="lugarFoto" class="form-control" placeholder="https://...">
+                        <p class="help-text">Cole a URL de uma imagem hospedada (Imgur, Google Drive público, etc)</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🖼️ Galeria de Fotos (URLs separadas por vírgula)</label>
+                        <textarea id="lugarGaleria" class="form-control" rows="2" placeholder="https://foto1.jpg, https://foto2.jpg, https://foto3.jpg"></textarea>
+                        <p class="help-text">Adicione até 5 fotos. Separe as URLs por vírgula</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🏷️ Tags/Características (separadas por vírgula)</label>
+                        <input type="text" id="lugarTags" class="form-control" placeholder="Família, Aventura, Natureza, Banho, Trilha leve">
+                        <p class="help-text">Adicione características do local</p>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Latitude * (Exemplo: -22.4408)</label>
+                            <input type="number" step="0.000001" id="lugarLat" class="form-control" required placeholder="-22.4408">
+                            <p class="help-text">Coordenada vertical (Norte-Sul)</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Longitude * (Exemplo: -46.3511)</label>
+                            <input type="number" step="0.000001" id="lugarLng" class="form-control" required placeholder="-46.3511">
+                            <p class="help-text">Coordenada horizontal (Leste-Oeste)</p>
+                        </div>
+                    </div>
+
+                    <div class="map-picker">
+                        <label>📍 Selecionar no Mapa (Recomendado)</label>
+                        <div class="coordinates-display" id="coordinatesDisplay">
+                            <div class="coord-item">
+                                <strong>Lat:</strong>
+                                <span id="displayLat">-22.4408</span>
+                            </div>
+                            <div class="coord-item">
+                                <strong>Lng:</strong>
+                                <span id="displayLng">-46.3511</span>
+                            </div>
+                        </div>
+                        <div id="mapPicker" style="height: 300px; border-radius: 8px; overflow: hidden;"></div>
+                        <p class="help-text">
+                            <strong>💡 Dica:</strong> Clique no mapa para selecionar a localização exata. 
+                            Ou digite as coordenadas nos campos acima.
+                        </p>
+                        <p class="help-text">
+                            <strong>📌 Bueno Brandão:</strong> Latitude entre -22.39 e -22.49 | Longitude entre -46.30 e -46.40
+                        </p>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modalLugar')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal: Adicionar/Editar Usuário -->
+    <div id="modalUsuario" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalUsuarioTitle">Novo Usuário</h3>
+                <button class="btn-close" onclick="closeModal('modalUsuario')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formUsuario">
+                    <input type="hidden" id="usuarioId">
+                    
+                    <div class="form-group">
+                        <label>Nome Completo *</label>
+                        <input type="text" id="usuarioNome" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="usuarioEmail" class="form-control" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Função *</label>
+                            <select id="usuarioRole" class="form-control" required>
+                                <option value="usuario">Usuário</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status *</label>
+                            <select id="usuarioStatus" class="form-control" required>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="usuarioIsAdmin">
+                            <span>Acesso ao painel administrativo</span>
+                        </label>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modalUsuario')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Categoria -->
+    <div id="modalCategoria" class="modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h3 id="modalCategoriaTitle">Nova Categoria</h3>
+                <button class="btn-close" onclick="closeModal('modalCategoria')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formCategoria">
+                    <input type="hidden" id="categoriaId">
+                    
+                    <div class="form-group">
+                        <label>Nome da Categoria *</label>
+                        <input type="text" id="categoriaNome" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cor</label>
+                        <input type="color" id="categoriaCor" class="form-control" value="#2d5a3d">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modalCategoria')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Confirmação -->
+    <div id="modalConfirm" class="modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h3>Confirmar Ação</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modalConfirm')">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmAction">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Config Firebase -->
+    <script src="../js/firebase-config.js"></script>
+
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Panel Script -->
+    <script src="../js/panel.js"></script>
+</body>
+</html>

@@ -6,6 +6,7 @@ js/firebase-config.js
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # Editor
 .vscode/
@@ -13,17 +14,66 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # Node (caso adicione depois)
 node_modules/
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
+.pnp.*
 
 # Env
 .env
 .env.local
+.env.development
+.env.test
 .env.production
+.env.*.local
+
+# Build
+dist/
+build/
+*.min.js
+*.min.css
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebaserc
+
+# Backup e temp
+*.bak
+*.tmp
+*.temp
+backup/
+temp/
+
+# Testes
+coverage/
+.nyc_output/
+
+# AI Keys (caso adicione)
+.openai
+.anthropic
+ai-keys.json
