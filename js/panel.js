@@ -86,8 +86,19 @@ function displayUserInfo() {
     const iniciais = getInitials(currentUser.nome);
     const nome = currentUser.nome || 'Admin';
     const role = currentUser.isAdmin ? 'Administrador' : 'Usuário';
+    const photoURL = currentUser.photoURL;
     
-    document.getElementById('userAvatarSmall').textContent = iniciais;
+    // Atualizar avatar no header
+    const avatarSmall = document.getElementById('userAvatarSmall');
+    
+    if (photoURL && photoURL.startsWith('data:image')) {
+        // Tem foto - criar elemento img
+        avatarSmall.innerHTML = `<img src="${photoURL}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    } else {
+        // Sem foto - usar iniciais
+        avatarSmall.textContent = iniciais;
+    }
+    
     document.getElementById('userNameHeader').textContent = nome;
     document.getElementById('userRoleHeader').textContent = role;
 }

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2d5a3d">
+    <title>Configurações - Conecta Bueno</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/settings.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Carregando configurações...</p>
+    </div>
+
+    <!-- Layout Principal -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <circle cx="16" cy="16" r="14" fill="#2d5a3d"/>
+                        <path d="M16 8L12 18H20L16 8Z" fill="white"/>
+                        <circle cx="16" cy="20" r="2" fill="white"/>
+                    </svg>
+                    <div>
+                        <h1>Conecta Bueno</h1>
+                        <span>Configurações</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="conta">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4 17C4 13.7 6.7 11 10 11C13.3 11 16 13.7 16 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Conta</span>
+                </button>
+
+                <button class="nav-item" data-section="seguranca">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2L3 5V9C3 13.5 6 17.5 10 18C14 17.5 17 13.5 17 9V5L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                        <path d="M8 10L9.5 11.5L12 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Segurança</span>
+                </button>
+
+                <button class="nav-item" data-section="notificacoes">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M8 16C8 17.1 8.9 18 10 18C11.1 18 12 17.1 12 16M15 6C15 4.67392 14.4732 3.40215 13.5355 2.46447C12.5979 1.52678 11.3261 1 10 1C8.67392 1 7.40215 1.52678 6.46447 2.46447C5.52678 3.40215 5 4.67392 5 6C5 11 3 13 3 13H17C17 13 15 11 15 6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Notificações</span>
+                </button>
+
+                <button class="nav-item" data-section="aparencia">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 3V10M10 3C6.13 3 3 6.13 3 10C3 13.87 6.13 17 10 17C13.87 17 17 13.87 17 10C17 6.13 13.87 3 10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Aparência</span>
+                </button>
+
+                <button class="nav-item" data-section="privacidade">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="4" y="8" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 8V6C7 4.34 8.34 3 10 3C11.66 3 13 4.34 13 6V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="10" cy="12.5" r="1.5" fill="currentColor"/>
+                    </svg>
+                    <span>Privacidade</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="btn-back-map">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M7 4L2 9L7 14M2 9H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Voltar ao Mapa</span>
+                </a>
+            </div>
+        </aside>
+
+
+        <!-- Content Area -->
+        <main class="admin-content">
+            <!-- Conta Section -->
+            <section class="section-content active" id="section-conta">
+                <div class="content-header">
+                    <h2>Informações da Conta</h2>
+                    <p>Gerencie seus dados pessoais e foto de perfil</p>
+                </div>
+
+                <div class="settings-card">
+                    <div class="card-section">
+                        <h3>Foto de Perfil</h3>
+                        <div class="profile-photo-section">
+                            <div class="current-photo" id="currentPhoto">
+                                <span id="photoInitials">JR</span>
+                                <img id="photoPreview" style="display: none;">
+                            </div>
+                            <div class="photo-actions">
+                                <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                                <button class="btn-primary" id="btnUploadPhoto">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <path d="M9 12V4M9 4L6 7M9 4L12 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3 13V14C3 15.1 3.9 16 5 16H13C14.1 16 15 15.1 15 14V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                    Enviar Foto
+                                </button>
+                                <button class="btn-secondary" id="btnRemovePhoto">Remover</button>
+                                <small class="form-hint" style="margin-top: 8px;">A imagem será redimensionada para 400x400px</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="card-section">
+                        <h3>Informações Pessoais</h3>
+                        <form id="formConta" class="settings-form">
+                            <div class="form-group">
+                                <label for="inputNome">Nome Completo</label>
+                                <input type="text" id="inputNome" class="form-input" placeholder="Seu nome completo" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputEmail">E-mail</label>
+                                <input type="email" id="inputEmail" class="form-input" placeholder="seu@email.com" required>
+                                <small class="form-hint">Este é o e-mail usado para login</small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <path d="M15 5L7 13L3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Salvar Alterações
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Segurança Section -->
+            <section class="section-content" id="section-seguranca">
+                <div class="content-header">
+                    <h2>Segurança</h2>
+                    <p>Proteja sua conta com uma senha forte</p>
+                </div>
+
+                <div class="settings-card">
+                    <div class="card-section">
+                        <h3>Alterar Senha</h3>
+                        <form id="formSenha" class="settings-form">
+                            <div class="form-group">
+                                <label for="inputSenhaAtual">Senha Atual</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="inputSenhaAtual" class="form-input" placeholder="Digite sua senha atual" required>
+                                    <button type="button" class="btn-toggle-password" data-target="inputSenhaAtual">
+                                        <svg class="icon-show" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                            <path d="M1 9C1 9 4 3 9 3C14 3 17 9 17 9C17 9 14 15 9 15C4 15 1 9 1 9Z" stroke="currentColor" stroke-width="1.5"/>
+                                            <circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputNovaSenha">Nova Senha</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="inputNovaSenha" class="form-input" placeholder="Digite a nova senha" required minlength="6">
+                                    <button type="button" class="btn-toggle-password" data-target="inputNovaSenha">
+                                        <svg class="icon-show" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                            <path d="M1 9C1 9 4 3 9 3C14 3 17 9 17 9C17 9 14 15 9 15C4 15 1 9 1 9Z" stroke="currentColor" stroke-width="1.5"/>
+                                            <circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <small class="form-hint">Mínimo de 6 caracteres</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputConfirmarSenha">Confirmar Nova Senha</label>
+                                <div class="input-with-icon">
+                                    <input type="password" id="inputConfirmarSenha" class="form-input" placeholder="Confirme a nova senha" required minlength="6">
+                                    <button type="button" class="btn-toggle-password" data-target="inputConfirmarSenha">
+                                        <svg class="icon-show" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                            <path d="M1 9C1 9 4 3 9 3C14 3 17 9 17 9C17 9 14 15 9 15C4 15 1 9 1 9Z" stroke="currentColor" stroke-width="1.5"/>
+                                            <circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <path d="M15 5L7 13L3 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Atualizar Senha
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Notificações Section -->
+            <section class="section-content" id="section-notificacoes">
+                <div class="content-header">
+                    <h2>Notificações</h2>
+                    <p>Controle como você recebe atualizações</p>
+                </div>
+
+                <div class="settings-card">
+                    <div class="card-section">
+                        <h3>Alertas do Sistema</h3>
+                        
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <h4>Novos Lugares Turísticos</h4>
+                                <p>Receba notificações quando novos lugares forem adicionados</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleNovosLugares" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <h4>Eventos Especiais</h4>
+                                <p>Seja notificado sobre eventos e festividades em Bueno Brandão</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleEventos" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <h4>Atualizações de Horários</h4>
+                                <p>Notificações sobre mudanças de horários em estabelecimentos</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleHorarios">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <div class="divider"></div>
+
+                    <div class="card-section">
+                        <h3>Notificações por E-mail</h3>
+                        
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <h4>Boletim Semanal</h4>
+                                <p>Receba um resumo semanal das novidades do Conecta Bueno</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleBoletim">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-item">
+                            <div class="toggle-info">
+                                <h4>Dicas de Turismo</h4>
+                                <p>Receba dicas e sugestões de lugares para visitar</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleDicas" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aparência Section -->
+            <section class="section-content" id="section-aparencia">
+                <div class="content-header">
+                    <h2>Aparência</h2>
+                    <p>Personalize a interface do sistema</p>
+                </div>
+
+                <div class="settings-card">
+                    <div class="card-section">
+                        <h3>Tema</h3>
+                        
+                        <div class="theme-options">
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="light" checked>
+                                <div class="theme-card">
+                                    <div class="theme-preview light-theme">
+                                        <div class="preview-header"></div>
+                                        <div class="preview-content"></div>
+                                    </div>
+                                    <div class="theme-info">
+                                        <h4>Tema Claro</h4>
+                                        <p>Interface clara e luminosa</p>
+                                    </div>
+                                </div>
+                            </label>
+
+
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="dark">
+                                <div class="theme-card">
+                                    <div class="theme-preview dark-theme">
+                                        <div class="preview-header"></div>
+                                        <div class="preview-content"></div>
+                                    </div>
+                                    <div class="theme-info">
+                                        <h4>Tema Escuro</h4>
+                                        <p>Interface escura para ambientes com pouca luz</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="nature">
+                                <div class="theme-card">
+                                    <div class="theme-preview nature-theme">
+                                        <div class="preview-header"></div>
+                                        <div class="preview-content"></div>
+                                    </div>
+                                    <div class="theme-info">
+                                        <h4>Tema Natureza</h4>
+                                        <p>Tons orgânicos inspirados na Serra da Mantiqueira</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Privacidade Section -->
+            <section class="section-content" id="section-privacidade">
+                <div class="content-header">
+                    <h2>Privacidade & Dados</h2>
+                    <p>Gerencie seus dados conforme a LGPD</p>
+                </div>
+
+                <div class="settings-card">
+                    <div class="card-section">
+                        <h3>Seus Dados</h3>
+                        <p class="section-description">
+                            De acordo com a Lei Geral de Proteção de Dados (LGPD), você tem direito ao acesso, 
+                            correção e exclusão dos seus dados pessoais.
+                        </p>
+
+
+                        <div class="data-actions">
+                            <button class="btn-data-export" id="btnExportarDados">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 3V11M10 11L7 8M10 11L13 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M3 13V15C3 16.1 3.9 17 5 17H15C16.1 17 17 16.1 17 15V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <div>
+                                    <h4>Exportar Dados</h4>
+                                    <p>Baixe uma cópia de todos os seus dados em formato JSON</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="card-section danger-zone">
+                        <h3>Zona de Perigo</h3>
+                        <p class="section-description">
+                            Ações irreversíveis que afetarão permanentemente sua conta.
+                        </p>
+
+                        <div class="danger-actions">
+                            <button class="btn-danger" id="btnExcluirConta">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M3 5H17M8 9V15M12 9V15M5 5L6 17C6 17.5 6.5 18 7 18H13C13.5 18 14 17.5 14 17L15 5M7 5V3C7 2.5 7.5 2 8 2H12C12.5 2 13 2.5 13 3V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <div>
+                                    <h4>Excluir Conta</h4>
+                                    <p>Remova permanentemente sua conta e todos os dados associados</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lgpd-info">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div>
+                        <h4>Seus direitos garantidos pela LGPD</h4>
+                        <ul>
+                            <li>Acesso aos seus dados pessoais</li>
+                            <li>Correção de dados incompletos ou desatualizados</li>
+                            <li>Eliminação dos dados mediante solicitação</li>
+                            <li>Portabilidade dos dados a outro fornecedor</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal de Confirmação -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirmar Ação</h3>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Tem certeza que deseja realizar esta ação?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btnCancelar">Cancelar</button>
+                <button class="btn-danger" id="btnConfirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/settings.js"></script>
+</body>
+</html>

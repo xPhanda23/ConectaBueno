@@ -90,14 +90,18 @@ function initAuth() {
         }
     }, 100);
 
-    // Timeout de segurança
+    // Timeout de segurança aumentado
     setTimeout(() => {
-        clearInterval(checkAuth);
-        if (!currentUser) {
-            console.error('⏱️ Timeout na autenticação');
-            redirectToLogin();
+        if (window.db && window.auth) {
+            // Firebase carregou, apenas não terminou a verificação ainda
+            console.log('⏱️ Aguardando verificação de autenticação...');
+        } else {
+            // Firebase realmente não carregou
+            clearInterval(checkAuth);
+            console.error('⏱️ Timeout na inicialização do Firebase');
+            showToast('Erro ao conectar. Recarregue a página.', 'error');
         }
-    }, 5000);
+    }, 10000); // Aumentado para 10 segundos
 }
 
 function redirectToLogin() {
@@ -148,10 +152,58 @@ function displayUserProfile() {
     const nome = currentUser.nome || 'Usuário';
     const email = currentUser.email;
     const iniciais = getInitials(nome);
+    const photoURL = currentUser.photoURL;
 
-    // Atualizar avatar
-    document.getElementById('userInitials').textContent = iniciais;
-    document.getElementById('userInitialsLarge').textContent = iniciais;
+    // Atualizar avatar pequeno (header)
+    const userAvatar = document.getElementById('btnUserMenu');
+    const userInitials = document.getElementById('userInitials');
+    
+    if (photoURL && photoURL.startsWith('data:image')) {
+        // Tem foto - criar elemento img
+        userInitials.style.display = 'none';
+        let img = userAvatar.querySelector('img');
+        if (!img) {
+            img = document.createElement('img');
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.borderRadius = '50%';
+            img.style.objectFit = 'cover';
+            userAvatar.appendChild(img);
+        }
+        img.src = photoURL;
+    } else {
+        // Sem foto - usar iniciais
+        userInitials.textContent = iniciais;
+        userInitials.style.display = 'flex';
+        const img = userAvatar.querySelector('img');
+        if (img) img.remove();
+    }
+    
+    // Atualizar avatar grande (dropdown)
+    const userAvatarLarge = document.querySelector('.user-avatar-large');
+    const userInitialsLarge = document.getElementById('userInitialsLarge');
+    
+    if (photoURL && photoURL.startsWith('data:image')) {
+        // Tem foto
+        userInitialsLarge.style.display = 'none';
+        let imgLarge = userAvatarLarge.querySelector('img');
+        if (!imgLarge) {
+            imgLarge = document.createElement('img');
+            imgLarge.style.width = '100%';
+            imgLarge.style.height = '100%';
+            imgLarge.style.borderRadius = '50%';
+            imgLarge.style.objectFit = 'cover';
+            userAvatarLarge.appendChild(imgLarge);
+        }
+        imgLarge.src = photoURL;
+    } else {
+        // Sem foto
+        userInitialsLarge.textContent = iniciais;
+        userInitialsLarge.style.display = 'flex';
+        const imgLarge = userAvatarLarge.querySelector('img');
+        if (imgLarge) imgLarge.remove();
+    }
+
     document.getElementById('userName').textContent = nome;
     document.getElementById('userEmail').textContent = email;
 
@@ -740,12 +792,6 @@ function setupEventListeners() {
     document.getElementById('btnProfile').addEventListener('click', (e) => {
         e.preventDefault();
         showToast('Perfil em desenvolvimento', 'info');
-    });
-
-    // Configurações (placeholder)
-    document.getElementById('btnSettings').addEventListener('click', (e) => {
-        e.preventDefault();
-        showToast('Configurações em desenvolvimento', 'info');
     });
 
     // Logout

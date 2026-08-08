@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatório Cultural e de Impacto | Conecta Bueno</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/observatorio.css">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Carregando dados culturais...</p>
+    </div>
+
+    <!-- Admin Layout Style -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="10" width="4" height="11" rx="1" fill="currentColor"/>
+                        <rect x="10" y="6" width="4" height="15" rx="1" fill="currentColor"/>
+                        <rect x="17" y="8" width="4" height="13" rx="1" fill="currentColor"/>
+                    </svg>
+                    <div>
+                        <h1>Observatório Cultural</h1>
+                        <p>Análise e Impacto</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="visao-geral">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Visão Geral</span>
+                </button>
+
+                <button class="nav-item" data-section="territorio">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2C7.2 2 5 4.2 5 7c0 3.9 5 11 5 11s5-7.1 5-11c0-2.8-2.2-5-5-5zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="currentColor"/>
+                    </svg>
+                    <span>Distribuição Territorial</span>
+                </button>
+
+                <button class="nav-item" data-section="equidade">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 6V10L13 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Equidade e Inclusão</span>
+                </button>
+
+                <button class="nav-item" data-section="consumo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="3" y="12" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="12" y="3" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="12" y="12" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Perfil de Consumo</span>
+                </button>
+
+                <button class="nav-item" data-section="metodologia">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="4" y="3" width="12" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 7H13M7 10H13M7 13H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Metodologia</span>
+                </button>
+
+                <button class="nav-item" data-section="ods">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2L13 8L19 9L14.5 13L16 19L10 16L4 19L5.5 13L1 9L7 8L10 2Z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>ODS e Impacto</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-back-sidebar" id="btnBackSidebar">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Voltar ao Mapa</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="content-header">
+                <h2 id="sectionTitle">Visão Geral</h2>
+                <p id="sectionSubtitle">Estatísticas e indicadores culturais em tempo real</p>
+            </div>
+
+
+            <!-- Seção: Visão Geral -->
+            <section id="section-visao-geral" class="section-content active">
+                <!-- Estatísticas Resumo -->
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total de Pontos Culturais</span>
+                            <span class="stat-value" id="statTotal">-</span>
+                            <span class="stat-description">Espaços cadastrados e ativos</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Eventos Gratuitos</span>
+                            <span class="stat-value" id="statGratuitos">-</span>
+                            <span class="stat-description">Acessíveis sem custo</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="13" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="4" y="13" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="13" y="13" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Categorias Ativas</span>
+                            <span class="stat-value" id="statCategorias">-</span>
+                            <span class="stat-description">Diversidade cultural</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 2C7.89 2 7 2.89 7 4V7H9V4H15V7H17V4C17 2.89 16.11 2 15 2H9ZM3 8C1.89 8 1 8.89 1 10V20C1 21.11 1.89 22 3 22H21C22.11 22 23 21.11 23 20V10C23 8.89 22.11 8 21 8H3ZM3 10H21V20H3V10ZM12 12C10.34 12 9 13.34 9 15C9 16.66 10.34 18 12 18C13.66 18 15 16.66 15 15C15 13.34 13.66 12 12 12Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Acessibilidade Mapeada</span>
+                            <span class="stat-value" id="statAcessibilidade">-</span>
+                            <span class="stat-description">Locais avaliados</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Introdução -->
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h3>Sobre o Observatório Cultural</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <p>
+                            O Observatório Cultural e de Impacto é uma ferramenta de análise de dados em tempo real 
+                            que monitora e avalia a distribuição, acessibilidade e diversidade dos equipamentos culturais 
+                            em Bueno Brandão, MG.
+                        </p>
+                        <p>
+                            Através de visualizações interativas e indicadores estatísticos, o sistema permite 
+                            identificar padrões, lacunas territoriais e oportunidades para fortalecer 
+                            o acesso democrático à cultura na região.
+                        </p>
+                        <div class="info-highlights">
+                            <div class="highlight-item">
+                                <strong>100% Dados Reais</strong>
+                                <span>Conectado ao Firebase em tempo real</span>
+                            </div>
+                            <div class="highlight-item">
+                                <strong>Metodologia Científica</strong>
+                                <span>Baseado em padrões de bancos oficiais</span>
+                            </div>
+                            <div class="highlight-item">
+                                <strong>Transparência Pública</strong>
+                                <span>Informações acessíveis a toda comunidade</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Seção: Distribuição Territorial -->
+            <section id="section-territorio" class="section-content">
+                <div class="analysis-card">
+                    <div class="analysis-header">
+                        <div class="analysis-badge">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span>Território e Poder</span>
+                        </div>
+                        <h3>Distribuição de Equipamentos Culturais</h3>
+                        <p>Análise geográfica dos pontos culturais para identificar zonas com/sem oferta</p>
+                    </div>
+                    
+                    <div class="analysis-body">
+                        <div class="doc-section">
+                            <h4>📍 Objetivo</h4>
+                            <p>
+                                Mapear a distribuição territorial dos equipamentos culturais cadastrados 
+                                no sistema, identificando concentrações e vazios culturais que podem indicar 
+                                desigualdades no acesso.
+                            </p>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>📊 Dados Analisados</h4>
+                            <ul>
+                                <li><strong>Fonte:</strong> Campo <code>endereco</code> da coleção Firebase</li>
+                                <li><strong>Método:</strong> Extração de regiões/bairros a partir dos endereços cadastrados</li>
+                                <li><strong>Visualização:</strong> Gráfico de barras horizontais (top 10 regiões)</li>
+                            </ul>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-wrapper">
+                                <canvas id="chartDistribuicao"></canvas>
+                                <div class="empty-state" id="emptyDistribuicao" style="display: none;">
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                    </svg>
+                                    <p>Coletando dados da comunidade...</p>
+                                    <span>Aguarde enquanto mapeamos os pontos culturais</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>💡 Insight para Gestores</h4>
+                            <p>
+                                Regiões com baixa oferta cultural devem ser priorizadas em editais públicos 
+                                e programas de fomento. A concentração excessiva em uma área pode indicar 
+                                necessidade de descentralização.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção: Equidade e Inclusão -->
+            <section id="section-equidade" class="section-content">
+                <div class="analysis-card">
+                    <div class="analysis-header">
+                        <div class="analysis-badge">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span>Equidade e Inclusão</span>
+                        </div>
+                        <h3>Marcadores Sociais e Acessibilidade</h3>
+                        <p>Eventos gratuitos vs. pagos e níveis de acessibilidade física/cognitiva</p>
+                    </div>
+                    
+                    <div class="analysis-body">
+                        <div class="doc-section">
+                            <h4>🎯 Objetivo</h4>
+                            <p>
+                                Avaliar as barreiras econômicas (entrada paga) e físicas (acessibilidade) 
+                                que podem limitar o acesso de populações vulneráveis aos equipamentos culturais.
+                            </p>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>📊 Dados Analisados</h4>
+                            <div class="data-grid">
+                                <div class="data-item">
+                                    <strong>Tipo de Entrada</strong>
+                                    <p>Campo <code>entrada</code>: gratuita | paga | não informado</p>
+                                </div>
+                                <div class="data-item">
+                                    <strong>Acessibilidade</strong>
+                                    <p>Campo <code>acessibilidade</code>: sim | não | parcial | não informado</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid">
+                            <div class="chart-container-small">
+                                <h4 class="chart-title">Tipo de Entrada</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="chartEntrada"></canvas>
+                                    <div class="empty-state" id="emptyEntrada" style="display: none;">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                            <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                        </svg>
+                                        <p>Coletando dados...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chart-container-small">
+                                <h4 class="chart-title">Acessibilidade</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="chartAcessibilidade"></canvas>
+                                    <div class="empty-state" id="emptyAcessibilidade" style="display: none;">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                            <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                        </svg>
+                                        <p>Coletando dados...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>💡 Insight para Políticas Públicas</h4>
+                            <p>
+                                Alta proporção de eventos pagos pode excluir populações de baixa renda. 
+                                Baixos índices de acessibilidade impedem a participação de pessoas com deficiência. 
+                                Ambos os indicadores devem ser monitorados e melhorados através de incentivos e normativas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção: Perfil de Consumo -->
+            <section id="section-consumo" class="section-content">
+                <div class="analysis-card">
+                    <div class="analysis-header">
+                        <div class="analysis-badge">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span>Comportamento Cultural</span>
+                        </div>
+                        <h3>Perfil e Hábitos de Consumo Cultural</h3>
+                        <p>Categorias culturais mais cadastradas e acessadas pela comunidade</p>
+                    </div>
+                    
+                    <div class="analysis-body">
+                        <div class="doc-section">
+                            <h4>🎭 Objetivo</h4>
+                            <p>
+                                Identificar as categorias culturais mais presentes no território, 
+                                revelando as preferências e a diversidade da oferta cultural local.
+                            </p>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>📊 Dados Analisados</h4>
+                            <ul>
+                                <li><strong>Fonte:</strong> Campo <code>categoria</code> (Cachoeira, Montanha, Trilha, Cultura, etc.)</li>
+                                <li><strong>Método:</strong> Contagem e ranking por quantidade de pontos cadastrados</li>
+                                <li><strong>Visualização:</strong> Gráfico de colunas com todas as categorias</li>
+                            </ul>
+                        </div>
+
+                        <div class="chart-container">
+                            <div class="chart-wrapper">
+                                <canvas id="chartCategorias"></canvas>
+                                <div class="empty-state" id="emptyCategorias" style="display: none;">
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                    </svg>
+                                    <p>Coletando dados da comunidade...</p>
+                                    <span>Aguarde enquanto analisamos as categorias</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>💡 Aplicação Prática</h4>
+                            <p>
+                                Categorias sub-representadas podem indicar nichos de mercado inexplorados 
+                                ou áreas que necessitam de estímulo. Gestores culturais podem usar esses 
+                                dados para direcionar editais temáticos e diversificar a programação.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Seção: Metodologia -->
+            <section id="section-metodologia" class="section-content">
+                <div class="methodology-card">
+                    <div class="methodology-header">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <div>
+                            <h3>Metodologia de Dados</h3>
+                            <p>Fundamentação científica e fontes oficiais</p>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-body">
+                        <div class="doc-section">
+                            <h4>🔬 Fundamentação Científica</h4>
+                            <p>
+                                Os eixos de análise deste Observatório foram estruturados utilizando parâmetros 
+                                e metodologias de bancos de dados oficiais reconhecidos nacional e internacionalmente 
+                                na área de cultura e indicadores sociais. Nossa abordagem se inspira em:
+                            </p>
+                        </div>
+
+                        <div class="sources-grid">
+                            <div class="source-card">
+                                <div class="source-icon">🏛️</div>
+                                <div class="source-content">
+                                    <strong>IBGE - SIIC</strong>
+                                    <p>Sistema de Informações e Indicadores Culturais</p>
+                                    <span class="source-tag">Estatísticas Oficiais</span>
+                                </div>
+                                <div class="source-description">
+                                    Fornece estatísticas sobre equipamentos culturais (teatros, museus, bibliotecas) 
+                                    e indicadores sociais relacionados à cultura no Brasil.
+                                </div>
+                            </div>
+
+                            <div class="source-card">
+                                <div class="source-icon">🎭</div>
+                                <div class="source-content">
+                                    <strong>Mapa da Cultura</strong>
+                                    <p>Ministério da Cultura (MinC)</p>
+                                    <span class="source-tag">Georreferenciamento</span>
+                                </div>
+                                <div class="source-description">
+                                    Plataforma colaborativa que mapeia agentes, espaços, eventos e projetos culturais 
+                                    em todo território nacional com coordenadas geográficas.
+                                </div>
+                            </div>
+
+                            <div class="source-card">
+                                <div class="source-icon">💻</div>
+                                <div class="source-content">
+                                    <strong>TIC Cultura</strong>
+                                    <p>CETIC.br - NIC.br</p>
+                                    <span class="source-tag">Tecnologia</span>
+                                </div>
+                                <div class="source-description">
+                                    Pesquisa sobre o uso de tecnologias da informação e comunicação 
+                                    no setor cultural brasileiro (equipamentos, eventos e empresas).
+                                </div>
+                            </div>
+
+                            <div class="source-card">
+                                <div class="source-icon">🎨</div>
+                                <div class="source-content">
+                                    <strong>Observatório Itaú Cultural</strong>
+                                    <p>Itaú Cultural</p>
+                                    <span class="source-tag">Economia Criativa</span>
+                                </div>
+                                <div class="source-description">
+                                    Produz estudos sobre economia criativa, impacto social da cultura 
+                                    e análises setoriais do mercado cultural brasileiro.
+                                </div>
+                            </div>
+
+                            <div class="source-card">
+                                <div class="source-icon">📊</div>
+                                <div class="source-content">
+                                    <strong>DataViva</strong>
+                                    <p>Dados Socioeconômicos</p>
+                                    <span class="source-tag">Território</span>
+                                </div>
+                                <div class="source-description">
+                                    Plataforma de visualização de dados sobre economia brasileira, 
+                                    incluindo análises territoriais e setoriais por município.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>📋 Estrutura de Dados</h4>
+                            <p>Os dados analisados são extraídos em tempo real do Firebase Cloud Firestore:</p>
+                            <div class="code-block">
+                                <strong>Coleção:</strong> <code>espacos</code><br>
+                                <strong>Campos Utilizados:</strong><br>
+                                <ul style="margin: 8px 0 0 24px; font-size: 13px;">
+                                    <li><code>nome</code> - Nome do espaço cultural</li>
+                                    <li><code>categoria</code> - Tipo de atividade (Cachoeira, Cultura, etc.)</li>
+                                    <li><code>endereco</code> - Localização geográfica textual</li>
+                                    <li><code>entrada</code> - Tipo de acesso (gratuita | paga | não informado)</li>
+                                    <li><code>acessibilidade</code> - Nível (sim | não | parcial | não informado)</li>
+                                    <li><code>status</code> - Estado do cadastro (ativo | inativo)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="alert-box">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <div>
+                                <strong>Regra Absoluta: Zero Mock Data</strong>
+                                <p>
+                                    Todos os gráficos e estatísticas são gerados EXCLUSIVAMENTE a partir de dados 
+                                    reais do Firebase. Não há uso de dados falsos, arrays estáticos ou números hardcoded.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção: ODS e Impacto -->
+            <section id="section-ods" class="section-content">
+                <div class="ods-intro-card">
+                    <div class="ods-intro-header">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z" fill="currentColor"/>
+                        </svg>
+                        <div>
+                            <h3>Impacto Social e Desenvolvimento Sustentável</h3>
+                            <p>Como o Observatório contribui para uma Bueno Brandão mais inclusiva</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ods-grid">
+                    <div class="ods-card">
+                        <div class="ods-card-header">
+                            <div class="ods-number-large">4</div>
+                            <div class="ods-info">
+                                <h4>Educação e Cultura</h4>
+                                <p class="ods-subtitle">Acesso ao conhecimento e patrimônio cultural</p>
+                            </div>
+                        </div>
+                        <div class="ods-card-body">
+                            <h5>Como o Observatório Contribui:</h5>
+                            <ul>
+                                <li>Amplia o acesso a informações sobre eventos e espaços culturais</li>
+                                <li>Mapeia equipamentos que promovem educação não-formal</li>
+                                <li>Identifica oportunidades de aprendizagem cultural no território</li>
+                                <li>Facilita o planejamento de visitas educativas e turismo pedagógico</li>
+                            </ul>
+                            <div class="ods-meta">
+                                <strong>Objetivo ONU:</strong> Garantir educação inclusiva e equitativa de qualidade, 
+                                promovendo oportunidades de aprendizagem ao longo da vida para todos, 
+                                com valorização da diversidade cultural.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ods-card">
+                        <div class="ods-card-header">
+                            <div class="ods-number-large">10</div>
+                            <div class="ods-info">
+                                <h4>Redução das Desigualdades</h4>
+                                <p class="ods-subtitle">Cultura acessível para todos</p>
+                            </div>
+                        </div>
+                        <div class="ods-card-body">
+                            <h5>Como o Observatório Contribui:</h5>
+                            <ul>
+                                <li>Identifica regiões com menor acesso a equipamentos culturais</li>
+                                <li>Monitora a oferta de eventos gratuitos vs. pagos</li>
+                                <li>Avalia a inclusão de pessoas com deficiência nos espaços</li>
+                                <li>Orienta políticas públicas para populações vulneráveis</li>
+                            </ul>
+                            <div class="ods-meta">
+                                <strong>Objetivo ONU:</strong> Reduzir desigualdades e promover a inclusão social, 
+                                econômica e cultural de todos, independentemente de idade, gênero, deficiência, 
+                                raça, etnia ou condição econômica.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ods-card">
+                        <div class="ods-card-header">
+                            <div class="ods-number-large">11</div>
+                            <div class="ods-info">
+                                <h4>Cidades Sustentáveis</h4>
+                                <p class="ods-subtitle">Comunidades vibrantes e patrimônio preservado</p>
+                            </div>
+                        </div>
+                        <div class="ods-card-body">
+                            <h5>Como o Observatório Contribui:</h5>
+                            <ul>
+                                <li>Promove planejamento urbano com foco em equipamentos culturais</li>
+                                <li>Fortalece a identidade cultural do território</li>
+                                <li>Mapeia patrimônio natural e cultural (cachoeiras, trilhas, mirantes)</li>
+                                <li>Incentiva o turismo cultural sustentável na Serra da Mantiqueira</li>
+                            </ul>
+                            <div class="ods-meta">
+                                <strong>Objetivo ONU:</strong> Tornar cidades e comunidades mais inclusivas, 
+                                seguras, resilientes e sustentáveis, protegendo o patrimônio cultural e natural, 
+                                com espaços públicos acessíveis e verdes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="impact-summary">
+                    <h4>📈 Benefícios para a Comunidade</h4>
+                    <p>
+                        Este observatório fortalece o acesso democrático à cultura através de:
+                    </p>
+                    <div class="impact-grid">
+                        <div class="impact-item">
+                            <strong>Transparência de Dados</strong>
+                            <span>Informações públicas e acessíveis a todos</span>
+                        </div>
+                        <div class="impact-item">
+                            <strong>Identificação de Lacunas</strong>
+                            <span>Regiões que precisam de mais oferta cultural</span>
+                        </div>
+                        <div class="impact-item">
+                            <strong>Promoção da Equidade</strong>
+                            <span>Cultura acessível para todas as pessoas</span>
+                        </div>
+                        <div class="impact-item">
+                            <strong>Decisões Baseadas em Dados</strong>
+                            <span>Políticas públicas mais eficientes</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/observatorio.js"></script>
+</body>
+</html>
