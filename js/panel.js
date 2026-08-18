@@ -157,11 +157,13 @@ function setupEventListeners() {
     document.getElementById('btnAddLugar').addEventListener('click', () => openLugarModal());
     document.getElementById('btnAddUsuario').addEventListener('click', () => openUsuarioModal());
     document.getElementById('btnAddCategoria').addEventListener('click', () => openCategoriaModal());
+    document.getElementById('btnAddEvento').addEventListener('click', () => openEventoModal());
 
     // Forms
     document.getElementById('formLugar').addEventListener('submit', saveLugar);
     document.getElementById('formUsuario').addEventListener('submit', saveUsuario);
     document.getElementById('formCategoria').addEventListener('submit', saveCategoria);
+    document.getElementById('formEvento').addEventListener('submit', saveEvento);
 }
 
 async function logout() {
@@ -205,6 +207,7 @@ function showSection(sectionName) {
         lugares: 'Gerenciar Lugares',
         usuarios: 'Gerenciar Usuários',
         categorias: 'Gerenciar Categorias',
+        eventos: 'Gerenciar Eventos',
         configuracoes: 'Configurações',
         logs: 'Logs de Atividade'
     };
@@ -235,6 +238,9 @@ function loadSectionData(sectionName) {
             break;
         case 'categorias':
             loadCategorias();
+            break;
+        case 'eventos':
+            loadEventos();
             break;
         case 'logs':
             loadLogs();
@@ -1067,3 +1073,187 @@ function showToast(message, type = 'info') {
 // ===================================
 
 console.log('✅ Panel.js carregado');
+
+
+// ===================================
+// EVENTOS (CRUD) - CALENDÁRIO FESTIVO
+// ===================================
+
+async function loadEventos() {
+    const tbody = document.getElementById('tableEventos');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="6"><div class="loading-spinner-small"></div><span>Carregando...</span></td></tr>';
+
+    try {
+        const snapshot = await firebase.firestore()
+            .collection('eventos')
+            .orderBy('dataInicio', 'desc')
+            .get();
+
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Nenhum evento cadastrado</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const tr = document.createElement('tr');
+            
+            const dataInicio = new Date(data.dataInicio).toLocaleDateString('pt-BR');
+            const dataFim = data.dataFim ? new Date(data.dataFim).toLocaleDateString('pt-BR') : '-';
+            
+            tr.innerHTML = `
+                <td><strong>${data.titulo}</strong></td>
+                <td><span class="badge badge-success">${data.categoria || 'Sem categoria'}</span></td>
+                <td>${dataInicio}</td>
+                <td>${dataFim}</td>
+                <td><span class="badge ${data.status === 'ativo' ? 'badge-success' : 'badge-danger'}">${data.status}</span></td>
+                <td>
+                    <button class="btn-icon-table" onclick="editEvento('${doc.id}')" title="Editar">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M12 3L15 6L6 15H3V12L12 3Z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon-table danger" onclick="deleteEvento('${doc.id}', '${data.titulo}')" title="Excluir">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar eventos:', error);
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Erro ao carregar dados</td></tr>';
+    }
+}
+
+function openEventoModal(eventoId = null) {
+    const modal = document.getElementById('modalEvento');
+    const form = document.getElementById('formEvento');
+    
+    form.reset();
+    document.getElementById('eventoId').value = '';
+    document.getElementById('modalEventoTitle').textContent = 'Novo Evento';
+    document.getElementById('eventoStatus').value = 'ativo';
+    
+    if (eventoId) {
+        loadEventoData(eventoId);
+        document.getElementById('modalEventoTitle').textContent = 'Editar Evento';
+    }
+    
+    modal.classList.add('active');
+}
+
+async function loadEventoData(eventoId) {
+    try {
+        const doc = await firebase.firestore()
+            .collection('eventos')
+            .doc(eventoId)
+            .get();
+
+        if (doc.exists) {
+            const data = doc.data();
+            
+            document.getElementById('eventoId').value = eventoId;
+            document.getElementById('eventoTitulo').value = data.titulo || '';
+            document.getElementById('eventoCategoria').value = data.categoria || '';
+            document.getElementById('eventoDescricao').value = data.descricao || '';
+            document.getElementById('eventoDataInicio').value = data.dataInicio || '';
+            document.getElementById('eventoDataFim').value = data.dataFim || '';
+            document.getElementById('eventoHorario').value = data.horario || '';
+            document.getElementById('eventoLocal').value = data.local || '';
+            document.getElementById('eventoOrganizador').value = data.organizador || '';
+            document.getElementById('eventoContato').value = data.contato || '';
+            document.getElementById('eventoEntrada').value = data.entrada || '';
+            document.getElementById('eventoLink').value = data.link || '';
+            document.getElementById('eventoImagem').value = data.imagem || '';
+            document.getElementById('eventoStatus').value = data.status || 'ativo';
+        }
+    } catch (error) {
+        console.error('❌ Erro ao carregar evento:', error);
+        showToast('Erro ao carregar dados', 'error');
+    }
+}
+
+async function saveEvento(e) {
+    e.preventDefault();
+    
+    const eventoId = document.getElementById('eventoId').value;
+    
+    const data = {
+        titulo: document.getElementById('eventoTitulo').value,
+        categoria: document.getElementById('eventoCategoria').value,
+        descricao: document.getElementById('eventoDescricao').value,
+        dataInicio: document.getElementById('eventoDataInicio').value,
+        dataFim: document.getElementById('eventoDataFim').value || null,
+        horario: document.getElementById('eventoHorario').value,
+        local: document.getElementById('eventoLocal').value,
+        organizador: document.getElementById('eventoOrganizador').value,
+        contato: document.getElementById('eventoContato').value,
+        entrada: document.getElementById('eventoEntrada').value,
+        link: document.getElementById('eventoLink').value,
+        imagem: document.getElementById('eventoImagem').value,
+        status: document.getElementById('eventoStatus').value,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (eventoId) {
+            // Atualizar
+            await firebase.firestore()
+                .collection('eventos')
+                .doc(eventoId)
+                .update(data);
+            
+            showToast('✅ Evento atualizado com sucesso!', 'success');
+            await logAction('update', 'eventos', `Editou: ${data.titulo}`);
+        } else {
+            // Criar
+            data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await firebase.firestore()
+                .collection('eventos')
+                .add(data);
+            
+            showToast('✅ Evento adicionado com sucesso!', 'success');
+            await logAction('create', 'eventos', `Criou: ${data.titulo}`);
+        }
+        
+        closeModal('modalEvento');
+        loadEventos();
+        
+    } catch (error) {
+        console.error('❌ Erro ao salvar:', error);
+        showToast('❌ Erro ao salvar evento: ' + error.message, 'error');
+    }
+}
+
+function deleteEvento(eventoId, titulo) {
+    showConfirm(
+        `Tem certeza que deseja excluir o evento "${titulo}"?`,
+        async () => {
+            try {
+                await firebase.firestore()
+                    .collection('eventos')
+                    .doc(eventoId)
+                    .delete();
+                
+                showToast('Evento excluído com sucesso!', 'success');
+                await logAction('delete', 'eventos', `Excluiu: ${titulo}`);
+                loadEventos();
+                
+            } catch (error) {
+                console.error('❌ Erro ao excluir:', error);
+                showToast('Erro ao excluir evento', 'error');
+            }
+        }
+    );
+}
+
+// Expor funções globais
+window.editEvento = (id) => openEventoModal(id);
+window.deleteEvento = deleteEvento;
+window.openEventoModal = openEventoModal;

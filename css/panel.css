@@ -1196,3 +1196,42 @@ select.form-control {
         width: calc(100vw - 48px);
     }
 }
+
+
+/* Botão Voltar para Home */
+.nav-item-home {
+    background: linear-gradient(135deg, #2d5a3d 0%, #1a3a2e 100%) !important;
+    color: white !important;
+    font-weight: 600;
+    border: none !important;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-item-home svg {
+    color: white !important;
+}
+
+.nav-item-home:hover {
+    background: linear-gradient(135deg, #245032 0%, #0f1f18 100%) !important;
+    transform: translateX(2px);
+}
+
+.nav-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+    margin: 12px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-item-home {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+    
+    .nav-item-home svg {
+        width: 18px;
+        height: 18px;
+    }
+}

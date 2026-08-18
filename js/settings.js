@@ -170,12 +170,48 @@ document.querySelectorAll('.nav-item').forEach(item => {
             'privacidade': 'Privacidade & Dados'
         };
         document.querySelector('.content-header h2').textContent = titles[targetSection];
+        
+        // Fechar sidebar em mobile após selecionar
+        if (window.innerWidth <= 1024) {
+            const sidebar = document.querySelector('.admin-sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+            }
+        }
     });
 });
 
 // ===================================
-// BOTÃO VOLTAR - Removido (agora usa link direto)
+// MENU TOGGLE MOBILE
 // ===================================
+
+const btnMenuToggle = document.getElementById('btnMenuToggle');
+const sidebar = document.querySelector('.admin-sidebar');
+
+if (btnMenuToggle && sidebar) {
+    btnMenuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sidebar.classList.toggle('active');
+    });
+    
+    // Fechar sidebar ao clicar fora (apenas mobile)
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 1024) {
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(e.target) && 
+                !btnMenuToggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        }
+    });
+    
+    // Fechar sidebar ao redimensionar para desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
 
 // ===================================
 // UPLOAD DE FOTO

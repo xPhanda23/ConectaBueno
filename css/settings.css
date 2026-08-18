@@ -1,6 +1,6 @@
 /* ===================================
    CONECTA BUENO - CONFIGURAÇÕES
-   Design Profissional - Serra da Mantiqueira
+   Design Profissional Responsivo
    =================================== */
 
 :root {
@@ -8,12 +8,12 @@
     --primary-dark: #1a3a2e;
     --primary-light: #3d7a52;
     --accent-green: #4caf50;
-    --bg-main: #f8f9fa;
+    --bg-main: #f5f7fa;
     --bg-card: #ffffff;
     --text-primary: #1a1a1a;
     --text-secondary: #666666;
     --text-hint: #999999;
-    --border-color: #e0e0e0;
+    --border-color: #e0e4e9;
     --border-light: #f0f0f0;
     --danger-color: #dc3545;
     --danger-hover: #c82333;
@@ -37,193 +37,6 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
-}
-
-/* ===================================
-   LOADING OVERLAY
-   =================================== */
-
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-dark) 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    color: white;
-}
-
-
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loading-overlay p {
-    margin-top: 20px;
-    font-size: 16px;
-    opacity: 0.9;
-}
-
-/* ===================================
-   HEADER
-   =================================== */
-
-.settings-header {
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
-    padding: 20px 24px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow-sm);
-}
-
-.header-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.btn-back {
-    width: 40px;
-    height: 40px;
-    border: none;
-    background: var(--bg-main);
-    color: var(--text-secondary);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.btn-back:hover {
-    background: var(--primary-green);
-    color: white;
-    transform: translateX(-2px);
-}
-
-.header-title h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-    line-height: 1.2;
-}
-
-
-.header-title p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin: 0;
-}
-
-/* ===================================
-   MAIN CONTAINER
-   =================================== */
-
-.settings-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 32px 24px;
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 32px;
-    align-items: start;
-}
-
-/* ===================================
-   SIDEBAR NAVIGATION
-   =================================== */
-
-.settings-sidebar {
-    position: sticky;
-    top: 100px;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: 8px;
-    box-shadow: var(--shadow-sm);
-}
-
-.settings-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.nav-tab {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: transparent;
-    border: none;
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
-    width: 100%;
-}
-
-.nav-tab svg {
-    color: var(--text-hint);
-    flex-shrink: 0;
-    transition: color 0.2s ease;
-}
-
-.nav-tab:hover {
-    background: var(--bg-main);
-    color: var(--primary-green);
-}
-
-.nav-tab:hover svg {
-    color: var(--primary-green);
-}
-
-.nav-tab.active {
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
-    color: white;
-    font-weight: 600;
-}
-
-.nav-tab.active svg {
-    color: white;
-}
-
-
-/* ===================================
-   CONTENT AREA
-   =================================== */
-
-/* ===================================
-   CONECTA BUENO - CONFIGURAÇÕES
-   Design Padrão do Painel Admin
-   =================================== */
-
-body {
-    margin: 0;
-    padding: 0;
-    background: #f5f7fa;
     overflow-x: hidden;
 }
 
@@ -237,7 +50,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #2d5a3d 0%, #1a3a2e 100%);
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-dark) 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -272,7 +85,7 @@ body {
 .admin-layout {
     display: flex;
     min-height: 100vh;
-    background: #f5f7fa;
+    background: var(--bg-main);
 }
 
 /* ===================================
@@ -281,25 +94,21 @@ body {
 
 .admin-sidebar {
     width: 280px;
-    background: #ffffff;
-    border-right: 1px solid #e0e4e9;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     position: fixed;
     left: 0;
     top: 0;
     height: 100vh;
-    z-index: 1000;
+    z-index: 1001;
     transition: transform 0.3s ease;
-}
-
-.admin-sidebar.hidden {
-    transform: translateX(-100%);
 }
 
 .sidebar-header {
     padding: 24px;
-    border-bottom: 1px solid #e0e4e9;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .brand-logo {
@@ -312,13 +121,13 @@ body {
     margin: 0;
     font-size: 18px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 .brand-logo span {
     display: block;
     font-size: 12px;
-    color: #888;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
@@ -337,7 +146,7 @@ body {
     background: transparent;
     border: none;
     border-radius: 10px;
-    color: #555;
+    color: var(--text-secondary);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -347,22 +156,22 @@ body {
 }
 
 .nav-item svg {
-    color: #888;
+    color: var(--text-hint);
     transition: color 0.2s ease;
     flex-shrink: 0;
 }
 
 .nav-item:hover {
-    background: #f5f7fa;
-    color: #2d5a3d;
+    background: var(--bg-main);
+    color: var(--primary-green);
 }
 
 .nav-item:hover svg {
-    color: #2d5a3d;
+    color: var(--primary-green);
 }
 
 .nav-item.active {
-    background: linear-gradient(135deg, #2d5a3d, #1a3a2e);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
     color: white;
 }
 
@@ -372,10 +181,7 @@ body {
 
 .sidebar-footer {
     padding: 16px;
-    border-top: 1px solid #e0e4e9;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    border-top: 1px solid var(--border-color);
 }
 
 .btn-back-map {
@@ -385,20 +191,20 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
     text-decoration: none;
-    background: #f5f7fa;
-    color: #555;
+    background: var(--bg-main);
+    color: var(--text-secondary);
 }
 
 .btn-back-map:hover {
     background: #e8ecf1;
-    color: #2d5a3d;
+    color: var(--primary-green);
 }
 
 /* ===================================
@@ -408,8 +214,39 @@ body {
 .admin-content {
     flex: 1;
     margin-left: 280px;
-    padding: 32px 40px;
+    padding: 40px;
     min-height: 100vh;
+    position: relative;
+}
+
+/* Menu Toggle Mobile - Inicialmente escondido */
+.btn-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1002;
+    width: 48px;
+    height: 48px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.btn-menu-toggle:hover {
+    background: var(--bg-main);
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+.btn-menu-toggle:active {
+    transform: scale(0.95);
 }
 
 .section-content {
@@ -439,13 +276,13 @@ body {
 .content-header h2 {
     font-size: 28px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin: 0 0 8px 0;
 }
 
 .content-header p {
     font-size: 15px;
-    color: #666;
+    color: var(--text-secondary);
     margin: 0;
 }
 
@@ -454,36 +291,35 @@ body {
    =================================== */
 
 .settings-card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
     margin-bottom: 24px;
 }
 
 .card-section {
-    padding: 28px 32px;
+    padding: 32px;
 }
 
 .card-section h3 {
     font-size: 18px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin: 0 0 20px 0;
 }
 
 .section-description {
     font-size: 14px;
-    color: #666;
+    color: var(--text-secondary);
     line-height: 1.6;
     margin-bottom: 20px;
 }
 
 .divider {
     height: 1px;
-    background: #e0e4e9;
+    background: var(--border-color);
 }
-
 
 /* ===================================
    PROFILE PHOTO SECTION
@@ -551,33 +387,37 @@ body {
 
 .form-input {
     padding: 12px 16px;
-    border: 2px solid #e0e4e9;
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     font-size: 15px;
-    color: #1a1a1a;
+    color: var(--text-primary);
     transition: all 0.2s ease;
     background: white;
     width: 100%;
+    font-family: inherit;
 }
 
 .form-input:focus {
     outline: none;
-    border-color: #2d5a3d;
+    border-color: var(--primary-green);
     background: #fafafa;
 }
 
 .form-input::placeholder {
-    color: #999;
+    color: var(--text-hint);
 }
 
 .form-hint {
     font-size: 13px;
-    color: #888;
+    color: var(--text-secondary);
 }
-
 
 .input-with-icon {
     position: relative;
+}
+
+.input-with-icon .form-input {
+    padding-right: 45px;
 }
 
 .btn-toggle-password {
@@ -614,7 +454,7 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 12px 24px;
-    background: linear-gradient(135deg, #2d5a3d, #1a3a2e);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
     color: white;
     border: none;
     border-radius: 10px;
@@ -626,7 +466,7 @@ body {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #1a3a2e, #2d5a3d);
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-green));
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
 }
@@ -642,8 +482,8 @@ body {
     gap: 8px;
     padding: 12px 24px;
     background: white;
-    color: #555;
-    border: 2px solid #e0e4e9;
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     font-size: 15px;
     font-weight: 600;
@@ -652,11 +492,10 @@ body {
 }
 
 .btn-secondary:hover {
-    border-color: #2d5a3d;
-    color: #2d5a3d;
-    background: #f5f7fa;
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    background: var(--bg-main);
 }
-
 
 /* ===================================
    TOGGLE SWITCHES
@@ -745,7 +584,6 @@ body {
     transform: translateX(24px);
 }
 
-
 /* ===================================
    THEME OPTIONS
    =================================== */
@@ -819,7 +657,7 @@ body {
 }
 
 .nature-theme .preview-header {
-    background: linear-gradient(135deg, #2d5a3d, #1a3a2e);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-dark));
 }
 
 .nature-theme .preview-content {
@@ -838,7 +676,6 @@ body {
     color: var(--text-secondary);
     margin: 0;
 }
-
 
 /* ===================================
    DATA ACTIONS & DANGER ZONE
@@ -953,7 +790,6 @@ body {
 .lgpd-info li:last-child {
     margin-bottom: 0;
 }
-
 
 /* ===================================
    TOAST NOTIFICATIONS
@@ -1090,154 +926,411 @@ body {
     justify-content: flex-end;
 }
 
-
 /* ===================================
-   RESPONSIVE DESIGN
+   RESPONSIVE DESIGN - TABLET
    =================================== */
 
 @media (max-width: 1024px) {
-    .settings-container {
-        grid-template-columns: 240px 1fr;
-        gap: 24px;
+    .admin-sidebar {
+        left: -280px;
+        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
     }
-
-    .settings-sidebar {
-        top: 90px;
+    
+    .admin-sidebar.active {
+        transform: translateX(280px);
+    }
+    
+    .admin-content {
+        margin-left: 0;
+        padding: 32px 24px;
+        padding-top: 80px;
+    }
+    
+    .btn-menu-toggle {
+        display: flex;
+    }
+    
+    .content-header h2 {
+        font-size: 26px;
+    }
+    
+    .card-section {
+        padding: 28px 24px;
     }
 }
 
+/* ===================================
+   RESPONSIVE DESIGN - MOBILE
+   =================================== */
+
 @media (max-width: 768px) {
-    .settings-container {
-        grid-template-columns: 1fr;
-        padding: 20px 16px;
+    .admin-content {
+        padding: 24px 16px;
+        padding-top: 72px;
     }
-
-    .settings-sidebar {
-        position: static;
-        top: auto;
+    
+    .content-header {
+        margin-bottom: 24px;
     }
-
-    .settings-nav {
-        flex-direction: row;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 4px;
-    }
-
-    .nav-tab {
-        flex-direction: column;
-        min-width: 80px;
-        padding: 12px 8px;
-        gap: 6px;
-        text-align: center;
-    }
-
-    .nav-tab span {
-        font-size: 12px;
-    }
-
-    .nav-tab svg {
-        width: 22px;
-        height: 22px;
-    }
-
-    .settings-header {
-        padding: 16px;
-    }
-
-    .header-title h1 {
-        font-size: 20px;
-    }
-
-    .header-title p {
-        font-size: 13px;
-    }
-
+    
     .content-header h2 {
         font-size: 24px;
     }
-
-    .card-section {
-        padding: 20px 20px;
+    
+    .content-header p {
+        font-size: 14px;
     }
-
+    
+    .settings-card {
+        border-radius: 10px;
+    }
+    
+    .card-section {
+        padding: 24px 20px;
+    }
+    
+    .card-section h3 {
+        font-size: 17px;
+        margin-bottom: 16px;
+    }
+    
+    .section-description {
+        font-size: 13px;
+    }
+    
+    /* Profile Photo */
     .profile-photo-section {
         flex-direction: column;
         align-items: flex-start;
+        gap: 20px;
     }
+    
+    .current-photo {
+        width: 90px;
+        height: 90px;
+        font-size: 32px;
+    }
+    
+    .photo-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .photo-actions button {
+        width: 100%;
+    }
+    
+    /* Form Elements */
+    .form-input {
+        padding: 11px 14px;
+        font-size: 14px;
+    }
+    
+    .input-with-icon .form-input {
+        padding-right: 40px;
+    }
+    
+    /* Toggle Items */
+    .toggle-item {
+        padding: 16px 0;
+        gap: 16px;
+    }
+    
+    .toggle-info h4 {
+        font-size: 14px;
+    }
+    
+    .toggle-info p {
+        font-size: 13px;
+    }
+    
+    /* Theme Options */
+    .theme-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .theme-preview {
+        height: 100px;
+    }
+    
+    .theme-info h4 {
+        font-size: 14px;
+    }
+    
+    .theme-info p {
+        font-size: 12px;
+    }
+    
+    /* Data Actions */
+    .btn-data-export,
+    .btn-danger {
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    /* LGPD Info */
+    .lgpd-info {
+        padding: 20px;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    /* Toast */
+    .toast-container {
+        left: 16px;
+        right: 16px;
+        top: 16px;
+        max-width: none;
+    }
+    
+    /* Modal */
+    .modal-content {
+        margin: 0 16px;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 20px;
+    }
+}
 
+/* ===================================
+   RESPONSIVE DESIGN - SMALL MOBILE
+   =================================== */
+
+@media (max-width: 480px) {
+    .admin-sidebar {
+        width: 100%;
+        left: -100%;
+    }
+    
+    .admin-sidebar.active {
+        transform: translateX(100%);
+    }
+    
+    .sidebar-header {
+        padding: 20px;
+    }
+    
+    .brand-logo h1 {
+        font-size: 17px;
+    }
+    
+    .nav-item {
+        padding: 11px 14px;
+        font-size: 13px;
+        gap: 10px;
+    }
+    
+    .btn-menu-toggle {
+        width: 44px;
+        height: 44px;
+        top: 12px;
+        left: 12px;
+    }
+    
+    .admin-content {
+        padding: 20px 12px;
+        padding-top: 68px;
+    }
+    
+    .content-header {
+        margin-bottom: 20px;
+    }
+    
+    .content-header h2 {
+        font-size: 22px;
+    }
+    
+    .content-header p {
+        font-size: 13px;
+    }
+    
+    .settings-card {
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .card-section {
+        padding: 20px 16px;
+    }
+    
+    .card-section h3 {
+        font-size: 16px;
+        margin-bottom: 14px;
+    }
+    
+    .section-description {
+        font-size: 13px;
+        margin-bottom: 16px;
+    }
+    
+    /* Profile Photo */
     .current-photo {
         width: 80px;
         height: 80px;
         font-size: 28px;
+        border-width: 3px;
     }
-
-    .theme-options {
-        grid-template-columns: 1fr;
+    
+    /* Forms */
+    .form-group {
+        gap: 6px;
     }
-
-    .toast-container {
-        left: 16px;
-        right: 16px;
-        max-width: none;
+    
+    .form-group label {
+        font-size: 13px;
     }
-
-    .modal-content {
-        margin: 0 16px;
+    
+    .form-input {
+        padding: 10px 12px;
+        font-size: 14px;
+        border-radius: 8px;
     }
-}
-
-@media (max-width: 480px) {
-    .settings-header {
-        padding: 12px;
+    
+    .input-with-icon .form-input {
+        padding-right: 38px;
     }
-
-    .btn-back {
-        width: 36px;
-        height: 36px;
+    
+    .form-hint {
+        font-size: 12px;
     }
-
-    .header-content {
-        gap: 12px;
-    }
-
-    .header-title h1 {
-        font-size: 18px;
-    }
-
-    .card-section {
-        padding: 16px;
-    }
-
-    .content-header h2 {
-        font-size: 20px;
-    }
-
-    .photo-actions {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .photo-actions button {
-        width: 100%;
-    }
-
+    
     .form-actions {
         flex-direction: column;
+        gap: 10px;
     }
-
+    
     .form-actions button {
         width: 100%;
     }
-
+    
+    /* Buttons */
+    .btn-primary,
+    .btn-secondary {
+        padding: 11px 20px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+    
+    /* Toggle */
     .toggle-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
+        padding: 14px 0;
     }
-
+    
+    .toggle-info h4 {
+        font-size: 14px;
+    }
+    
+    .toggle-info p {
+        font-size: 13px;
+    }
+    
+    .toggle-switch {
+        width: 48px;
+        height: 26px;
+    }
+    
+    .toggle-slider:before {
+        height: 20px;
+        width: 20px;
+    }
+    
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(22px);
+    }
+    
+    /* Theme Card */
+    .theme-card {
+        padding: 14px;
+    }
+    
+    .theme-preview {
+        height: 90px;
+        margin-bottom: 10px;
+    }
+    
+    /* Data Buttons */
+    .btn-data-export,
+    .btn-danger {
+        padding: 14px;
+        gap: 12px;
+    }
+    
+    .btn-data-export h4,
+    .btn-danger h4 {
+        font-size: 14px;
+    }
+    
+    .btn-data-export p,
+    .btn-danger p {
+        font-size: 12px;
+    }
+    
+    /* LGPD */
     .lgpd-info {
-        flex-direction: column;
+        padding: 16px;
+    }
+    
+    .lgpd-info h4 {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .lgpd-info li {
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+    
+    /* Toast */
+    .toast-container {
+        top: 12px;
+        left: 12px;
+        right: 12px;
+    }
+    
+    .toast {
+        padding: 14px 16px;
+    }
+    
+    .toast-message {
+        font-size: 13px;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+        padding: 12px;
+    }
+    
+    .modal-content {
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .modal-header h3 {
+        font-size: 18px;
+    }
+    
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 16px;
+    }
+    
+    .modal-body p {
+        font-size: 14px;
+    }
+    
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+    
+    .modal-footer button {
+        width: 100%;
     }
 }
 
@@ -1255,4 +1348,43 @@ body {
 
 .mb-0 {
     margin-bottom: 0 !important;
+}
+
+
+/* Botão Voltar para Home */
+.nav-item-home {
+    background: linear-gradient(135deg, #2d5a3d 0%, #1a3a2e 100%) !important;
+    color: white !important;
+    font-weight: 600;
+    border: none !important;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-item-home svg {
+    color: white !important;
+}
+
+.nav-item-home:hover {
+    background: linear-gradient(135deg, #245032 0%, #0f1f18 100%) !important;
+    transform: translateX(2px);
+}
+
+.nav-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+    margin: 12px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-item-home {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+    
+    .nav-item-home svg {
+        width: 18px;
+        height: 18px;
+    }
 }

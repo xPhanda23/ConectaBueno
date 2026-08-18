@@ -5,11 +5,13 @@
 
 .auth-page {
     min-height: 100vh;
+    height: 100vh;
     background: linear-gradient(135deg, #1a3a2e 0%, #2d5a3d 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    overflow: hidden;
 }
 
 /* Container Principal */
@@ -17,11 +19,11 @@
     display: flex;
     max-width: 1100px;
     width: 100%;
+    max-height: calc(100vh - 40px);
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    min-height: 650px;
 }
 
 /* ===================================
@@ -35,8 +37,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 60px 40px;
+    padding: 40px 30px;
     color: #ffffff;
+    overflow-y: auto;
 }
 
 /* Overlay com padrão */
@@ -65,9 +68,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 30px;
-    margin-bottom: 50px;
-    padding-bottom: 30px;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -102,13 +105,13 @@
 
 /* Branding Principal */
 .brand-main {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .brand-main h1 {
-    font-size: 42px;
+    font-size: 36px;
     font-weight: 700;
-    margin: 0 0 12px 0;
+    margin: 0 0 10px 0;
     letter-spacing: -0.5px;
 }
 
@@ -132,19 +135,19 @@
 
 /* Features */
 .features-list {
-    margin: 40px 0;
+    margin: 30px 0 20px 0;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
 }
 
 .feature-item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 16px 20px;
+    gap: 12px;
+    padding: 12px 16px;
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
+    border-radius: 10px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s ease;
@@ -169,8 +172,8 @@
 
 /* Footer Visual */
 .visual-footer {
-    margin-top: 40px;
-    padding-top: 30px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -191,17 +194,19 @@
 
 .auth-forms {
     flex: 1;
-    padding: 50px 60px;
+    padding: 40px 50px;
     display: flex;
     flex-direction: column;
     background: #ffffff;
+    overflow-y: auto;
+    max-height: 100%;
 }
 
 /* Tabs */
 .auth-tabs {
     display: flex;
     gap: 8px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     padding: 4px;
     background: #f5f5f5;
     border-radius: 10px;
@@ -264,14 +269,14 @@
 }
 
 .form-header {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
 }
 
 .form-header h2 {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     color: #1a1a1a;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     letter-spacing: -0.5px;
 }
 
@@ -283,7 +288,7 @@
 
 /* Form Groups */
 .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
@@ -355,7 +360,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .checkbox-label {
@@ -409,7 +414,7 @@
 }
 
 .checkbox-terms {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     line-height: 1.6;
 }
 
@@ -491,7 +496,7 @@
 .divider {
     display: flex;
     align-items: center;
-    margin: 24px 0;
+    margin: 20px 0;
     color: #999;
     font-size: 13px;
 }
@@ -706,19 +711,64 @@
    RESPONSIVE
    =================================== */
 
-@media (max-width: 968px) {
+@media (max-height: 800px) {
+    .auth-visual {
+        padding: 30px 20px;
+    }
+    
+    .institutional-logos {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+    }
+    
+    .brand-main {
+        margin-bottom: 20px;
+    }
+    
+    .brand-main h1 {
+        font-size: 32px;
+    }
+    
+    .features-list {
+        margin: 20px 0 15px 0;
+        gap: 10px;
+    }
+    
+    .feature-item {
+        padding: 10px 14px;
+    }
+    
+    .visual-footer {
+        margin-top: 15px;
+        padding-top: 15px;
+    }
+    
+    .auth-forms {
+        padding: 30px 40px;
+    }
+}
+
+@media (max-width: 1024px) {
     .auth-container {
         flex-direction: column;
+        max-height: none;
+    }
+    
+    .auth-page {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
     }
     
     .auth-visual {
-        padding: 40px 30px;
+        padding: 30px 25px;
+        min-height: auto;
     }
     
     .institutional-logos {
         flex-direction: row;
         gap: 20px;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
     }
     
     .logo-separator {
@@ -730,36 +780,30 @@
     }
     
     .features-list {
-        margin: 30px 0;
+        margin: 25px 0;
     }
     
     .auth-forms {
-        padding: 40px 30px;
+        padding: 30px 30px 40px 30px;
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .auth-page {
-        padding: 10px;
+        padding: 15px;
     }
     
     .auth-container {
         border-radius: 12px;
-        min-height: auto;
     }
     
     .auth-visual {
-        padding: 30px 20px;
+        padding: 25px 20px;
     }
     
     .institutional-logos {
-        flex-direction: column;
         gap: 15px;
-    }
-    
-    .logo-separator {
-        width: 60px;
-        height: 1px;
+        margin-bottom: 20px;
     }
     
     .brand-main h1 {
@@ -771,11 +815,11 @@
     }
     
     .auth-forms {
-        padding: 30px 20px;
+        padding: 25px 20px 30px 20px;
     }
     
     .form-header h2 {
-        font-size: 24px;
+        font-size: 22px;
     }
     
     .form-options {
@@ -783,9 +827,97 @@
         align-items: flex-start;
         gap: 12px;
     }
+}
+
+@media (max-width: 480px) {
+    .auth-page {
+        padding: 10px;
+    }
+    
+    .auth-container {
+        border-radius: 10px;
+    }
+    
+    .auth-visual {
+        padding: 20px 15px;
+    }
+    
+    .institutional-logos {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+    }
+    
+    .logo-separator {
+        width: 50px;
+        height: 1px;
+    }
+    
+    .brand-main h1 {
+        font-size: 24px;
+    }
+    
+    .brand-tagline {
+        font-size: 14px;
+    }
+    
+    .features-list {
+        margin: 20px 0 15px 0;
+        gap: 8px;
+    }
+    
+    .feature-item {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .auth-forms {
+        padding: 20px 15px 25px 15px;
+    }
+    
+    .auth-tabs {
+        margin-bottom: 20px;
+    }
+    
+    .tab-button {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+    
+    .form-header {
+        margin-bottom: 20px;
+    }
+    
+    .form-header h2 {
+        font-size: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-input {
+        padding: 12px 12px 12px 42px;
+        font-size: 14px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    .divider {
+        margin: 16px 0;
+    }
     
     .modal-dialog {
         width: 95%;
+        max-height: 85vh;
+    }
+    
+    .modal-body {
+        padding: 20px;
     }
     
     .toast {

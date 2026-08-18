@@ -231,6 +231,26 @@ function getInitials(name) {
 function initApp() {
     console.log('🚀 Inicializando aplicação...');
     
+    // Abrir sidebar por padrão no desktop
+    const sidebar = document.getElementById('sidebar');
+    const btnToggleMenu = document.getElementById('btnToggleMenu');
+    const mapContainer = document.querySelector('.map-container');
+    
+    if (sidebar && window.innerWidth > 1024) {
+        sidebar.classList.add('active');
+        if (btnToggleMenu) btnToggleMenu.classList.add('active');
+        
+        // Ajustar mapa para dar espaço à sidebar
+        if (mapContainer) {
+            mapContainer.style.marginLeft = '360px';
+            mapContainer.style.width = 'calc(100% - 360px)';
+        }
+    } else if (mapContainer) {
+        // Mobile: mapa ocupa tudo
+        mapContainer.style.marginLeft = '0';
+        mapContainer.style.width = '100%';
+    }
+    
     initMap();
     setupEventListeners();
     loadSpaces();
@@ -293,10 +313,12 @@ async function loadSpaces() {
 
         allSpaces = [];
         snapshot.forEach(doc => {
+            const data = doc.data();
             allSpaces.push({
                 id: doc.id,
-                ...doc.data()
+                ...data
             });
+            console.log('Lugar carregado:', data.nome, 'Lat:', data.lat, 'Lng:', data.lng);
         });
 
         console.log(`✅ ${allSpaces.length} espaços carregados`);
@@ -304,9 +326,10 @@ async function loadSpaces() {
         // Carregar categorias únicas
         loadCategories();
 
-        // Renderizar espaços
+        // Renderizar espaços no mapa
         renderSpaces(allSpaces);
         updateResultsCount(allSpaces.length);
+        updateSidebarStats();
 
     } catch (error) {
         console.error('❌ Erro ao carregar espaços:', error);
@@ -330,10 +353,24 @@ function loadCategories() {
 function renderCategoryFilters(categories) {
     const container = document.getElementById('filterButtons');
     
-    // Manter botão "Todas"
-    const todasBtn = container.querySelector('[data-category="todas"]');
+    // Limpar container
     container.innerHTML = '';
-    if (todasBtn) container.appendChild(todasBtn);
+    
+    // Criar botão "Todas"
+    const todasBtn = document.createElement('button');
+    todasBtn.className = 'filter-btn active';
+    todasBtn.setAttribute('data-category', 'todas');
+    todasBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Todas</span>
+    `;
+    todasBtn.addEventListener('click', () => {
+        console.log('Clicou em Todas');
+        filterByCategory('todas');
+    });
+    container.appendChild(todasBtn);
 
     // Ícones por categoria
     const categoryIcons = {
@@ -360,12 +397,17 @@ function renderCategoryFilters(categories) {
             <span>${category}</span>
         `;
         
-        btn.addEventListener('click', () => filterByCategory(category));
+        btn.addEventListener('click', () => {
+            console.log('Clicou em categoria:', category);
+            filterByCategory(category);
+        });
         container.appendChild(btn);
     });
 }
 
 function filterByCategory(category) {
+    console.log('Filtrando por categoria:', category);
+    
     // Atualizar botões ativos
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -380,8 +422,11 @@ function filterByCategory(category) {
         filtered = allSpaces.filter(space => space.categoria === category);
     }
 
+    console.log(`${filtered.length} lugares filtrados`);
+    
     renderSpaces(filtered);
     updateResultsCount(filtered.length);
+    updateSidebarStats();
 }
 
 // ===================================
@@ -393,27 +438,21 @@ function renderSpaces(spaces) {
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
 
-    // Renderizar lista
-    const container = document.getElementById('spacesList');
-    
+    // Se não há lugares, não fazer nada
     if (spaces.length === 0) {
-        container.innerHTML = '<div class="empty-state">Nenhum lugar encontrado</div>';
+        console.log('Nenhum lugar para renderizar');
         return;
     }
 
-    container.innerHTML = '';
-
+    // Adicionar marcadores no mapa
     spaces.forEach(space => {
-        // Card na lista
-        const card = createSpaceCard(space);
-        container.appendChild(card);
-
-        // Marcador no mapa
         if (space.lat && space.lng) {
             const marker = createMarker(space);
             markers.push(marker);
         }
     });
+    
+    console.log(`${markers.length} marcadores adicionados ao mapa`);
 }
 
 function createSpaceCard(space) {
@@ -765,64 +804,189 @@ function setupEventListeners() {
     // Menu toggle
     const btnToggleMenu = document.getElementById('btnToggleMenu');
     const sidebar = document.getElementById('sidebar');
+    const mapContainer = document.querySelector('.map-container');
     
-    btnToggleMenu.addEventListener('click', () => {
-        sidebar.classList.toggle('hidden');
-        setTimeout(() => map.invalidateSize(), 300);
-    });
+    if (btnToggleMenu && sidebar) {
+        btnToggleMenu.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle sidebar e botão
+            const wasActive = sidebar.classList.contains('active');
+            
+            sidebar.classList.toggle('active');
+            btnToggleMenu.classList.toggle('active');
+            
+            console.log('Toggle: sidebar', wasActive ? 'fechando' : 'abrindo');
+            
+            // Animar o mapa no desktop
+            if (window.innerWidth > 1024 && mapContainer) {
+                if (wasActive) {
+                    // Fechando: mapa expande
+                    mapContainer.style.marginLeft = '0';
+                    mapContainer.style.width = '100%';
+                } else {
+                    // Abrindo: mapa diminui
+                    mapContainer.style.marginLeft = '360px';
+                    mapContainer.style.width = 'calc(100% - 360px)';
+                }
+            }
+            
+            // Gerenciar overlay em mobile/tablet
+            if (window.innerWidth <= 1024) {
+                const overlay = document.getElementById('sidebarOverlay');
+                
+                if (!wasActive) {
+                    // Abrir: criar overlay
+                    if (!overlay) {
+                        const newOverlay = document.createElement('div');
+                        newOverlay.id = 'sidebarOverlay';
+                        newOverlay.style.cssText = `
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.5);
+                            z-index: 998;
+                            opacity: 0;
+                            transition: opacity 0.3s ease;
+                        `;
+                        document.body.appendChild(newOverlay);
+                        
+                        // Fade in
+                        setTimeout(() => {
+                            newOverlay.style.opacity = '1';
+                        }, 10);
+                        
+                        // Fechar ao clicar no overlay
+                        newOverlay.addEventListener('click', () => {
+                            sidebar.classList.remove('active');
+                            btnToggleMenu.classList.remove('active');
+                            newOverlay.style.opacity = '0';
+                            setTimeout(() => newOverlay.remove(), 300);
+                            
+                            // Ajustar mapa
+                            if (map) {
+                                setTimeout(() => map.invalidateSize(), 350);
+                            }
+                        });
+                    }
+                } else {
+                    // Fechar: remover overlay
+                    if (overlay) {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.remove(), 300);
+                    }
+                }
+            }
+            
+            // Reajustar mapa após animação
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                    console.log('Mapa redimensionado');
+                }
+            }, 350);
+        });
+    }
 
     // User menu
     const btnUserMenu = document.getElementById('btnUserMenu');
     const userDropdown = document.getElementById('userDropdown');
     
-    btnUserMenu.addEventListener('click', (e) => {
-        e.stopPropagation();
-        userDropdown.classList.toggle('active');
-    });
+    if (btnUserMenu && userDropdown) {
+        btnUserMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
 
-    document.addEventListener('click', () => {
-        userDropdown.classList.remove('active');
-    });
+        document.addEventListener('click', () => {
+            userDropdown.classList.remove('active');
+        });
 
-    userDropdown.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
+        userDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
 
     // Perfil (placeholder)
-    document.getElementById('btnProfile').addEventListener('click', (e) => {
-        e.preventDefault();
-        showToast('Perfil em desenvolvimento', 'info');
-    });
+    const btnProfile = document.getElementById('btnProfile');
+    if (btnProfile) {
+        btnProfile.addEventListener('click', (e) => {
+            e.preventDefault();
+            showToast('Perfil em desenvolvimento', 'info');
+        });
+    }
 
     // Logout
-    document.getElementById('btnLogout').addEventListener('click', async (e) => {
-        e.preventDefault();
-        
-        try {
-            await firebase.auth().signOut();
-            showToast('Saindo...', 'info');
-            setTimeout(() => redirectToLogin(), 500);
-        } catch (error) {
-            console.error('❌ Erro ao sair:', error);
-            showToast('Erro ao sair', 'error');
-        }
-    });
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                await firebase.auth().signOut();
+                showToast('Saindo...', 'info');
+                setTimeout(() => redirectToLogin(), 500);
+            } catch (error) {
+                console.error('❌ Erro ao sair:', error);
+                showToast('Erro ao sair', 'error');
+            }
+        });
+    }
 
     // Map controls
-    document.getElementById('btnMyLocation').addEventListener('click', getMyLocation);
-    document.getElementById('btnRecenter').addEventListener('click', recenterMap);
+    const btnMyLocation = document.getElementById('btnMyLocation');
+    const btnRecenter = document.getElementById('btnRecenter');
+    
+    if (btnMyLocation) {
+        btnMyLocation.addEventListener('click', getMyLocation);
+    }
+    
+    if (btnRecenter) {
+        btnRecenter.addEventListener('click', recenterMap);
+    }
 
     // Clear filters
-    document.getElementById('btnClearFilters').addEventListener('click', () => {
-        filterByCategory('todas');
-    });
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    if (btnClearFilters) {
+        btnClearFilters.addEventListener('click', () => {
+            filterByCategory('todas');
+        });
+    }
 
     // Search
     setupSearch();
 
     // Resize
     window.addEventListener('resize', () => {
-        map.invalidateSize();
+        if (map) {
+            map.invalidateSize();
+        }
+        
+        // Ajustar layout quando redimensiona
+        if (window.innerWidth > 1024) {
+            const overlay = document.getElementById('sidebarOverlay');
+            if (overlay) overlay.remove();
+            
+            // Reabrir sidebar no desktop se estava fechada
+            if (sidebar && !sidebar.classList.contains('active')) {
+                sidebar.classList.add('active');
+                if (btnToggleMenu) btnToggleMenu.classList.add('active');
+                
+                if (mapContainer) {
+                    mapContainer.style.marginLeft = '360px';
+                    mapContainer.style.width = 'calc(100% - 360px)';
+                }
+            }
+        } else {
+            // Mobile: garantir que mapa ocupa tudo
+            if (mapContainer) {
+                mapContainer.style.marginLeft = '0';
+                mapContainer.style.width = '100%';
+            }
+        }
     });
 }
 
@@ -904,4 +1068,52 @@ function showToast(message, type = 'info') {
         toast.style.animation = 'slideInRight 0.2s reverse';
         setTimeout(() => toast.remove(), 200);
     }, 4000);
+}
+
+
+// ===================================
+// FUNCIONALIDADES SIDEBAR
+// ===================================
+
+// Atualizar estatísticas da sidebar
+function updateSidebarStats() {
+    const totalPlaces = document.getElementById('totalPlaces');
+    const totalCategories = document.getElementById('totalCategories');
+    const resultsCount = document.getElementById('resultsCount');
+    
+    if (totalPlaces && allSpaces) {
+        totalPlaces.textContent = allSpaces.length;
+    }
+    
+    if (totalCategories && allSpaces) {
+        const uniqueCategories = [...new Set(allSpaces.map(s => s.categoria))];
+        totalCategories.textContent = uniqueCategories.length;
+    }
+    
+    if (resultsCount) {
+        const activeCategory = document.querySelector('.filter-btn.active')?.dataset.category || 'todas';
+        let count = allSpaces.length;
+        
+        if (activeCategory !== 'todas') {
+            count = allSpaces.filter(s => s.categoria === activeCategory).length;
+        }
+        
+        resultsCount.querySelector('span').textContent = 
+            `${count} ${count === 1 ? 'lugar encontrado' : 'lugares encontrados'}`;
+    }
+}
+
+// Inicializar funcionalidades da sidebar
+function initSidebarFeatures() {
+    console.log('Inicializando funcionalidades da sidebar');
+    updateSidebarStats();
+}
+
+// Hook na inicialização
+const originalInitAppSidebar = window.initApp;
+if (originalInitAppSidebar) {
+    window.initApp = function() {
+        originalInitAppSidebar();
+        setTimeout(initSidebarFeatures, 1000);
+    };
 }

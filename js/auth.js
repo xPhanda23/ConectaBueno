@@ -71,7 +71,7 @@ async function handleLogin(e) {
         if (resultado.success) {
             showToast('Login realizado com sucesso!', 'success');
             setTimeout(() => {
-                window.location.href = '../index.html';
+                window.location.href = 'home.html';
             }, 1000);
         }
     } catch (error) {
@@ -118,7 +118,7 @@ async function handleRegister(e) {
         if (resultado.success) {
             showToast('Conta criada com sucesso!', 'success');
             setTimeout(() => {
-                window.location.href = '../index.html';
+                window.location.href = 'home.html';
             }, 1000);
         }
     } catch (error) {
@@ -191,7 +191,7 @@ async function loginWithGoogle() {
         if (resultado.success) {
             showToast('Login realizado com sucesso!', 'success');
             setTimeout(() => {
-                window.location.href = '../index.html';
+                window.location.href = 'home.html';
             }, 1000);
         }
     } catch (error) {

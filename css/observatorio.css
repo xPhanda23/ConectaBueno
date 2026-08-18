@@ -964,12 +964,27 @@
 /* ===================================
    RESPONSIVE
 =================================== */
-@media (max-width: 768px) {
+@media (max-height: 800px) {
+    .admin-main {
+        padding: 24px;
+    }
+    
+    .content-header {
+        margin-bottom: 24px;
+    }
+    
+    .stats-overview {
+        margin-bottom: 24px;
+    }
+}
+
+@media (max-width: 1024px) {
     .admin-sidebar {
         position: fixed;
         left: -280px;
         transition: left 0.3s ease;
         z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
     
     .admin-sidebar.active {
@@ -978,16 +993,45 @@
     
     .admin-main {
         margin-left: 0;
-        padding: 20px;
+        padding: 24px;
         max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-main {
+        padding: 20px;
+    }
+    
+    .content-header h2 {
+        font-size: 24px;
     }
     
     .stats-overview {
         grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+    
+    .info-card,
+    .analysis-card,
+    .methodology-card {
+        padding: 24px;
     }
     
     .charts-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .chart-wrapper {
+        min-height: 300px;
     }
     
     .info-highlights {
@@ -1005,5 +1049,166 @@
     .ods-card-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .ods-number-large {
+        width: 56px;
+        height: 56px;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-title h1 {
+        font-size: 16px;
+    }
+    
+    .nav-item {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .admin-main {
+        padding: 16px;
+    }
+    
+    .content-header h2 {
+        font-size: 20px;
+    }
+    
+    .content-header p {
+        font-size: 13px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+        gap: 12px;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .stat-label {
+        font-size: 12px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .stat-description {
+        font-size: 11px;
+    }
+    
+    .info-card,
+    .analysis-card,
+    .methodology-card {
+        padding: 20px;
+    }
+    
+    .info-card-header h3,
+    .analysis-header h3 {
+        font-size: 18px;
+    }
+    
+    .doc-section {
+        padding: 16px;
+    }
+    
+    .doc-section h4 {
+        font-size: 15px;
+    }
+    
+    .doc-section p,
+    .doc-section li {
+        font-size: 13px;
+    }
+    
+    .chart-wrapper {
+        min-height: 250px;
+    }
+    
+    .source-card {
+        padding: 16px;
+        grid-template-columns: 40px 1fr;
+        gap: 12px;
+    }
+    
+    .source-icon {
+        font-size: 24px;
+    }
+    
+    .ods-intro-card {
+        padding: 24px;
+    }
+    
+    .ods-intro-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .ods-intro-header h3 {
+        font-size: 20px;
+    }
+    
+    .ods-card-header {
+        padding: 20px;
+    }
+    
+    .ods-card-body {
+        padding: 20px;
+    }
+    
+    .ods-number-large {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+    
+    .ods-info h4 {
+        font-size: 18px;
+    }
+}
+
+
+/* Botão Voltar para Home */
+.nav-item-home {
+    background: linear-gradient(135deg, #2d5a3d 0%, #1a3a2e 100%) !important;
+    color: white !important;
+    font-weight: 600;
+    border: none !important;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-item-home svg {
+    color: white !important;
+}
+
+.nav-item-home:hover {
+    background: linear-gradient(135deg, #245032 0%, #0f1f18 100%) !important;
+    transform: translateX(2px);
+}
+
+.nav-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+    margin: 12px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-item-home {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+    
+    .nav-item-home svg {
+        width: 18px;
+        height: 18px;
     }
 }

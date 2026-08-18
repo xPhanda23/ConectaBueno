@@ -38,6 +38,15 @@
             </div>
 
             <nav class="sidebar-nav">
+                <a href="home.html" class="nav-item nav-item-home">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 3L3 9H6V16H9V12H11V16H14V9H17L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Voltar para Home</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
                 <button class="nav-item active" data-section="dashboard">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -71,6 +80,19 @@
                         <rect x="12" y="12" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
                     </svg>
                     <span>Categorias</span>
+                </button>
+
+                <button class="nav-item" data-section="eventos">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="4" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M6 2V4M14 2V4M3 8H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="7" cy="11" r="1" fill="currentColor"/>
+                        <circle cx="10" cy="11" r="1" fill="currentColor"/>
+                        <circle cx="13" cy="11" r="1" fill="currentColor"/>
+                        <circle cx="7" cy="14" r="1" fill="currentColor"/>
+                        <circle cx="10" cy="14" r="1" fill="currentColor"/>
+                    </svg>
+                    <span>Eventos</span>
                 </button>
 
                 <button class="nav-item" data-section="configuracoes">
@@ -311,6 +333,46 @@
                         <div class="loading-spinner-small"></div>
                         <span>Carregando categorias...</span>
                     </div>
+                </div>
+            </section>
+
+
+            <!-- Eventos Section -->
+            <section id="sectionEventos" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Gerenciar Eventos</h3>
+                        <p>Adicione, edite ou remova eventos e festividades</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddEvento">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Novo Evento
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Categoria</th>
+                                <th>Data Início</th>
+                                <th>Data Fim</th>
+                                <th>Status</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableEventos">
+                            <tr class="loading-row">
+                                <td colspan="6">
+                                    <div class="loading-spinner-small"></div>
+                                    <span>Carregando eventos...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 
@@ -704,6 +766,110 @@
                     <div class="modal-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('modalCategoria')">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Evento -->
+    <div id="modalEvento" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalEventoTitle">Novo Evento</h3>
+                <button class="btn-close" onclick="closeModal('modalEvento')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formEvento">
+                    <input type="hidden" id="eventoId">
+                    
+                    <div class="form-group">
+                        <label>Título do Evento *</label>
+                        <input type="text" id="eventoTitulo" class="form-control" required placeholder="Ex: Festa Junina 2024">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria *</label>
+                            <select id="eventoCategoria" class="form-control" required>
+                                <option value="">Selecione...</option>
+                                <option value="festa">🎉 Festa</option>
+                                <option value="show">🎵 Show</option>
+                                <option value="feira">🛍️ Feira</option>
+                                <option value="esporte">⚽ Esporte</option>
+                                <option value="religioso">⛪ Religioso</option>
+                                <option value="cultural">🎭 Cultural</option>
+                                <option value="gastronomico">🍴 Gastronômico</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status *</label>
+                            <select id="eventoStatus" class="form-control" required>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição *</label>
+                        <textarea id="eventoDescricao" class="form-control" rows="4" required placeholder="Descreva o evento, suas atrações e detalhes importantes..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>📅 Data de Início *</label>
+                            <input type="date" id="eventoDataInicio" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📅 Data de Término</label>
+                            <input type="date" id="eventoDataFim" class="form-control">
+                            <p class="help-text">Deixe em branco se for evento de um dia</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>🕐 Horário</label>
+                            <input type="text" id="eventoHorario" class="form-control" placeholder="Ex: 19h às 23h">
+                        </div>
+                        <div class="form-group">
+                            <label>📍 Local</label>
+                            <input type="text" id="eventoLocal" class="form-control" placeholder="Ex: Praça Central">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>👥 Organizador</label>
+                            <input type="text" id="eventoOrganizador" class="form-control" placeholder="Ex: Prefeitura de Bueno Brandão">
+                        </div>
+                        <div class="form-group">
+                            <label>📞 Contato</label>
+                            <input type="text" id="eventoContato" class="form-control" placeholder="Ex: (35) 99999-9999">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>💰 Entrada</label>
+                            <input type="text" id="eventoEntrada" class="form-control" placeholder="Ex: Gratuita ou R$ 10,00">
+                        </div>
+                        <div class="form-group">
+                            <label>🔗 Link (Site/Instagram)</label>
+                            <input type="url" id="eventoLink" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📸 URL da Imagem do Evento</label>
+                        <input type="url" id="eventoImagem" class="form-control" placeholder="https://...">
+                        <p class="help-text">Cole a URL de uma imagem hospedada (Imgur, Google Drive público, etc)</p>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modalEvento')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Evento</button>
                     </div>
                 </form>
             </div>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2d5a3d">
+    <title>Eventos - Conecta Bueno</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/eventos.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="eventos-header">
+        <div class="header-content">
+            <div class="header-brand">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <circle cx="24" cy="24" r="22" fill="white" opacity="0.2"/>
+                    <path d="M24 12L20 26H28L24 12Z" fill="white"/>
+                    <circle cx="24" cy="30" r="3" fill="white"/>
+                </svg>
+                <div>
+                    <h1>Eventos & Festividades</h1>
+                    <p>Descubra o que está acontecendo em Bueno Brandão</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="home.html" class="btn-nav">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 10L10 3L17 10M5 8V16C5 16.5 5.5 17 6 17H8V12H12V17H14C14.5 17 15 16.5 15 16V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Início
+                </a>
+                <a href="../index.html" class="btn-nav">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2C7.5 2 5 4 5 6.5C5 10.5 10 18 10 18C10 18 15 10.5 15 6.5C15 4 12.5 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="10" cy="6.5" r="2" fill="currentColor"/>
+                    </svg>
+                    Mapa
+                </a>
+                <a href="observatorio.html" class="btn-nav">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="9" width="4" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="8" y="6" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="14" y="8" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Observatório
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <h2>Agenda Cultural Completa</h2>
+            <p>Festas, shows, feiras e eventos que movimentam a cidade</p>
+        </div>
+    </section>
+
+    <!-- Filtros -->
+    <section class="filters-section">
+        <div class="filters-container">
+            <div class="filter-group">
+                <label>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="2" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Categoria
+                </label>
+                <select id="filterCategoria" class="filter-select">
+                    <option value="todos">Todos os eventos</option>
+                    <option value="festa">🎉 Festa</option>
+                    <option value="show">🎵 Show</option>
+                    <option value="feira">🛍️ Feira</option>
+                    <option value="esporte">⚽ Esporte</option>
+                    <option value="religioso">⛪ Religioso</option>
+                    <option value="cultural">🎭 Cultural</option>
+                    <option value="gastronomico">🍴 Gastronômico</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <rect x="3" y="4" width="12" height="11" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M6 2V4M12 2V4M3 7H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Período
+                </label>
+                <select id="filterPeriodo" class="filter-select">
+                    <option value="todos">Todos os períodos</option>
+                    <option value="proximos">Próximos 30 dias</option>
+                    <option value="mes_atual">Mês atual</option>
+                    <option value="proximo_mes">Próximo mês</option>
+                </select>
+            </div>
+            
+            <button class="btn-filter-clear" id="btnClearFilters">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M13 5L5 13M5 5L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Limpar
+            </button>
+        </div>
+    </section>
+
+    <!-- Lista de Eventos -->
+    <section class="eventos-section">
+        <div class="eventos-container">
+            <div class="eventos-header-section">
+                <div>
+                    <h2>Eventos Disponíveis</h2>
+                    <p id="eventoCount">Carregando eventos...</p>
+                </div>
+            </div>
+
+            <!-- Grid de Eventos -->
+            <div class="eventos-grid" id="eventosGrid">
+                <div class="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando eventos...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal Detalhes do Evento -->
+    <div class="modal" id="modalEvento">
+        <div class="modal-overlay" onclick="closeModalEvento()"></div>
+        <div class="modal-dialog">
+            <button class="modal-close" onclick="closeModalEvento()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            
+            <div class="modal-content" id="modalEventoContent">
+                <!-- Conteúdo será inserido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="eventos-footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Conecta Bueno - Bueno Brandão, MG</p>
+            <p>Agenda Cultural da Serra da Mantiqueira</p>
+            <div class="footer-links">
+                <a href="termos-de-uso.html">Termos de Uso</a>
+                <a href="politica-de-privacidade.html">Política de Privacidade</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/eventos.js"></script>
+</body>
+</html>
