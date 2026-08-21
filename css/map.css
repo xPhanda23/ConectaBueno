@@ -399,12 +399,12 @@ body {
 
 .map-wrapper {
     position: relative;
-    margin-top: 70px;
+    display: flex;
     width: 100%;
     height: calc(100vh - 70px);
-    display: flex;
-    overflow: hidden;
     min-height: 0;
+    margin-top: 70px;
+    overflow: hidden;
 }
 
 /* Desktop - layout com sidebar e mapa lado a lado */
@@ -423,23 +423,74 @@ body {
    =================================== */
 
 .map-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 360px;
+    height: calc(100vh - 70px);
     background: #ffffff;
     border-right: 1px solid rgba(15, 23, 42, 0.06);
-    box-shadow: 8px 0 28px rgba(15, 23, 42, 0.08);
+    border-top: none;
+    margin-top: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    height: calc(100vh - 70px);
-    top: 70px;
+    overflow: visible;
+    transition: width 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     transform: translateX(-100%);
     z-index: 1000;
 }
 
-/* Quando ativa, aparece */
 .map-sidebar.active {
     transform: translateX(0);
+}
+
+.map-sidebar.sidebar-collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    transform: translateX(-100%) !important;
+    border-right: none !important;
+    box-shadow: none !important;
+}
+
+.map-sidebar.sidebar-collapsed .sidebar-content {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 54px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2d5a3d, #1a3a2e);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(26, 58, 46, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.25s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    transform: translateY(-50%) scale(1.06);
+}
+
+.sidebar-toggle-btn span {
+    font-size: 26px;
+    line-height: 1;
+    display: block;
+    transform: translateX(-1px);
+}
+
+.sidebar-toggle-btn.active span {
+    transform: rotate(180deg) translateX(-1px);
 }
 
 /* Desktop - sidebar fixa lateral */
@@ -447,7 +498,7 @@ body {
     .map-sidebar {
         position: absolute;
         left: 0;
-        top: 70px;
+        top: 0;
         height: calc(100vh - 70px);
     }
 }
@@ -477,7 +528,12 @@ body {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 18px 18px 12px;
+    padding: 0 18px 16px;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar-content > *:first-child {
+    margin-top: 0;
 }
 
 /* Custom Scrollbar */
@@ -837,9 +893,9 @@ body {
     position: relative;
     flex: 1;
     min-width: 0;
+    width: 100%;
     height: 100%;
     margin-left: 0;
-    width: 100%;
     transition: margin-left 0.3s ease, width 0.3s ease;
     z-index: 1;
 }
@@ -867,6 +923,8 @@ body {
 }
 
 #map {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     background: #e8f4f0;
@@ -1830,6 +1888,7 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 14px;
     padding: 20px;
+    margin-top: 0;
     background: linear-gradient(135deg, #f0f7f4 0%, #e8f4ed 100%);
     border-bottom: 1px solid #d0e8da;
 }
