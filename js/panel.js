@@ -158,12 +158,14 @@ function setupEventListeners() {
     document.getElementById('btnAddUsuario').addEventListener('click', () => openUsuarioModal());
     document.getElementById('btnAddCategoria').addEventListener('click', () => openCategoriaModal());
     document.getElementById('btnAddEvento').addEventListener('click', () => openEventoModal());
+    document.getElementById('btnAddNoticia').addEventListener('click', () => openNoticiaModal());
 
     // Forms
     document.getElementById('formLugar').addEventListener('submit', saveLugar);
     document.getElementById('formUsuario').addEventListener('submit', saveUsuario);
     document.getElementById('formCategoria').addEventListener('submit', saveCategoria);
     document.getElementById('formEvento').addEventListener('submit', saveEvento);
+    document.getElementById('formNoticia').addEventListener('submit', saveNoticia);
 }
 
 async function logout() {
@@ -241,6 +243,9 @@ function loadSectionData(sectionName) {
             break;
         case 'eventos':
             loadEventos();
+            break;
+        case 'noticias':
+            loadNoticias();
             break;
         case 'logs':
             loadLogs();
@@ -1257,3 +1262,167 @@ function deleteEvento(eventoId, titulo) {
 window.editEvento = (id) => openEventoModal(id);
 window.deleteEvento = deleteEvento;
 window.openEventoModal = openEventoModal;
+
+// =====================================================================
+// NOTÍCIAS — CRUD COMPLETO
+// =====================================================================
+
+async function loadNoticias() {
+    const tbody = document.getElementById('tableNoticias');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="6"><div class="loading-spinner-small"></div><span>Carregando...</span></td></tr>';
+
+    try {
+        const snap = await firebase.firestore()
+            .collection('noticias')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        if (snap.empty) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:32px">Nenhuma notícia cadastrada.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        snap.forEach(doc => {
+            const d = doc.data();
+            const createdAt = d.createdAt?.toDate
+                ? d.createdAt.toDate().toLocaleDateString('pt-BR')
+                : '—';
+
+            const statusClass = d.status === 'publicado' ? 'status-active' : 'status-inactive';
+            const statusLabel = d.status === 'publicado' ? 'Publicado' : 'Rascunho';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${escPanel(d.titulo || '—')}</strong></td>
+                    <td>${escPanel(d.categoria || '—')}</td>
+                    <td>${escPanel(d.autor || '—')}</td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td>${createdAt}</td>
+                    <td>
+                        <button class="btn-icon-table" onclick="editNoticia('${doc.id}')" title="Editar">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 15L13.5 4.5C14.3 3.7 15.5 3.7 16.3 4.5C17.1 5.3 17.1 6.5 16.3 7.3L5.8 17.8L3 15Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M12 6L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon-table danger" onclick="deleteNoticia('${doc.id}', '${escPanel(d.titulo)}')" title="Excluir">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error('❌ loadNoticias:', err);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c00;padding:24px">Erro ao carregar notícias.</td></tr>';
+    }
+}
+
+function openNoticiaModal(noticiaId = null) {
+    document.getElementById('modalNoticiaTitle').textContent = noticiaId ? 'Editar Notícia' : 'Nova Notícia';
+    document.getElementById('noticiaId').value = noticiaId || '';
+    document.getElementById('formNoticia').reset();
+
+    if (noticiaId) {
+        loadNoticiaData(noticiaId);
+    }
+
+    openModal('modalNoticia');
+}
+
+async function loadNoticiaData(noticiaId) {
+    try {
+        const doc = await firebase.firestore()
+            .collection('noticias').doc(noticiaId).get();
+
+        if (!doc.exists) return;
+        const d = doc.data();
+
+        document.getElementById('noticiaTitulo').value    = d.titulo    || '';
+        document.getElementById('noticiaCategoria').value = d.categoria || '';
+        document.getElementById('noticiaStatus').value    = d.status    || 'rascunho';
+        document.getElementById('noticiaAutor').value     = d.autor     || '';
+        document.getElementById('noticiaResumo').value    = d.resumo    || '';
+        document.getElementById('noticiaConteudo').value  = d.conteudo  || '';
+        document.getElementById('noticiaImagem').value    = d.imagem    || '';
+    } catch (err) {
+        console.error('❌ loadNoticiaData:', err);
+        showToast('Erro ao carregar notícia.', 'error');
+    }
+}
+
+async function saveNoticia(e) {
+    e.preventDefault();
+
+    const id         = document.getElementById('noticiaId').value;
+    const titulo     = document.getElementById('noticiaTitulo').value.trim();
+    const categoria  = document.getElementById('noticiaCategoria').value;
+    const status     = document.getElementById('noticiaStatus').value;
+    const autor      = document.getElementById('noticiaAutor').value.trim();
+    const resumo     = document.getElementById('noticiaResumo').value.trim();
+    const conteudo   = document.getElementById('noticiaConteudo').value.trim();
+    const imagem     = document.getElementById('noticiaImagem').value.trim();
+
+    if (!titulo || !conteudo) {
+        showToast('Preencha o título e o conteúdo.', 'error');
+        return;
+    }
+
+    const payload = {
+        titulo, categoria, status, autor, resumo, conteudo,
+        imagem: imagem || null,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (id) {
+            await firebase.firestore().collection('noticias').doc(id).update(payload);
+            showToast('Notícia atualizada com sucesso!', 'success');
+            await logAction('update', 'noticias', `Editou: ${titulo}`);
+        } else {
+            payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await firebase.firestore().collection('noticias').add(payload);
+            showToast('Notícia criada com sucesso!', 'success');
+            await logAction('create', 'noticias', `Criou: ${titulo}`);
+        }
+
+        closeModal('modalNoticia');
+        loadNoticias();
+    } catch (err) {
+        console.error('❌ saveNoticia:', err);
+        showToast('Erro ao salvar notícia: ' + err.message, 'error');
+    }
+}
+
+function deleteNoticia(noticiaId, titulo) {
+    showConfirm(
+        `Tem certeza que deseja excluir a notícia "${titulo}"?`,
+        async () => {
+            try {
+                await firebase.firestore().collection('noticias').doc(noticiaId).delete();
+                showToast('Notícia excluída com sucesso!', 'success');
+                await logAction('delete', 'noticias', `Excluiu: ${titulo}`);
+                loadNoticias();
+            } catch (err) {
+                console.error('❌ deleteNoticia:', err);
+                showToast('Erro ao excluir notícia.', 'error');
+            }
+        }
+    );
+}
+
+// Helper para escapar strings em HTML inline (apenas aspas simples)
+function escPanel(str) {
+    return String(str ?? '').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Expor funções globais de Notícias
+window.editNoticia   = (id) => openNoticiaModal(id);
+window.deleteNoticia = deleteNoticia;
+window.openNoticiaModal = openNoticiaModal;
+window.loadNoticias  = loadNoticias;

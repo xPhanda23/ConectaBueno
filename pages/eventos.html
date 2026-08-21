@@ -4,163 +4,327 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2d5a3d">
-    <title>Eventos - Conecta Bueno</title>
-    
-    <!-- Estilos -->
+    <meta name="description" content="Agenda Cultural de Bueno Brandão — Eventos, festas e festividades da Serra da Mantiqueira.">
+    <title>Agenda Cultural — Conecta Bueno</title>
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/eventos.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="eventos-header">
-        <div class="header-content">
-            <div class="header-brand">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                    <circle cx="24" cy="24" r="22" fill="white" opacity="0.2"/>
-                    <path d="M24 12L20 26H28L24 12Z" fill="white"/>
-                    <circle cx="24" cy="30" r="3" fill="white"/>
+
+    <!-- ═══════════════════════════
+         HEADER
+         ═══════════════════════════ -->
+    <header class="site-header" id="siteHeader">
+        <div class="hd-inner">
+
+            <a href="home.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
+                <div class="hd-brand-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path d="M11 2C8.2 2 5.5 4.5 5.5 7.5C5.5 12 11 20 11 20S16.5 12 16.5 7.5C16.5 4.5 13.8 2 11 2Z" fill="white"/>
+                        <circle cx="11" cy="7.5" r="2" fill="rgba(255,255,255,0.4)"/>
+                    </svg>
+                </div>
+                <span class="hd-brand-name">Conecta Bueno</span>
+            </a>
+
+            <nav class="hd-nav" aria-label="Navegação principal">
+                <a href="home.html"        class="hd-nav-link">Início</a>
+                <a href="../index.html"    class="hd-nav-link">Mapa</a>
+                <a href="eventos.html"     class="hd-nav-link hd-nav-active">Eventos</a>
+                <a href="observatorio.html" class="hd-nav-link">Observatório</a>
+            </nav>
+
+            <button class="hd-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <div>
-                    <h1>Eventos & Festividades</h1>
-                    <p>Descubra o que está acontecendo em Bueno Brandão</p>
+            </button>
+
+            <div class="hd-user-wrap" id="hdUserWrap">
+                <button class="hd-avatar" id="btnUserMenu" aria-label="Menu do usuário" aria-expanded="false">
+                    <span id="userInitials">CB</span>
+                </button>
+                <div class="hd-dropdown" id="userDropdown" role="menu">
+                    <div class="hd-dd-profile">
+                        <div class="hd-dd-avatar"><span id="userInitialsLarge">CB</span></div>
+                        <div class="hd-dd-info">
+                            <strong id="userName">…</strong>
+                            <span id="userEmail">…</span>
+                        </div>
+                    </div>
+                    <div class="hd-dd-divider"></div>
+                    <a href="home.html"        class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="../index.html"    class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
+                    <div class="hd-dd-divider"></div>
+                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
                 </div>
             </div>
-            <nav class="header-nav">
-                <a href="home.html" class="btn-nav">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M3 10L10 3L17 10M5 8V16C5 16.5 5.5 17 6 17H8V12H12V17H14C14.5 17 15 16.5 15 16V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    Início
-                </a>
-                <a href="../index.html" class="btn-nav">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 2C7.5 2 5 4 5 6.5C5 10.5 10 18 10 18C10 18 15 10.5 15 6.5C15 4 12.5 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
-                        <circle cx="10" cy="6.5" r="2" fill="currentColor"/>
-                    </svg>
-                    Mapa
-                </a>
-                <a href="observatorio.html" class="btn-nav">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <rect x="2" y="9" width="4" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="8" y="6" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="14" y="8" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                    Observatório
-                </a>
-            </nav>
+
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-container">
-            <h2>Agenda Cultural Completa</h2>
-            <p>Festas, shows, feiras e eventos que movimentam a cidade</p>
-        </div>
-    </section>
+    <!-- ═══════════════════════════
+         HERO
+         ═══════════════════════════ -->
+    <section class="ev-hero">
+        <div class="ev-hero-inner">
+            <span class="ev-eyebrow">Bueno Brandão · Serra da Mantiqueira</span>
 
-    <!-- Filtros -->
-    <section class="filters-section">
-        <div class="filters-container">
-            <div class="filter-group">
-                <label>
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="2" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="11" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="11" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                    Categoria
-                </label>
-                <select id="filterCategoria" class="filter-select">
-                    <option value="todos">Todos os eventos</option>
-                    <option value="festa">🎉 Festa</option>
-                    <option value="show">🎵 Show</option>
-                    <option value="feira">🛍️ Feira</option>
-                    <option value="esporte">⚽ Esporte</option>
-                    <option value="religioso">⛪ Religioso</option>
-                    <option value="cultural">🎭 Cultural</option>
-                    <option value="gastronomico">🍴 Gastronômico</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label>
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <rect x="3" y="4" width="12" height="11" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M6 2V4M12 2V4M3 7H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    Período
-                </label>
-                <select id="filterPeriodo" class="filter-select">
-                    <option value="todos">Todos os períodos</option>
-                    <option value="proximos">Próximos 30 dias</option>
-                    <option value="mes_atual">Mês atual</option>
-                    <option value="proximo_mes">Próximo mês</option>
-                </select>
-            </div>
-            
-            <button class="btn-filter-clear" id="btnClearFilters">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path d="M13 5L5 13M5 5L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <h1>Agenda Cultural</h1>
+
+            <p>Festas, shows, feiras e festividades que movimentam a cidade</p>
+
+            <!-- Busca -->
+            <div class="ev-search-bar" role="search">
+                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                    <circle cx="7.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M11 11l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
-                Limpar
-            </button>
-        </div>
-    </section>
-
-    <!-- Lista de Eventos -->
-    <section class="eventos-section">
-        <div class="eventos-container">
-            <div class="eventos-header-section">
-                <div>
-                    <h2>Eventos Disponíveis</h2>
-                    <p id="eventoCount">Carregando eventos...</p>
-                </div>
+                <input
+                    type="search"
+                    id="searchInput"
+                    class="ev-search-input"
+                    placeholder="Buscar evento pelo nome…"
+                    autocomplete="off"
+                    aria-label="Buscar eventos"
+                >
+                <button class="ev-search-clear" id="searchClear" hidden aria-label="Limpar busca">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                        <path d="M2.5 2.5l8 8M10.5 2.5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
             </div>
 
-            <!-- Grid de Eventos -->
-            <div class="eventos-grid" id="eventosGrid">
-                <div class="loading-state">
-                    <div class="loading-spinner"></div>
-                    <p>Carregando eventos...</p>
+            <!-- Stats -->
+            <div class="ev-hero-stats" aria-label="Estatísticas de eventos">
+                <div class="ev-hstat">
+                    <span id="totalEventos">—</span>
+                    <small>eventos este mês</small>
+                </div>
+                <div class="ev-hstat-sep" aria-hidden="true"></div>
+                <div class="ev-hstat">
+                    <span id="proximoEvento">—</span>
+                    <small>próximo evento</small>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Modal Detalhes do Evento -->
-    <div class="modal" id="modalEvento">
-        <div class="modal-overlay" onclick="closeModalEvento()"></div>
-        <div class="modal-dialog">
-            <button class="modal-close" onclick="closeModalEvento()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-            
-            <div class="modal-content" id="modalEventoContent">
-                <!-- Conteúdo será inserido via JS -->
+    <!-- ═══════════════════════════
+         FILTROS — sticky
+         ═══════════════════════════ -->
+    <div class="ev-filters-bar" id="filtersBar">
+        <div class="ev-filters-inner">
+
+            <!-- Período -->
+            <div class="ev-tabs" role="tablist" aria-label="Filtrar por período">
+                <button class="ev-tab ev-tab-active" data-period="todos"   role="tab" aria-selected="true">Todos</button>
+                <button class="ev-tab"               data-period="hoje"    role="tab" aria-selected="false">Hoje</button>
+                <button class="ev-tab"               data-period="semana"  role="tab" aria-selected="false">Esta semana</button>
+                <button class="ev-tab"               data-period="mes"     role="tab" aria-selected="false">Este mês</button>
+                <button class="ev-tab"               data-period="proximos" role="tab" aria-selected="false">Próximos</button>
             </div>
+
+            <div class="ev-filter-sep" aria-hidden="true"></div>
+
+            <!-- Categorias — populadas pelo JS -->
+            <div class="ev-cats" id="evCats" role="group" aria-label="Filtrar por categoria">
+                <button class="ev-cat ev-cat-active" data-cat="todos">Todas</button>
+            </div>
+
+            <!-- Toggle de visualização -->
+            <div class="ev-view-toggle" role="group" aria-label="Modo de visualização">
+                <button class="ev-view-btn ev-view-active" data-view="grid" aria-label="Grade" title="Grade">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                        <rect x="1" y="1" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="8.5" y="1" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="1" y="8.5" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                </button>
+                <button class="ev-view-btn" data-view="timeline" aria-label="Lista" title="Lista">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                        <rect x="4.5" y="2" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                        <rect x="4.5" y="6.5" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                        <rect x="4.5" y="11" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                        <circle cx="1.5" cy="3.25" r="1.25" fill="currentColor"/>
+                        <circle cx="1.5" cy="7.75" r="1.25" fill="currentColor"/>
+                        <circle cx="1.5" cy="12.25" r="1.25" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Contador -->
+            <span class="ev-count" id="evCount" aria-live="polite" aria-atomic="true"></span>
+
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="eventos-footer">
-        <div class="footer-content">
-            <p>&copy; 2024 Conecta Bueno - Bueno Brandão, MG</p>
-            <p>Agenda Cultural da Serra da Mantiqueira</p>
-            <div class="footer-links">
-                <a href="termos-de-uso.html">Termos de Uso</a>
-                <a href="politica-de-privacidade.html">Política de Privacidade</a>
+    <!-- ═══════════════════════════
+         CONTEÚDO
+         ═══════════════════════════ -->
+    <main class="ev-main">
+        <div class="ev-main-inner">
+
+            <!-- Sidebar: calendário + próximas datas -->
+            <aside class="ev-sidebar" aria-label="Calendário e próximas datas">
+
+                <div class="ev-mini-cal" id="miniCal" aria-label="Calendário de eventos">
+                    <div class="ev-cal-loading">
+                        <div class="ev-spinner"></div>
+                        <span>Carregando…</span>
+                    </div>
+                </div>
+
+                <div class="ev-cal-legend" aria-hidden="true">
+                    <div class="ev-cal-leg-item">
+                        <span class="ev-cal-dot ev-cal-dot-event"></span>
+                        Com evento
+                    </div>
+                    <div class="ev-cal-leg-item">
+                        <span class="ev-cal-dot ev-cal-dot-today"></span>
+                        Hoje
+                    </div>
+                </div>
+
+                <div class="ev-upcoming-list" id="upcomingList" aria-label="Próximas datas">
+                    <p class="ev-sidebar-title">Próximas datas</p>
+                    <div class="ev-cal-loading">
+                        <div class="ev-spinner"></div>
+                        <span>Carregando…</span>
+                    </div>
+                </div>
+
+            </aside>
+
+            <!-- Área de eventos -->
+            <section aria-label="Lista de eventos">
+
+                <div class="ev-loading-state" id="evLoadingState">
+                    <div class="ev-spinner ev-spinner-lg"></div>
+                    <p>Carregando eventos…</p>
+                </div>
+
+                <!-- Grade -->
+                <div class="ev-grid" id="evGrid" hidden></div>
+
+                <!-- Timeline -->
+                <div class="ev-timeline" id="evTimeline" hidden></div>
+
+                <!-- Vazio -->
+                <div class="ev-empty" id="evEmpty" hidden>
+                    <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true">
+                        <rect x="8" y="10" width="40" height="36" rx="3" stroke="#d1d5db" stroke-width="2"/>
+                        <path d="M16 6v5M40 6v5M8 20h40" stroke="#d1d5db" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="20" cy="32" r="2" fill="#e5e7eb"/>
+                        <circle cx="28" cy="32" r="2" fill="#e5e7eb"/>
+                        <circle cx="36" cy="32" r="2" fill="#e5e7eb"/>
+                    </svg>
+                    <h3 id="evEmptyTitle">Nenhum evento encontrado</h3>
+                    <p  id="evEmptyDesc">Tente ajustar os filtros ou a busca.</p>
+                    <button class="ev-btn-secondary" id="evClearAll">Limpar filtros</button>
+                </div>
+
+                <!-- Carregar mais -->
+                <div class="ev-load-more" id="evLoadMore" hidden>
+                    <button class="ev-btn-loadmore" id="btnLoadMore">
+                        Carregar mais
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                            <path d="M7.5 3v9M4 9l3.5 3.5L11 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════
+         ÚLTIMAS NOTÍCIAS
+         ═══════════════════════════ -->
+    <section class="ev-news-section" id="secNoticias">
+        <div class="container">
+            <div class="ev-sec-header">
+                <div>
+                    <span class="ev-sec-tag">Conecta Bueno</span>
+                    <h2>Últimas Notícias</h2>
+                    <p>Informações e novidades sobre a cultura local</p>
+                </div>
+            </div>
+            <div class="ev-news-grid" id="newsGrid">
+                <div class="ev-grid-loading">
+                    <div class="ev-spinner"></div>
+                    <span>Carregando notícias…</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════
+         MODAL
+         ═══════════════════════════ -->
+    <div id="modalEvento" class="ev-modal" role="dialog" aria-modal="true" aria-labelledby="modalEventoTitle" hidden>
+        <div class="ev-modal-overlay" id="modalOverlay"></div>
+        <div class="ev-modal-box">
+            <button class="ev-modal-close" id="modalClose" aria-label="Fechar">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════
+         FOOTER
+         ═══════════════════════════ -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="ft-grid">
+                <div class="ft-brand-col">
+                    <div class="ft-brand">
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                            <path d="M14 2C10.5 2 7.5 5 7.5 8.5C7.5 14 14 24 14 24S20.5 14 20.5 8.5C20.5 5 17.5 2 14 2Z" fill="white"/>
+                            <circle cx="14" cy="8.5" r="2.5" fill="rgba(255,255,255,0.4)"/>
+                        </svg>
+                        <div>
+                            <strong>Conecta Bueno</strong>
+                            <span>Plataforma Cultural Oficial</span>
+                        </div>
+                    </div>
+                    <p class="ft-desc">Democratizando o acesso à cultura e ao turismo de Bueno Brandão, Serra da Mantiqueira, MG.</p>
+                </div>
+                <div class="ft-col">
+                    <strong>Explorar</strong>
+                    <a href="home.html">Início</a>
+                    <a href="../index.html">Mapa Interativo</a>
+                    <a href="eventos.html">Agenda Cultural</a>
+                    <a href="observatorio.html">Observatório</a>
+                </div>
+                <div class="ft-col">
+                    <strong>Legal</strong>
+                    <a href="termos-de-uso.html">Termos de Uso</a>
+                    <a href="politica-de-privacidade.html">Privacidade</a>
+                </div>
+            </div>
+            <div class="ft-bottom">
+                <span>© 2024 Conecta Bueno — Plataforma oficial · Acesso gratuito</span>
             </div>
         </div>
     </footer>
 
-    <!-- Firebase -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="../js/firebase-config.js"></script>
+    <script src="../js/shared-components.js"></script>
     <script src="../js/eventos.js"></script>
+
 </body>
 </html>

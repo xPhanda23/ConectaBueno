@@ -4,417 +4,582 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2d5a3d">
-    <title>Login - Conecta Bueno | Bueno Brandão, MG</title>
-    
-    <!-- Estilos -->
-    <link rel="stylesheet" href="../css/global.css">
+    <meta name="description" content="Conecta Bueno — Plataforma cultural de Bueno Brandão, Serra da Mantiqueira, MG.">
+    <title>Conecta Bueno — Acesse a Plataforma</title>
     <link rel="stylesheet" href="../css/auth.css">
 </head>
 <body class="auth-page">
-    <!-- Container Principal -->
-    <div class="auth-container">
-        <!-- Painel Esquerdo - Identidade Visual -->
-        <aside class="auth-visual">
-            <div class="visual-overlay"></div>
-            <div class="visual-content">
-                <!-- Logos Institucionais -->
-                <div class="institutional-logos">
-                    <div class="logo-item">
-                        <div class="logo-placeholder">
-                            <img src="../assets/images/bueno.png" alt="Prefeitura Bueno Brandão" width="60" height="60">
-                            <span class="logo-text">Prefeitura<br>Bueno Brandão</span>
-                        </div>
-                    </div>
-                    <div class="logo-separator"></div>
-                    <div class="logo-item">
-                        <div class="logo-placeholder">
-                            <img src="../assets/images/turismo.png" alt="Secretaria de Cultura" width="60" height="60">
-                            <span class="logo-text">Secretaria<br>de Cultura</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Branding -->
-                <div class="brand-main">
-                    <h1>Conecta Bueno</h1>
-                    <p class="brand-tagline">Mapa Cultural de Bueno Brandão</p>
-                    <div class="brand-location">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 0C5.2 0 3 2.2 3 5c0 3.9 5 11 5 11s5-7.1 5-11c0-2.8-2.2-5-5-5zm0 7.5c-1.4 0-2.5-1.1-2.5-2.5S6.6 2.5 8 2.5s2.5 1.1 2.5 2.5S9.4 7.5 8 7.5z"/>
-                        </svg>
-                        Serra da Mantiqueira, Minas Gerais
-                    </div>
-                </div>
+    <!-- =====================================================
+         FUNDO FULLSCREEN (foto ou gradiente)
+         ===================================================== -->
+    <div class="bg-photo" id="bgPhoto" aria-hidden="true">
+        <!-- overlay escurece a foto para legibilidade -->
+        <div class="bg-photo__overlay"></div>
+    </div>
 
-                <!-- Features -->
-                <div class="features-list">
-                    <div class="feature-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 2L12 8H18L13 12L15 18L10 14L5 18L7 12L2 8H8L10 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                        </svg>
-                        <span>Espaços Culturais e Históricos</span>
-                    </div>
-                    <div class="feature-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 2C10 2 4 6 4 10C4 13 6 15 10 18C14 15 16 13 16 10C16 6 10 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 11L9 13L13 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <span>Cachoeiras e Natureza</span>
-                    </div>
-                    <div class="feature-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M10 6V10L13 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <span>Roteiros e Eventos</span>
-                    </div>
-                </div>
+    <!-- =====================================================
+         SELETOR DE FOTO DE FUNDO (canto inferior esquerdo)
+         ===================================================== -->
+    <div class="bg-picker" id="bgPicker" role="group" aria-label="Escolher foto de fundo">
+        <button class="bg-picker__toggle" id="bgPickerToggle"
+                aria-expanded="false" aria-controls="bgPickerPanel"
+                title="Escolher foto de fundo">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
+                <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
+                <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
+                <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
+            </svg>
+            <span>Foto de fundo</span>
+        </button>
 
-                <!-- Footer Info -->
-                <div class="visual-footer">
-                    <p class="small">© 2026 Plataforma Conecta Bueno</p>
-                </div>
-            </div>
-        </aside>
+        <div class="bg-picker__panel" id="bgPickerPanel" hidden>
+            <p class="bg-picker__label">Escolha a imagem de fundo</p>
 
-        <!-- Painel Direito - Formulários -->
-        <main class="auth-forms">
-            <!-- Tabs -->
-            <div class="auth-tabs">
-                <button class="tab-button active" data-tab="login">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <path d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M3 15C3 12.7909 4.79086 11 7 11H11C13.2091 11 15 12.7909 15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    <span>Entrar</span>
-                </button>
-                <button class="tab-button" data-tab="register">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    <span>Cadastrar</span>
-                </button>
-            </div>
+            <div class="bg-picker__grid">
 
-            <!-- Formulário de Login -->
-            <form id="formLogin" class="auth-form active">
-                <div class="form-header">
-                    <h2>Bem-vindo de volta</h2>
-                    <p>Entre com suas credenciais para continuar</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="loginEmail">E-mail</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M3 6L10 11L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <input 
-                            type="email" 
-                            id="loginEmail" 
-                            class="form-input" 
-                            placeholder="seu@email.com"
-                            autocomplete="email"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="loginPassword">Senha</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="5" y="9" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <input 
-                            type="password" 
-                            id="loginPassword" 
-                            class="form-input" 
-                            placeholder="Digite sua senha"
-                            autocomplete="current-password"
-                            required
-                        >
-                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M10 7C8.34315 7 7 8.34315 7 10C7 11.6569 8.34315 13 10 13C11.6569 13 13 11.6569 13 10C13 8.34315 11.6569 7 10 7Z" stroke="currentColor" stroke-width="1.5"/>
-                                <path d="M2 10C2 10 5 4 10 4C15 4 18 10 18 10C18 10 15 16 10 16C5 16 2 10 2 10Z" stroke="currentColor" stroke-width="1.5"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="rememberMe" style="display: none;">
-                        <span class="checkmark"></span>
-                        <span>Lembrar de mim</span>
-                    </label>
-                    <a href="#" class="link-secondary" onclick="showForgotPassword(); return false;">
-                        Esqueceu a senha?
-                    </a>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block">
-                    Entrar
+                <!-- Opção 1: Gradiente verde padrão -->
+                <button class="bg-option active" data-bg="gradient"
+                        aria-label="Fundo verde padrão" title="Verde Padrão">
+                    <span class="bg-option__preview bg-option__preview--gradient"></span>
+                    <span>Padrão</span>
                 </button>
 
-                <div class="divider">
-                    <span>ou continue com</span>
-                </div>
-
-                <button type="button" class="btn btn-google" onclick="loginWithGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/>
-                        <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.7-5.6-4.1H1v2.6C2.7 17.9 6.2 20 10 20z"/>
-                        <path fill="#FBBC05" d="M4.4 11.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V5.5H1C.4 6.8 0 8.4 0 10s.4 3.2 1 4.5l2.6-2 .8-.6z"/>
-                        <path fill="#EA4335" d="M10 3.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9C15 1 12.7 0 10 0 6.2 0 2.7 2.1 1 5.5l3.4 2.6C5.2 5.6 7.4 3.9 10 3.9z"/>
-                    </svg>
-                    <span>Google</span>
+                <!-- Opção 2: imagem turismo.png já existente -->
+                <button class="bg-option" data-bg="../assets/images/turismo.png"
+                        aria-label="Foto turismo" title="Turismo">
+                    <span class="bg-option__preview"
+                          style="background-image:url('../assets/images/turismo.png')"></span>
+                    <span>Turismo</span>
                 </button>
-            </form>
 
-            <!-- Formulário de Cadastro -->
-            <form id="formRegister" class="auth-form">
-                <div class="form-header">
-                    <h2>Criar nova conta</h2>
-                    <p>Junte-se à comunidade do Conecta Bueno</p>
-                </div>
+                <!-- Opção 3: imagem bueno.png já existente -->
+                <button class="bg-option" data-bg="../assets/images/bueno.png"
+                        aria-label="Foto Bueno Brandão" title="Bueno">
+                    <span class="bg-option__preview"
+                          style="background-image:url('../assets/images/bueno.png')"></span>
+                    <span>Bueno</span>
+                </button>
 
-                <div class="form-group">
-                    <label for="registerName">Nome completo</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M4 15C4 12.7909 5.79086 11 8 11H12C14.2091 11 16 12.7909 16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- Opção 4: upload de foto personalizada -->
+                <label class="bg-option bg-option--upload" title="Enviar foto">
+                    <input type="file" id="bgUpload" accept="image/*" hidden>
+                    <span class="bg-option__preview bg-option__preview--upload">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M10 3v10M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M3 14v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                         </svg>
-                        <input 
-                            type="text" 
-                            id="registerName" 
-                            class="form-input" 
-                            placeholder="Seu nome completo"
-                            autocomplete="name"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="registerEmail">E-mail</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M3 6L10 11L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <input 
-                            type="email" 
-                            id="registerEmail" 
-                            class="form-input" 
-                            placeholder="seu@email.com"
-                            autocomplete="email"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="registerPassword">Senha</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="5" y="9" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <input 
-                            type="password" 
-                            id="registerPassword" 
-                            class="form-input" 
-                            placeholder="Mínimo 6 caracteres"
-                            autocomplete="new-password"
-                            required
-                        >
-                        <button type="button" class="toggle-password" onclick="togglePassword('registerPassword')">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M10 7C8.34315 7 7 8.34315 7 10C7 11.6569 8.34315 13 10 13C11.6569 13 13 11.6569 13 10C13 8.34315 11.6569 7 10 7Z" stroke="currentColor" stroke-width="1.5"/>
-                                <path d="M2 10C2 10 5 4 10 4C15 4 18 10 18 10C18 10 15 16 10 16C5 16 2 10 2 10Z" stroke="currentColor" stroke-width="1.5"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <small class="input-hint">A senha deve ter no mínimo 6 caracteres</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="registerPasswordConfirm">Confirmar senha</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M7 9L9 11L13 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <rect x="5" y="9" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <input 
-                            type="password" 
-                            id="registerPasswordConfirm" 
-                            class="form-input" 
-                            placeholder="Digite a senha novamente"
-                            autocomplete="new-password"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <label class="checkbox-label checkbox-terms">
-                    <input type="checkbox" id="acceptTerms" required style="display: none;">
-                    <span class="checkmark"></span>
-                    <span>Li e aceito os <a href="#" onclick="showTerms(); return false;" class="link-primary">Termos de Uso</a> e a <a href="#" onclick="showPrivacy(); return false;" class="link-primary">Política de Privacidade</a></span>
+                    </span>
+                    <span>Enviar</span>
                 </label>
 
-                <button type="submit" class="btn btn-primary btn-block">
-                    Criar Conta
-                </button>
+            </div>
+        </div>
+    </div>
 
-                <div class="divider">
-                    <span>ou continue com</span>
-                </div>
+    <!-- =====================================================
+         CONTEÚDO PRINCIPAL — lado esquerdo + card
+         ===================================================== -->
+    <div class="auth-layout">
 
-                <button type="button" class="btn btn-google" onclick="loginWithGoogle()">
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/>
-                        <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.7-5.6-4.1H1v2.6C2.7 17.9 6.2 20 10 20z"/>
-                        <path fill="#FBBC05" d="M4.4 11.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V5.5H1C.4 6.8 0 8.4 0 10s.4 3.2 1 4.5l2.6-2 .8-.6z"/>
-                        <path fill="#EA4335" d="M10 3.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9C15 1 12.7 0 10 0 6.2 0 2.7 2.1 1 5.5l3.4 2.6C5.2 5.6 7.4 3.9 10 3.9z"/>
+        <!-- Lado esquerdo — brand e tagline sobre a foto -->
+        <div class="auth-hero">
+            <div class="auth-hero__brand">
+                <div class="auth-hero__logo" aria-hidden="true">
+                    <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                        <path d="M15 2.5C11.5 2.5 8 5.5 8 9.5C8 15 15 27.5 15 27.5C15 27.5 22 15 22 9.5C22 5.5 18.5 2.5 15 2.5Z" fill="white"/>
+                        <circle cx="15" cy="9.5" r="3" fill="rgba(255,255,255,0.3)"/>
                     </svg>
-                    <span>Google</span>
-                </button>
-            </form>
-
-            <!-- Formulário de Recuperação de Senha -->
-            <div id="forgotPasswordForm" class="auth-form">
-                <button class="btn-back" onclick="hideForgotPassword()">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <span>Voltar</span>
-                </button>
-                
-                <div class="form-header">
-                    <h2>Recuperar senha</h2>
-                    <p>Digite seu e-mail e enviaremos um link para redefinir sua senha</p>
                 </div>
+                <div>
+                    <span class="auth-hero__name">Conecta Bueno</span>
+                    <span class="auth-hero__sub">Bueno Brandão · Serra da Mantiqueira</span>
+                </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="forgotEmail">E-mail</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M3 6L10 11L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            <rect x="3" y="5" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <div class="auth-hero__tagline">
+                <h1>
+                    Descubra a<br>
+                    <em>alma cultural</em><br>
+                    da cidade
+                </h1>
+                <p>Mapa interativo, agenda de eventos e dados culturais abertos para toda a comunidade.</p>
+            </div>
+
+            <!-- Três pilares (apenas desktop) -->
+            <ul class="auth-hero__features" aria-label="Recursos da plataforma">
+                <li>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M8 1.5C5.8 1.5 4 3.3 4 5.5C4 8.5 8 14.5 8 14.5S12 8.5 12 5.5C12 3.3 10.2 1.5 8 1.5Z" stroke="white" stroke-width="1.5"/>
+                        <circle cx="8" cy="5.5" r="1.5" stroke="white" stroke-width="1.5"/>
+                    </svg>
+                    <span>Mapa interativo com lugares turísticos</span>
+                </li>
+                <li>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <rect x="2" y="3" width="12" height="10.5" rx="1.5" stroke="white" stroke-width="1.5"/>
+                        <path d="M4.5 1.5v2M11.5 1.5v2M2 6.5h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="5.5" cy="9.5" r="1" fill="white"/>
+                        <circle cx="8" cy="9.5" r="1" fill="white"/>
+                        <circle cx="10.5" cy="9.5" r="1" fill="white"/>
+                    </svg>
+                    <span>Agenda cultural e eventos locais</span>
+                </li>
+                <li>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <rect x="1.5" y="8" width="3.5" height="6.5" rx="1" stroke="white" stroke-width="1.5"/>
+                        <rect x="6.5" y="4.5" width="3.5" height="10" rx="1" stroke="white" stroke-width="1.5"/>
+                        <rect x="11.5" y="6.5" width="3.5" height="8" rx="1" stroke="white" stroke-width="1.5"/>
+                    </svg>
+                    <span>Observatório com dados culturais abertos</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Card de autenticação -->
+        <div class="auth-card-wrap">
+            <div class="auth-card">
+
+                <!-- Logos institucionais -->
+                <div class="card-logos">
+                    <figure class="card-logo">
+                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" role="img" aria-label="Prefeitura">
+                            <circle cx="19" cy="19" r="17" fill="rgba(240,247,244,0.9)" stroke="#2d5a3d" stroke-width="1.5"/>
+                            <path d="M19 9.5L16.5 18H21.5L19 9.5Z" fill="#2d5a3d"/>
+                            <circle cx="19" cy="24" r="2.3" fill="#2d5a3d"/>
                         </svg>
-                        <input 
-                            type="email" 
-                            id="forgotEmail" 
-                            class="form-input" 
-                            placeholder="seu@email.com"
-                            required
-                        >
+                        <figcaption>Prefeitura</figcaption>
+                    </figure>
+                    <div class="card-logos__sep" aria-hidden="true"></div>
+                    <figure class="card-logo">
+                        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" role="img" aria-label="Sec. Cultura">
+                            <circle cx="19" cy="19" r="17" fill="rgba(240,247,244,0.9)" stroke="#2d5a3d" stroke-width="1.5"/>
+                            <rect x="12.5" y="11" width="13" height="17" rx="1.5" stroke="#2d5a3d" stroke-width="1.5"/>
+                            <path d="M15 16.5h8M15 20h8M15 23.5h5" stroke="#2d5a3d" stroke-width="1.3" stroke-linecap="round"/>
+                        </svg>
+                        <figcaption>Sec. Cultura</figcaption>
+                    </figure>
+                </div>
+
+                <!-- Tabs -->
+                <div class="card-tabs" role="tablist" aria-label="Modo de acesso">
+                    <button class="card-tab tab-button active"
+                        id="tab-login" role="tab"
+                        aria-selected="true" aria-controls="formLogin"
+                        data-tab="login">Entrar</button>
+                    <button class="card-tab tab-button"
+                        id="tab-register" role="tab"
+                        aria-selected="false" aria-controls="formRegister"
+                        data-tab="register">Criar conta</button>
+                    <span class="card-tabs__ink" id="tabsSlider" aria-hidden="true"></span>
+                </div>
+
+                <!-- ==================
+                     FORM: LOGIN
+                     ================== -->
+                <form id="formLogin" class="auth-form active"
+                    role="tabpanel" aria-labelledby="tab-login" novalidate>
+
+                    <div class="form-field">
+                        <label for="loginEmail">E-mail</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <path d="M1.5 4.5L7.5 8.5L13.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                                <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                            </svg>
+                            <input type="email" id="loginEmail" class="form-input"
+                                placeholder="seu@email.com" autocomplete="email">
+                        </div>
+                        <span class="field__error" id="loginEmailError" role="alert"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="loginPassword">Senha</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <rect x="2.5" y="6.5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                                <path d="M4.5 6.5V5a3 3 0 016 0v1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                            </svg>
+                            <input type="password" id="loginPassword" class="form-input"
+                                placeholder="Sua senha" autocomplete="current-password">
+                            <button type="button" class="toggle-password"
+                                onclick="togglePassword('loginPassword')"
+                                aria-label="Mostrar/ocultar senha">
+                                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                    <path d="M1.5 7.5s2.5-5 6-5 6 5 6 5-2.5 5-6 5-6-5-6-5z" stroke="currentColor" stroke-width="1.4"/>
+                                    <circle cx="7.5" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="field__error" id="loginPasswordError" role="alert"></span>
+                    </div>
+
+                    <div class="form-opts">
+                        <label class="cb-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="cb-box"></span>
+                            Lembrar de mim
+                        </label>
+                        <button type="button" class="text-link" onclick="switchTab('forgot')">
+                            Esqueceu a senha?
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnLogin">
+                        <span>Entrar na Plataforma</span>
+                    </button>
+
+                    <div class="form-divider"><span>ou entre com</span></div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn-social btn-google"
+                            id="btnGoogle" onclick="handleGoogleLogin()">
+                            <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true">
+                                <path fill="#4285F4" d="M14.5 7.7c0-.56-.05-1.02-.13-1.5H7.5v2.83h3.94c-.17.85-.68 1.57-1.45 2.05v1.7h2.34c1.37-1.27 2.17-3.14 2.17-5.08z"/>
+                                <path fill="#34A853" d="M7.5 15c1.97 0 3.62-.65 4.83-1.77l-2.34-1.7c-.65.43-1.49.68-2.49.68-1.91 0-3.53-1.29-4.11-3.02H1v1.75A7.5 7.5 0 007.5 15z"/>
+                                <path fill="#FBBC05" d="M3.39 9.19A4.5 4.5 0 013.13 7.5c0-.59.1-1.16.26-1.69V4.06H1A7.5 7.5 0 000 7.5c0 1.21.29 2.35.75 3.38l2.64-1.69z"/>
+                                <path fill="#EA4335" d="M7.5 2.98c1.08 0 2.05.37 2.81 1.1l2.1-2.1C11.11.74 9.46 0 7.5 0A7.5 7.5 0 00.75 4.06l2.64 1.75C3.97 4.27 5.59 2.98 7.5 2.98z"/>
+                            </svg>
+                            Google
+                        </button>
+                        <button type="button" class="btn-social btn-visitor"
+                            id="btnVisitor" onclick="handleVisitorLogin()">
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+                                <path d="M2 13.5c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                            </svg>
+                            Visitante
+                        </button>
+                    </div>
+
+                </form>
+
+                <!-- ==================
+                     FORM: CADASTRO
+                     ================== -->
+                <form id="formRegister" class="auth-form"
+                    role="tabpanel" aria-labelledby="tab-register" novalidate>
+
+                    <div class="form-field">
+                        <label for="registerName">Nome completo</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+                                <path d="M2 13.5c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                            </svg>
+                            <input type="text" id="registerName" class="form-input"
+                                placeholder="Seu nome completo" autocomplete="name">
+                        </div>
+                        <span class="field__error" id="registerNameError" role="alert"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="registerEmail">E-mail</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <path d="M1.5 4.5L7.5 8.5L13.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                                <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                            </svg>
+                            <input type="email" id="registerEmail" class="form-input"
+                                placeholder="seu@email.com" autocomplete="email">
+                        </div>
+                        <span class="field__error" id="registerEmailError" role="alert"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="registerPassword">Senha</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <rect x="2.5" y="6.5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                                <path d="M4.5 6.5V5a3 3 0 016 0v1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                            </svg>
+                            <input type="password" id="registerPassword" class="form-input"
+                                placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                            <button type="button" class="toggle-password"
+                                onclick="togglePassword('registerPassword')"
+                                aria-label="Mostrar/ocultar senha">
+                                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                    <path d="M1.5 7.5s2.5-5 6-5 6 5 6 5-2.5 5-6 5-6-5-6-5z" stroke="currentColor" stroke-width="1.4"/>
+                                    <circle cx="7.5" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="field__error" id="registerPasswordError" role="alert"></span>
+                    </div>
+
+                    <!-- Força da senha -->
+                    <div class="password-strength" id="passwordStrength" aria-live="polite">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-label" id="strengthLabel"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="cb-label">
+                            <input type="checkbox" id="acceptTerms">
+                            <span class="cb-box"></span>
+                            Aceito os
+                            <button type="button" class="text-link" onclick="openModal('modalTermos')">Termos de Uso</button>
+                            e a
+                            <button type="button" class="text-link" onclick="openModal('modalPrivacidade')">Política de Privacidade</button>
+                        </label>
+                        <span class="field__error" id="termsError" role="alert"></span>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnRegister">
+                        <span>Criar Conta Gratuita</span>
+                    </button>
+
+                    <div class="form-divider"><span>ou cadastre-se com</span></div>
+
+                    <button type="button" class="btn-social btn-google btn-full"
+                        onclick="handleGoogleLogin()">
+                        <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true">
+                            <path fill="#4285F4" d="M14.5 7.7c0-.56-.05-1.02-.13-1.5H7.5v2.83h3.94c-.17.85-.68 1.57-1.45 2.05v1.7h2.34c1.37-1.27 2.17-3.14 2.17-5.08z"/>
+                            <path fill="#34A853" d="M7.5 15c1.97 0 3.62-.65 4.83-1.77l-2.34-1.7c-.65.43-1.49.68-2.49.68-1.91 0-3.53-1.29-4.11-3.02H1v1.75A7.5 7.5 0 007.5 15z"/>
+                            <path fill="#FBBC05" d="M3.39 9.19A4.5 4.5 0 013.13 7.5c0-.59.1-1.16.26-1.69V4.06H1A7.5 7.5 0 000 7.5c0 1.21.29 2.35.75 3.38l2.64-1.69z"/>
+                            <path fill="#EA4335" d="M7.5 2.98c1.08 0 2.05.37 2.81 1.1l2.1-2.1C11.11.74 9.46 0 7.5 0A7.5 7.5 0 00.75 4.06l2.64 1.75C3.97 4.27 5.59 2.98 7.5 2.98z"/>
+                        </svg>
+                        Cadastrar com Google
+                    </button>
+
+                </form>
+
+                <!-- ==================
+                     FORM: RECUPERAR SENHA
+                     ================== -->
+                <form id="formForgot" class="auth-form" novalidate>
+
+                    <button type="button" class="btn-back" onclick="switchTab('login')">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                            <path d="M8.5 2L4 6.5L8.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Voltar
+                    </button>
+
+                    <div class="form-head">
+                        <h3>Recuperar senha</h3>
+                        <p>Enviaremos um link de redefinição para o seu e-mail</p>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="forgotEmail">E-mail cadastrado</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <path d="M1.5 4.5L7.5 8.5L13.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                                <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                            </svg>
+                            <input type="email" id="forgotEmail" class="form-input"
+                                placeholder="seu@email.com" autocomplete="email">
+                        </div>
+                        <span class="field__error" id="forgotEmailError" role="alert"></span>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnForgot">
+                        <span>Enviar link de recuperação</span>
+                    </button>
+
+                </form>
+
+                <!-- Vitrine de próximos eventos (carregada pelo auth.js) -->
+                <div class="card-vitrine">
+                    <p class="card-vitrine__label">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                            <path d="M5.5 1L6.5 3.8H9.5L7.2 5.5L8.1 8.3L5.5 6.6L2.9 8.3L3.8 5.5L1.5 3.8H4.5L5.5 1Z"
+                                  stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+                        </svg>
+                        Próximos Eventos
+                    </p>
+                    <div id="eventosListaVitrine" class="card-vitrine__grid">
+                        <div class="vitrine-loading">
+                            <div class="vitrine-spinner" aria-hidden="true"></div>
+                            <span>Carregando…</span>
+                        </div>
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-primary btn-block" onclick="sendPasswordReset()">
-                    Enviar Link de Recuperação
-                </button>
-            </div>
-        </main>
-    </div>
+            </div><!-- /.auth-card -->
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container"></div>
+            <p class="auth-footnote">Plataforma oficial da Prefeitura de Bueno Brandão, MG</p>
+        </div><!-- /.auth-card-wrap -->
+    </div><!-- /.auth-layout -->
 
-    <!-- Modal de Termos -->
-    <div id="modalTerms" class="modal">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-header">
-                <h3>Termos de Uso - Conecta Bueno</h3>
-                <button class="btn-close-modal" onclick="closeTerms()">&times;</button>
+    <!-- =====================================================
+         MODAL — TERMOS DE USO
+         ===================================================== -->
+    <div id="modalTermos" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTermosTitle">
+        <div class="modal-box modal-box--lg">
+            <div class="modal-head">
+                <h3 id="modalTermosTitle">Termos de Uso</h3>
+                <button class="btn-close-modal" onclick="closeModal('modalTermos')" aria-label="Fechar">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="terms-content">
-                    <h4>1. Aceitação dos Termos</h4>
-                    <p>Ao acessar e usar o Conecta Bueno, você concorda com estes termos de uso.</p>
-                    
+                <div class="legal">
+                    <p><strong>Última atualização:</strong> Janeiro de 2024</p>
+                    <h4>1. Aceite dos Termos</h4>
+                    <p>Ao acessar a plataforma Conecta Bueno, você concorda com estes termos.</p>
                     <h4>2. Uso da Plataforma</h4>
-                    <p>O Conecta Bueno é uma plataforma oficial da Prefeitura Municipal de Bueno Brandão para divulgação de espaços culturais, turísticos e eventos da cidade.</p>
-                    
-                    <h4>3. Cadastro e Conta</h4>
-                    <p>Para acessar recursos completos, você pode criar uma conta fornecendo informações verdadeiras e atualizadas. Você é responsável por manter a confidencialidade de sua senha.</p>
-                    
+                    <ul>
+                        <li>Acesso gratuito a eventos, lugares e patrimônio cultural</li>
+                        <li>Criação de conta para recursos personalizados</li>
+                        <li>Respeito às diretrizes da comunidade</li>
+                    </ul>
+                    <h4>3. Responsabilidades do Usuário</h4>
+                    <ul>
+                        <li>Fornecer informações verdadeiras no cadastro</li>
+                        <li>Manter a confidencialidade de sua senha</li>
+                        <li>Usar a plataforma de forma ética e legal</li>
+                    </ul>
                     <h4>4. Propriedade Intelectual</h4>
-                    <p>Todo o conteúdo da plataforma, incluindo textos, imagens e marcas, são de propriedade da Prefeitura de Bueno Brandão ou licenciados para uso.</p>
-                    
-                    <h4>5. Conduta do Usuário</h4>
-                    <p>Você concorda em não usar a plataforma para fins ilegais ou não autorizados.</p>
-                    
-                    <h4>6. Modificações</h4>
-                    <p>Reservamo-nos o direito de modificar estes termos a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação.</p>
-                    
-                    <h4>7. Contato</h4>
-                    <p>Para dúvidas sobre estes termos, entre em contato com a Secretaria de Cultura de Bueno Brandão.</p>
+                    <p>O conteúdo é de propriedade da Prefeitura de Bueno Brandão e seus parceiros.</p>
+                    <h4>5. Contato</h4>
+                    <p>Dúvidas: <a href="mailto:cultura@buenobrando.mg.gov.br">cultura@buenobrando.mg.gov.br</a></p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeTerms()">Fechar</button>
+            <div class="modal-foot">
+                <button class="btn-modal-sec" onclick="closeModal('modalTermos')">Fechar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Privacidade -->
-    <div id="modalPrivacy" class="modal">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-header">
-                <h3>Política de Privacidade - Conecta Bueno</h3>
-                <button class="btn-close-modal" onclick="closePrivacy()">&times;</button>
+    <!-- =====================================================
+         MODAL — POLÍTICA DE PRIVACIDADE
+         ===================================================== -->
+    <div id="modalPrivacidade" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPrivacidadeTitle">
+        <div class="modal-box modal-box--lg">
+            <div class="modal-head">
+                <h3 id="modalPrivacidadeTitle">Política de Privacidade</h3>
+                <button class="btn-close-modal" onclick="closeModal('modalPrivacidade')" aria-label="Fechar">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="terms-content">
-                    <h4>1. Informações Coletadas</h4>
-                    <p>Coletamos informações fornecidas voluntariamente, como nome e e-mail ao criar uma conta.</p>
-                    
-                    <h4>2. Uso das Informações</h4>
-                    <p>As informações são usadas para:</p>
+                <div class="legal">
+                    <p><strong>Última atualização:</strong> Janeiro de 2024</p>
+                    <h4>1. Coleta de Dados</h4>
                     <ul>
-                        <li>Fornecer e melhorar nossos serviços</li>
-                        <li>Personalizar sua experiência</li>
-                        <li>Enviar comunicações sobre eventos e novidades</li>
+                        <li>Nome e e-mail para criação de conta</li>
+                        <li>Dados de navegação anônimos para melhorias</li>
+                        <li>Localização aproximada (opcional) para o mapa</li>
                     </ul>
-                    
-                    <h4>3. Compartilhamento de Dados</h4>
-                    <p>Não vendemos ou compartilhamos suas informações pessoais com terceiros, exceto quando exigido por lei.</p>
-                    
-                    <h4>4. Segurança</h4>
-                    <p>Implementamos medidas de segurança para proteger suas informações, incluindo criptografia e acesso restrito.</p>
-                    
-                    <h4>5. Cookies</h4>
-                    <p>Utilizamos cookies para melhorar a funcionalidade e experiência do usuário.</p>
-                    
-                    <h4>6. Seus Direitos</h4>
-                    <p>Você tem direito de acessar, corrigir ou excluir seus dados pessoais. Entre em contato conosco para exercer esses direitos.</p>
-                    
-                    <h4>7. Alterações</h4>
-                    <p>Esta política pode ser atualizada periodicamente. Recomendamos revisar regularmente.</p>
+                    <h4>2. Uso dos Dados</h4>
+                    <ul>
+                        <li>Personalizar sua experiência na plataforma</li>
+                        <li>Notificações sobre eventos (opcional)</li>
+                        <li>Melhoria contínua dos serviços</li>
+                    </ul>
+                    <h4>3. Compartilhamento</h4>
+                    <p>Não vendemos nem compartilhamos seus dados pessoais com terceiros.</p>
+                    <h4>4. Seus Direitos</h4>
+                    <ul>
+                        <li>Acessar e corrigir seus dados</li>
+                        <li>Solicitar exclusão da conta</li>
+                    </ul>
+                    <h4>5. Segurança</h4>
+                    <p>Utilizamos Firebase (Google Cloud) para proteção dos seus dados.</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closePrivacy()">Fechar</button>
+            <div class="modal-foot">
+                <button class="btn-modal-sec" onclick="closeModal('modalPrivacidade')">Fechar</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Configuração e Autenticação -->
+    <!-- Toasts -->
+    <div id="toastContainer" class="toast-container" aria-live="assertive" aria-atomic="false"></div>
+
+    <!-- Firebase SDK v8 compat -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- App scripts -->
     <script src="../js/firebase-config.js"></script>
     <script src="../js/firebase-auth.js"></script>
     <script src="../js/auth.js"></script>
+
+    <!-- Seletor de foto de fundo -->
+    <script>
+    (function () {
+        'use strict';
+
+        const BG_KEY   = 'cb_login_bg';
+        const GRADIENT = 'gradient';
+
+        const bgPhoto  = document.getElementById('bgPhoto');
+        const toggle   = document.getElementById('bgPickerToggle');
+        const panel    = document.getElementById('bgPickerPanel');
+        const options  = document.querySelectorAll('.bg-option[data-bg]');
+        const upload   = document.getElementById('bgUpload');
+
+        /* ── Aplica um fundo ──────────────────────────────── */
+        function applyBg(value) {
+            if (value === GRADIENT || !value) {
+                bgPhoto.style.backgroundImage =
+                    'linear-gradient(145deg,#0f2419 0%,#1a3a2e 50%,#2d5a3d 100%)';
+            } else {
+                bgPhoto.style.backgroundImage = `url('${value}')`;
+            }
+        }
+
+        /* ── Marca a opção ativa ─────────────────────────── */
+        function markActive(value) {
+            options.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.bg === value);
+            });
+        }
+
+        /* ── Inicializa com valor salvo ──────────────────── */
+        function init() {
+            const saved = localStorage.getItem(BG_KEY) || GRADIENT;
+            applyBg(saved);
+            markActive(saved);
+        }
+
+        /* ── Clique em uma opção ─────────────────────────── */
+        options.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = btn.dataset.bg;
+                applyBg(val);
+                markActive(val);
+                localStorage.setItem(BG_KEY, val);
+            });
+        });
+
+        /* ── Upload de foto personalizada ────────────────── */
+        upload.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const dataUrl = ev.target.result;
+                applyBg(dataUrl);
+                // Não marca nenhuma opção como ativa (é upload personalizado)
+                options.forEach(b => b.classList.remove('active'));
+                localStorage.setItem(BG_KEY, dataUrl);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        /* ── Toggle do painel ────────────────────────────── */
+        toggle.addEventListener('click', () => {
+            const isOpen = !panel.hidden;
+            panel.hidden = isOpen;
+            toggle.setAttribute('aria-expanded', String(!isOpen));
+        });
+
+        /* ── Fecha ao clicar fora ────────────────────────── */
+        document.addEventListener('click', e => {
+            if (!document.getElementById('bgPicker').contains(e.target)) {
+                panel.hidden = true;
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        init();
+    })();
+    </script>
+
 </body>
 </html>

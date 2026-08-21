@@ -103,6 +103,14 @@
                     <span>Configurações</span>
                 </button>
                 
+                <button class="nav-item" data-section="noticias">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M6 7h8M6 10h8M6 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Notícias</span>
+                </button>
+
                 <button class="nav-item" data-section="logs">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <rect x="4" y="3" width="12" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -227,6 +235,20 @@
                                     <circle cx="9" cy="10" r="2" fill="currentColor"/>
                                 </svg>
                                 Gerenciar Lugares
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('eventos')">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <rect x="2" y="3" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M5 2v2M13 2v2M2 7h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                Gerenciar Eventos
+                            </button>
+                            <button class="btn btn-secondary" onclick="showSection('noticias')">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <rect x="2" y="3" width="14" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M5 7h8M5 10h8M5 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                Gerenciar Notícias
                             </button>
                             <button class="btn btn-secondary" onclick="showSection('configuracoes')">
                                 Configurações
@@ -506,6 +528,45 @@
                 </div>
             </section>
 
+
+            <!-- Notícias Section -->
+            <section id="sectionNoticias" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Gerenciar Notícias</h3>
+                        <p>Publique e gerencie notícias e informações culturais</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddNoticia">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Nova Notícia
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Categoria</th>
+                                <th>Autor</th>
+                                <th>Status</th>
+                                <th>Data</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableNoticias">
+                            <tr class="loading-row">
+                                <td colspan="6">
+                                    <div class="loading-spinner-small"></div>
+                                    <span>Carregando notícias...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
             <!-- Logs Section -->
             <section id="sectionLogs" class="section-content">
@@ -870,6 +931,74 @@
                     <div class="modal-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('modalEvento')">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Salvar Evento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Notícia -->
+    <div id="modalNoticia" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalNoticiaTitle">Nova Notícia</h3>
+                <button class="btn-close" onclick="closeModal('modalNoticia')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formNoticia">
+                    <input type="hidden" id="noticiaId">
+
+                    <div class="form-group">
+                        <label>Título *</label>
+                        <input type="text" id="noticiaTitulo" class="form-control" required placeholder="Título da notícia">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria</label>
+                            <select id="noticiaCategoria" class="form-control">
+                                <option value="">Selecione...</option>
+                                <option value="Cultura">🎭 Cultura</option>
+                                <option value="Eventos">📅 Eventos</option>
+                                <option value="Turismo">🌿 Turismo</option>
+                                <option value="Gastronomia">🍽️ Gastronomia</option>
+                                <option value="Patrimônio">🏛️ Patrimônio</option>
+                                <option value="Geral">📰 Geral</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status *</label>
+                            <select id="noticiaStatus" class="form-control" required>
+                                <option value="rascunho">Rascunho</option>
+                                <option value="publicado">Publicado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Autor</label>
+                        <input type="text" id="noticiaAutor" class="form-control" placeholder="Nome do autor">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Resumo</label>
+                        <input type="text" id="noticiaResumo" class="form-control" placeholder="Resumo curto (exibido nos cards)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Conteúdo *</label>
+                        <textarea id="noticiaConteudo" class="form-control" rows="8" required
+                            placeholder="Conteúdo completo da notícia. Use quebras de linha para parágrafos."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL da Imagem</label>
+                        <input type="url" id="noticiaImagem" class="form-control" placeholder="https://...">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modalNoticia')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Notícia</button>
                     </div>
                 </form>
             </div>
