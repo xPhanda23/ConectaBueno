@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#9dcfb0"/>
+      <stop offset="1" stop-color="#6aad80"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)"/>
+  <g fill="#ffffff" opacity="0.95">
+    <path d="M80 420 C180 320 320 300 480 360 C640 420 780 380 920 320 C1060 260 1120 240 1200 300 L1200 600 L0 600 L0 300 C40 240 140 220 220 260 C300 300 380 380 480 420 Z"/>
+  </g>
+  <g transform="translate(80,60)" fill="#ffffff" opacity="0.9">
+    <circle cx="180" cy="120" r="36"/>
+    <rect x="300" y="80" width="220" height="120" rx="10"/>
+    <rect x="560" y="40" width="240" height="160" rx="10"/>
+  </g>
+  <text x="60" y="540" font-family="Inter, Arial, sans-serif" font-size="28" fill="rgba(255,255,255,0.9)">Bueno Brandão — imagem padrão</text>
+</svg>

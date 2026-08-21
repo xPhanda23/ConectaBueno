@@ -157,62 +157,62 @@ function displayUserProfile() {
     // Atualizar avatar pequeno (header)
     const userAvatar = document.getElementById('btnUserMenu');
     const userInitials = document.getElementById('userInitials');
-    
-    if (photoURL && photoURL.startsWith('data:image')) {
-        // Tem foto - criar elemento img
-        userInitials.style.display = 'none';
-        let img = userAvatar.querySelector('img');
-        if (!img) {
-            img = document.createElement('img');
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.borderRadius = '50%';
-            img.style.objectFit = 'cover';
-            userAvatar.appendChild(img);
+
+    if (userAvatar && userInitials) {
+        if (photoURL && photoURL.startsWith('data:image')) {
+            userInitials.style.display = 'none';
+            let img = userAvatar.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.borderRadius = '50%';
+                img.style.objectFit = 'cover';
+                userAvatar.appendChild(img);
+            }
+            img.src = photoURL;
+        } else {
+            userInitials.textContent = iniciais;
+            userInitials.style.display = 'flex';
+            const img = userAvatar.querySelector('img');
+            if (img) img.remove();
         }
-        img.src = photoURL;
-    } else {
-        // Sem foto - usar iniciais
-        userInitials.textContent = iniciais;
-        userInitials.style.display = 'flex';
-        const img = userAvatar.querySelector('img');
-        if (img) img.remove();
     }
-    
-    // Atualizar avatar grande (dropdown)
-    const userAvatarLarge = document.querySelector('.user-avatar-large');
+
+    // Atualizar avatar grande (dropdown) — usa os elementos do cabeçalho da Home
+    const userAvatarLarge = document.querySelector('#userDropdown .hd-dd-avatar');
     const userInitialsLarge = document.getElementById('userInitialsLarge');
-    
-    if (photoURL && photoURL.startsWith('data:image')) {
-        // Tem foto
-        userInitialsLarge.style.display = 'none';
-        let imgLarge = userAvatarLarge.querySelector('img');
-        if (!imgLarge) {
-            imgLarge = document.createElement('img');
-            imgLarge.style.width = '100%';
-            imgLarge.style.height = '100%';
-            imgLarge.style.borderRadius = '50%';
-            imgLarge.style.objectFit = 'cover';
-            userAvatarLarge.appendChild(imgLarge);
+
+    if (userAvatarLarge && userInitialsLarge) {
+        if (photoURL && photoURL.startsWith('data:image')) {
+            userInitialsLarge.style.display = 'none';
+            let imgLarge = userAvatarLarge.querySelector('img');
+            if (!imgLarge) {
+                imgLarge = document.createElement('img');
+                imgLarge.style.width = '100%';
+                imgLarge.style.height = '100%';
+                imgLarge.style.borderRadius = '50%';
+                imgLarge.style.objectFit = 'cover';
+                userAvatarLarge.appendChild(imgLarge);
+            }
+            imgLarge.src = photoURL;
+        } else {
+            userInitialsLarge.textContent = iniciais;
+            userInitialsLarge.style.display = 'flex';
+            const imgLarge = userAvatarLarge.querySelector('img');
+            if (imgLarge) imgLarge.remove();
         }
-        imgLarge.src = photoURL;
-    } else {
-        // Sem foto
-        userInitialsLarge.textContent = iniciais;
-        userInitialsLarge.style.display = 'flex';
-        const imgLarge = userAvatarLarge.querySelector('img');
-        if (imgLarge) imgLarge.remove();
     }
 
-    document.getElementById('userName').textContent = nome;
-    document.getElementById('userEmail').textContent = email;
+    const userName = document.getElementById('userName');
+    const userEmail = document.getElementById('userEmail');
+    if (userName) userName.textContent = nome;
+    if (userEmail) userEmail.textContent = email;
 
-    // Mostrar/esconder painel admin
-    const btnAdminPanel = document.getElementById('btnAdminPanel');
-    if (currentUser.isAdmin) {
-        btnAdminPanel.style.display = 'flex';
-    } else {
-        btnAdminPanel.style.display = 'none';
+    // Mostrar/esconder painel admin (ID novo do header da Home)
+    const menuAdminPanel = document.getElementById('menuAdminPanel');
+    if (menuAdminPanel) {
+        menuAdminPanel.style.display = currentUser.isAdmin ? 'flex' : 'none';
     }
 }
 
@@ -426,6 +426,7 @@ function filterByCategory(category) {
     
     renderSpaces(filtered);
     updateResultsCount(filtered.length);
+    focusMapOnPlaces(filtered);
     updateSidebarStats();
 }
 
@@ -624,8 +625,7 @@ function createPopupContent(space) {
     
     // Botões de ação
     let actionsHTML = '<div class="popup-actions">';
-    
-    // Botão principal: Como Chegar
+
     actionsHTML += `
         <a href="https://www.google.com/maps/dir/?api=1&destination=${space.lat},${space.lng}" 
            target="_blank"
@@ -635,7 +635,17 @@ function createPopupContent(space) {
                 <path d="M9 1L3 7H7V13H11V7H15L9 1Z" fill="currentColor"/>
                 <rect x="3" y="15" width="12" height="2" rx="1" fill="currentColor"/>
             </svg>
-            <span>Como Chegar</span>
+            <span>Ir com Google Maps</span>
+        </a>
+        <a href="https://waze.com/ul?ll=${space.lat},${space.lng}&navigate=yes" 
+           target="_blank"
+           rel="noopener"
+           class="popup-btn popup-btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M9 2.5C5.97 2.5 3.5 4.7 3.5 7.7C3.5 10.5 5.6 12.6 8.2 12.9L8.2 14.5H9.8V12.9C12.4 12.6 14.5 10.5 14.5 7.7C14.5 4.7 12.03 2.5 9 2.5Z" stroke="currentColor" stroke-width="1.4"/>
+                <circle cx="9" cy="8" r="2.1" stroke="currentColor" stroke-width="1.4"/>
+            </svg>
+            <span>Ir com Waze</span>
         </a>
     `;
     
@@ -752,6 +762,40 @@ function focusOnSpace(space) {
 // BUSCA
 // ===================================
 
+function focusMapOnPlaces(filteredPlaces) {
+    if (!map || !filteredPlaces || filteredPlaces.length === 0) return;
+
+    const validPlaces = filteredPlaces.filter(space => Number.isFinite(space.lat) && Number.isFinite(space.lng));
+    if (validPlaces.length === 0) return;
+
+    if (validPlaces.length === 1) {
+        const target = validPlaces[0];
+        map.setView([target.lat, target.lng], 15, {
+            animate: true,
+            duration: 1.1
+        });
+
+        setTimeout(() => {
+            const match = markers.find(marker => {
+                const pos = marker.getLatLng();
+                return Math.abs(pos.lat - target.lat) < 0.0001 && Math.abs(pos.lng - target.lng) < 0.0001;
+            });
+
+            if (match) {
+                match.openPopup();
+            }
+        }, 450);
+
+        return;
+    }
+
+    const bounds = L.latLngBounds(validPlaces.map(space => [space.lat, space.lng]));
+    map.fitBounds(bounds.pad(0.35), {
+        animate: true,
+        duration: 1.2
+    });
+}
+
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     const btnClearSearch = document.getElementById('btnClearSearch');
@@ -763,7 +807,7 @@ function setupSearch() {
             btnClearSearch.style.display = 'block';
             
             const filtered = allSpaces.filter(space => {
-                return space.nome.toLowerCase().includes(query) ||
+                return (space.nome && space.nome.toLowerCase().includes(query)) ||
                        (space.categoria && space.categoria.toLowerCase().includes(query)) ||
                        (space.endereco && space.endereco.toLowerCase().includes(query)) ||
                        (space.descricao && space.descricao.toLowerCase().includes(query));
@@ -771,10 +815,15 @@ function setupSearch() {
 
             renderSpaces(filtered);
             updateResultsCount(filtered.length);
+            focusMapOnPlaces(filtered);
         } else {
             btnClearSearch.style.display = 'none';
             renderSpaces(allSpaces);
             updateResultsCount(allSpaces.length);
+            map.setView([BUENO_CENTER.lat, BUENO_CENTER.lng], 14, {
+                animate: true,
+                duration: 1
+            });
         }
     });
 
@@ -783,6 +832,10 @@ function setupSearch() {
         btnClearSearch.style.display = 'none';
         renderSpaces(allSpaces);
         updateResultsCount(allSpaces.length);
+        map.setView([BUENO_CENTER.lat, BUENO_CENTER.lng], 14, {
+            animate: true,
+            duration: 1
+        });
     });
 }
 
@@ -894,15 +947,19 @@ function setupEventListeners() {
     // User menu
     const btnUserMenu = document.getElementById('btnUserMenu');
     const userDropdown = document.getElementById('userDropdown');
-    
+
     if (btnUserMenu && userDropdown) {
         btnUserMenu.addEventListener('click', (e) => {
             e.stopPropagation();
-            userDropdown.classList.toggle('active');
+            const isOpen = userDropdown.classList.toggle('active');
+            btnUserMenu.setAttribute('aria-expanded', String(isOpen));
         });
 
-        document.addEventListener('click', () => {
-            userDropdown.classList.remove('active');
+        document.addEventListener('click', (event) => {
+            if (!userDropdown.contains(event.target) && event.target !== btnUserMenu) {
+                userDropdown.classList.remove('active');
+                btnUserMenu.setAttribute('aria-expanded', 'false');
+            }
         });
 
         userDropdown.addEventListener('click', (e) => {

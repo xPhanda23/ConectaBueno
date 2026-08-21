@@ -57,13 +57,13 @@
                         </div>
                     </div>
                     <div class="hd-dd-divider"></div>
-                    <a href="home.html" class="hd-dd-item">Início</a>
-                    <a href="../index.html" class="hd-dd-item">Mapa</a>
-                    <a href="eventos.html" class="hd-dd-item">Eventos</a>
-                    <a href="observatorio.html" class="hd-dd-item">Observatório</a>
-                    <a href="panel.html" class="hd-dd-item" id="menuAdminPanel" style="display:none">Painel Admin</a>
+                    <a href="home.html"        class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="../index.html"    class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
                     <div class="hd-dd-divider"></div>
-                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout">Sair</a>
+                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
                 </div>
             </div>
         </div>
@@ -92,16 +92,28 @@
                 </a>
             </div>
 
+            <div class="weather-widget" id="weatherWidget" aria-live="polite">
+                <div class="weather-main">
+                    <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
+                    <span class="weather-temp" id="weatherTemp">--°C</span>
+                    <span class="weather-desc" id="weatherDesc">Carregando clima…</span>
+                </div>
+                <div class="weather-meta">
+                    <span class="weather-city">Bueno Brandão</span>
+                    <span class="weather-updated" id="weatherUpdated">agora</span>
+                </div>
+            </div>
+
             <div class="hero-stats">
-                <div class="hero-stat">
+                <button class="hero-stat hero-stat-link" type="button" data-target="map" aria-label="Ver lugares em mapa">
                     <span class="stat-num" id="statPlaces">—</span>
                     <span class="stat-label">Lugares</span>
-                </div>
+                </button>
                 <div class="hero-stat-divider"></div>
-                <div class="hero-stat">
+                <button class="hero-stat hero-stat-link" type="button" data-target="eventos" aria-label="Ver eventos ativos">
                     <span class="stat-num" id="statEvents">—</span>
                     <span class="stat-label">Eventos Ativos</span>
-                </div>
+                </button>
                 <div class="hero-stat-divider"></div>
                 <div class="hero-stat">
                     <span class="stat-num">~10k</span>
@@ -194,8 +206,20 @@
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                     </a>
                 </div>
-                <div class="about-image">
-                    <img src="../assets/images/turismo.png" alt="Bueno Brandão" loading="lazy">
+                <div class="about-visual" aria-label="Galeria de paisagens de Bueno Brandão">
+                    <div class="about-slider" id="aboutSlider">
+                        <div class="about-slide active" style="background-image: url('https://terradascachoeiras.com.br/wp-content/uploads/2020/08/foto-secretaria-de-turismo.jpg');"></div>
+                        <div class="about-slide" style="background-image: url('https://i0.wp.com/arotaalternativaviagens.com/wp-content/uploads/2025/01/img_3791.jpeg?fit=1170%2C1458&ssl=1');"></div>
+                        <div class="about-slide" style="background-image: url('https://terradascachoeiras.com.br/wp-content/uploads/2020/08/bueno-ao-entardecer.jpg');"></div>
+                        <div class="about-slide" style="background-image: url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/55/70/f1/venha-ser-felix-venha.jpg?w=1400&h=-1&s=1');"></div>
+                    </div>
+                    <div class="about-map-badge" aria-label="Localização de Bueno Brandão">
+                        <span class="about-map-pin">📍</span>
+                        <div>
+                            <strong>Bueno Brandão</strong>
+                            <small>Serra da Mantiqueira</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,7 +256,7 @@
                 </div>
             </div>
             <div class="ft-bottom">
-                <span>© 2024 Conecta Bueno — Plataforma oficial</span>
+                <span>© 2026 Conecta Bueno</span>
             </div>
         </div>
     </footer>
@@ -240,13 +264,13 @@
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
-      <div class="vw-plugin-top-wrapper"></div>
+    <div class="vw-plugin-top-wrapper"></div>
     </div>
-  </div>
-  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-  <script>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
     new window.VLibras.Widget('https://vlibras.gov.br/app');
-  </script>
+    </script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
