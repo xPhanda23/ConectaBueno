@@ -1,0 +1,165 @@
+// ================================================================
+// firestore.rules — Conecta Bueno
+// Regras de segurança do Cloud Firestore
+//
+// Como aplicar:
+//   firebase deploy --only firestore:rules
+//   OU cole este conteúdo em:
+//   Firebase Console > Firestore > Regras
+// ================================================================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Funções auxiliares ─────────────────────────────────────
+
+    // Verifica se o usuário está autenticado (incluindo anônimo)
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Verifica se é usuário permanente (não anônimo)
+    function isRegistered() {
+      return isAuth() && !request.auth.token.firebase.sign_in_provider.matches('anonymous');
+    }
+
+    // Verifica se é administrador (campo isAdmin no perfil)
+    function isAdmin() {
+      return isAuth() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Verifica se é o próprio usuário
+    function isSelf(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // Valida campos obrigatórios no payload
+    function hasFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // ── Usuários ──────────────────────────────────────────────
+
+    match /users/{uid} {
+      // Qualquer autenticado pode ler seu próprio perfil
+      allow read: if isSelf(uid) || isAdmin();
+
+      // Criação: apenas o próprio usuário pode criar seu perfil
+      allow create: if isSelf(uid) &&
+        hasFields(['email', 'nome', 'tipoUsuario', 'dataCriacao']) &&
+        request.resource.data.isAdmin == false; // não pode se auto-tornar admin
+
+      // Atualização: usuário atualiza seu próprio perfil, mas não pode virar admin
+      allow update: if isSelf(uid) &&
+        request.resource.data.isAdmin == resource.data.isAdmin; // campo isAdmin imutável pelo usuário
+      
+      // Admin pode atualizar qualquer usuário (inclusive promover a admin)
+      allow update: if isAdmin();
+
+      // Deleção: apenas admin
+      allow delete: if isAdmin();
+    }
+
+    // ── Eventos ───────────────────────────────────────────────
+
+    match /events/{eventoId} {
+      // Leitura pública para qualquer usuário autenticado
+      allow read: if isAuth();
+
+      // Apenas admin pode criar, atualizar e deletar
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Compatibilidade com nome antigo
+    match /eventos/{eventoId} {
+      // Leitura pública para qualquer usuário autenticado
+      allow read: if isAuth();
+
+      // Apenas admin pode criar, atualizar e deletar
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Espaços / Lugares ─────────────────────────────────────
+
+    match /places/{espacoId} {
+      // Leitura pública para qualquer usuário autenticado
+      allow read: if isAuth();
+
+      // Apenas admin pode escrever
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Compatibilidade com nome antigo
+    match /espacos/{espacoId} {
+      // Leitura pública para qualquer usuário autenticado
+      allow read: if isAuth();
+
+      // Apenas admin pode escrever
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── Notícias ──────────────────────────────────────────────
+
+    match /noticias/{noticiaId} {
+      // Leitura pública das notícias publicadas
+      allow read: if resource.data.status == 'publicado';
+
+      // Admin pode ler tudo (incluindo rascunhos)
+      allow read: if isAdmin();
+
+      // Apenas admin pode criar, atualizar e deletar
+      allow create: if isAdmin() &&
+        hasFields(['titulo', 'conteudo', 'status', 'createdAt']);
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Categorias ────────────────────────────────────────────
+
+    match /categorias/{catId} {
+      // Leitura pública
+      allow read: if true;
+
+      // Apenas admin pode modificar
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── Configurações ─────────────────────────────────────────
+
+    match /configuracoes/{docId} {
+      // Configurações públicas (nome do site, contato, etc.)
+      allow read: if true;
+
+      // Apenas admin pode modificar
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ── Logs de auditoria ─────────────────────────────────────
+
+    match /logs/{logId} {
+      // Apenas admin pode ler logs
+      allow read: if isAdmin();
+
+      // Qualquer autenticado pode criar log (registro de ações)
+      allow create: if isAuth() &&
+        hasFields(['acao', 'usuario', 'timestamp']);
+
+      // Logs são imutáveis e não podem ser deletados por ninguém via SDK
+      allow update, delete: if false;
+    }
+
+    // ── Regra de fallback — bloqueia tudo que não foi explicitado ──
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

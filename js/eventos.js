@@ -1,908 +1,1241 @@
 /**
- * eventos.js - Página de Eventos Conecta Bueno
- * Exibição pública de eventos festivos
+ * eventos.js — Agenda Cultural — Conecta Bueno
+ * Lê as coleções 'eventos' e 'noticias' do Firestore.
  */
 
-// ===================================
-// VARIÁVEIS GLOBAIS
-// ===================================
+'use strict';
 
-let db;
-let allEventos = [];
-let filteredEventos = [];
+// ─────────────────────────────────────────────────────────────────
+// ESTADO GLOBAL
+// ─────────────────────────────────────────────────────────────────
 
-// ===================================
-// INICIALIZAÇÃO
-// ===================================
+let db, auth;
+let currentUser     = null;
+let allEventos      = [];   // todos do Firestore
+let filteredEventos = [];   // após filtros e busca
+let currentPage     = 0;
+const PAGE_SIZE     = 12;
 
-window.addEventListener('load', async () => {
-    console.log('🎉 Inicializando Eventos...');
-    
-    // Aguardar Firebase
-    await waitForFirebase();
-    db = window.db;
-    
-    // Setup
-    setupEventListeners();
-    await loadEventos();
-    renderEventos();
-});
+let activePeriod = 'todos';
+let activeCat    = 'todos';
+let searchQuery  = '';
+let currentView  = 'grid'; // 'grid' | 'timeline'
 
-function waitForFirebase() {
-    return new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
-            if (window.db) {
-                clearInterval(checkInterval);
-                resolve();
-            }
-        }, 100);
-        
-        setTimeout(() => {
-            clearInterval(checkInterval);
-            if (!window.db) {
-                console.error('Firebase não carregou');
-            }
-            resolve();
-        }, 5000);
-    });
-}
+// Favoritos (IDs salvos no Firestore por usuário)
+let userFavorites = new Set();
 
-// ===================================
-// EVENT LISTENERS
-// ===================================
-
-function setupEventListeners() {
-    // Filtros
-    document.getElementById('filterCategoria').addEventListener('change', applyFilters);
-    document.getElementById('filterPeriodo').addEventListener('change', applyFilters);
-    document.getElementById('btnClearFilters').addEventListener('click', clearFilters);
-}
-
-// ===================================
-// CARREGAR EVENTOS
-// ===================================
-
-async function loadEventos() {
-    try {
-        const snapshot = await db.collection('eventos')
-            .where('status', '==', 'ativo')
-            .orderBy('dataInicio', 'asc')
-            .get();
-        
-        allEventos = [];
-        snapshot.forEach(doc => {
-            allEventos.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-        
-        filteredEventos = [...allEventos];
-        console.log(`✅ ${allEventos.length} eventos carregados`);
-        updateEventCount();
-        
-    } catch (error) {
-        console.error('❌ Erro ao carregar eventos:', error);
-        allEventos = [];
-        filteredEventos = [];
-        updateEventCount();
-    }
-}
-
-function updateEventCount() {
-    const countEl = document.getElementById('eventoCount');
-    if (countEl) {
-        const total = filteredEventos.length;
-        countEl.textContent = total === 0 ? 'Nenhum evento encontrado' :
-                             total === 1 ? '1 evento disponível' :
-                             `${total} eventos disponíveis`;
-    }
-}
-
-// ===================================
-// RENDERIZAR EVENTOS
-// ===================================
-
-function renderEventos() {
-    const grid = document.getElementById('eventosGrid');
-    
-    if (filteredEventos.length === 0) {
-        grid.innerHTML = `
-            <div class="empty-state">
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                    <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="2" opacity="0.3"/>
-                    <path d="M40 24V44M40 54V54.5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                </svg>
-                <h3>Nenhum evento encontrado</h3>
-                <p>Tente ajustar os filtros ou volte mais tarde</p>
-            </div>
-        `;
-        updateEventCount();
-        return;
-    }
-    
-    grid.innerHTML = '';
-    
-    filteredEventos.forEach(evento => {
-        const card = createEventoCard(evento);
-        grid.appendChild(card);
-    });
-    
-    updateEventCount();
-}
-
-function createEventoCard(evento) {
-    const card = document.createElement('div');
-    card.className = 'evento-card';
-    card.onclick = () => openEventoModal(evento);
-    
-    const icons = {
-        'festa': '🎉',
-        'show': '🎵',
-        'feira': '🛍️',
-        'esporte': '⚽',
-        'religioso': '⛪',
-        'cultural': '🎭',
-        'gastronomico': '🍴'
-    };
-    
-    const dataInicio = formatDate(evento.dataInicio);
-    const dataFim = evento.dataFim ? formatDate(evento.dataFim) : null;
-    const dataTexto = dataFim && dataFim !== dataInicio ? `${dataInicio} - ${dataFim}` : dataInicio;
-    
-    card.innerHTML = `
-        <div class="evento-imagem">
-            ${evento.imagem ? `<img src="${evento.imagem}" alt="${evento.titulo}">` : (icons[evento.categoria] || '🎪')}
-            <div class="evento-badge">${evento.categoria}</div>
-        </div>
-        <div class="evento-info">
-            <div class="evento-data">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <rect x="2" y="3" width="12" height="11" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M5 1V3M11 1V3M2 6H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                ${dataTexto}
-            </div>
-            <h3 class="evento-titulo">${evento.titulo}</h3>
-            <p class="evento-descricao">${truncateText(evento.descricao, 140)}</p>
-            <div class="evento-detalhes">
-                ${evento.local ? `
-                    <div class="evento-detalhe-item">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M8 2C6 2 4 3.5 4 5.5C4 8.5 8 14 8 14C8 14 12 8.5 12 5.5C12 3.5 10 2 8 2Z" stroke="currentColor" stroke-width="1.5"/>
-                            <circle cx="8" cy="5.5" r="1.5" fill="currentColor"/>
-                        </svg>
-                        <span>${evento.local}</span>
-                    </div>
-                ` : ''}
-                ${evento.horario ? `
-                    <div class="evento-detalhe-item">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M8 4V8L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <span>${evento.horario}</span>
-                    </div>
-                ` : ''}
-                ${evento.entrada ? `
-                    <div class="evento-detalhe-item">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 8H13M10 5L13 8L10 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <span>${evento.entrada}</span>
-                    </div>
-                ` : ''}
-            </div>
-        </div>
-    `;
-    
-    return card;
-}
-
-// ===================================
-// MODAL DETALHES
-// ===================================
-
-function openEventoModal(evento) {
-    const modal = document.getElementById('modalEvento');
-    const content = document.getElementById('modalEventoContent');
-    
-    const icons = {
-        'festa': '🎉',
-        'show': '🎵',
-        'feira': '🛍️',
-        'esporte': '⚽',
-        'religioso': '⛪',
-        'cultural': '🎭',
-        'gastronomico': '🍴'
-    };
-    
-    const dataInicio = formatDate(evento.dataInicio);
-    const dataFim = evento.dataFim ? formatDate(evento.dataFim) : null;
-    const dataTexto = dataFim && dataFim !== dataInicio ? `${dataInicio} até ${dataFim}` : dataInicio;
-    
-    content.innerHTML = `
-        <div class="modal-evento-imagem">
-            ${evento.imagem ? `<img src="${evento.imagem}" alt="${evento.titulo}">` : (icons[evento.categoria] || '🎪')}
-        </div>
-        <div class="modal-evento-info">
-            <div class="modal-evento-categoria">${evento.categoria}</div>
-            <h2 class="modal-evento-titulo">${evento.titulo}</h2>
-            <div class="modal-evento-data">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect x="3" y="4" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M6 2V4M14 2V4M3 8H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                ${dataTexto}
-            </div>
-            <p class="modal-evento-descricao">${evento.descricao}</p>
-            
-            <div class="modal-evento-detalhes">
-                ${evento.local ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 2C7.5 2 5 4 5 6.5C5 10.5 10 18 10 18C10 18 15 10.5 15 6.5C15 4 12.5 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
-                            <circle cx="10" cy="6.5" r="2" fill="currentColor"/>
-                        </svg>
-                        <div>
-                            <strong>Local</strong>
-                            <span>${evento.local}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.horario ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M10 5V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <div>
-                            <strong>Horário</strong>
-                            <span>${evento.horario}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.entrada ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="3" y="7" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 7V5C7 3.5 8.5 2 10 2C11.5 2 13 3.5 13 5V7" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <div>
-                            <strong>Entrada</strong>
-                            <span>${evento.entrada}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.organizador ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M5 17C5 14 7 12 10 12C13 12 15 14 15 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <div>
-                            <strong>Organização</strong>
-                            <span>${evento.organizador}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.contato ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M6 7L10 10L14 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <div>
-                            <strong>Contato</strong>
-                            <span>${evento.contato}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.link ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M8 10H12M7 6L10 3L13 6M7 14L10 17L13 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <div>
-                            <strong>Mais Informações</strong>
-                            <span><a href="${evento.link}" target="_blank" style="color: #2d5a3d; text-decoration: underline;">Acessar link</a></span>
-                        </div>
-                    </div>
-                ` : ''}
-            </div>
-        </div>
-    `;
-    
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModalEvento() {
-    const modal = document.getElementById('modalEvento');
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// ===================================
-// FILTROS
-// ===================================
-
-function applyFilters() {
-    const categoria = document.getElementById('filterCategoria').value;
-    const periodo = document.getElementById('filterPeriodo').value;
-    
-    filteredEventos = [...allEventos];
-    
-    // Filtrar por categoria
-    if (categoria !== 'todos') {
-        filteredEventos = filteredEventos.filter(e => e.categoria === categoria);
-    }
-    
-    // Filtrar por período
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    
-    if (periodo === 'proximos') {
-        const limite = new Date(hoje);
-        limite.setDate(limite.getDate() + 30);
-        filteredEventos = filteredEventos.filter(e => {
-            const dataEvento = new Date(e.dataInicio);
-            return dataEvento >= hoje && dataEvento <= limite;
-        });
-    } else if (periodo === 'mes_atual') {
-        const mesAtual = hoje.getMonth();
-        const anoAtual = hoje.getFullYear();
-        filteredEventos = filteredEventos.filter(e => {
-            const dataEvento = new Date(e.dataInicio);
-            return dataEvento.getMonth() === mesAtual && dataEvento.getFullYear() === anoAtual;
-        });
-    } else if (periodo === 'proximo_mes') {
-        let proximoMes = hoje.getMonth() + 1;
-        let ano = hoje.getFullYear();
-        if (proximoMes > 11) {
-            proximoMes = 0;
-            ano++;
-        }
-        filteredEventos = filteredEventos.filter(e => {
-            const dataEvento = new Date(e.dataInicio);
-            return dataEvento.getMonth() === proximoMes && dataEvento.getFullYear() === ano;
-        });
-    }
-    
-    renderEventos();
-}
-
-function clearFilters() {
-    document.getElementById('filterCategoria').value = 'todos';
-    document.getElementById('filterPeriodo').value = 'todos';
-    filteredEventos = [...allEventos];
-    renderEventos();
-}
-
-// ===================================
-// UTILS
-// ===================================
-
-function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const day = date.getDate();
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    
-    return `${day} ${meses[month]} ${year}`;
-}
-
-function truncateText(text, maxLength) {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-}
-
-// ===================================
-// INICIALIZAÇÃO
-// ===================================
+// ─────────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────────
 
 window.addEventListener('load', async () => {
-    console.log('🎉 Inicializando Eventos...');
-    
-    // Aguardar Firebase
     await waitForFirebase();
-    db = window.db;
-    
-    // Setup
-    setupEventListeners();
-    await loadEventos();
-    renderEventos();
-});
+    db   = window.db;
+    auth = window.auth;
 
-function waitForFirebase() {
-    return new Promise((resolve) => {
-        const checkInterval = setInterval(() => {
-            if (window.db) {
-                clearInterval(checkInterval);
-                resolve();
-            }
-        }, 100);
-        
-        setTimeout(() => {
-            clearInterval(checkInterval);
-            if (!window.db) {
-                console.error('Firebase não carregou');
-            }
-            resolve();
-        }, 5000);
-    });
-}
-
-// ===================================
-// EVENT LISTENERS
-// ===================================
-
-function setupEventListeners() {
-    // Filtros
-    document.getElementById('filterCategoria').addEventListener('change', applyFilters);
-    document.getElementById('filterPeriodo').addEventListener('change', applyFilters);
-    document.getElementById('btnClearFilters').addEventListener('click', clearFilters);
-}
-
-// ===================================
-// CARREGAR EVENTOS
-// ===================================
-
-async function loadEventos() {
-    try {
-        const snapshot = await db.collection('eventos')
-            .where('status', '==', 'ativo')
-            .orderBy('dataInicio', 'asc')
-            .get();
-        
-        allEventos = [];
-        snapshot.forEach(doc => {
-            allEventos.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-        
-        filteredEventos = [...allEventos];
-        console.log(`✅ ${allEventos.length} eventos carregados`);
-        
-    } catch (error) {
-        console.error('❌ Erro ao carregar eventos:', error);
-        allEventos = [];
-        filteredEventos = [];
-    }
-}
-
-// ===================================
-// RENDERIZAR CALENDÁRIO
-// ===================================
-
-function renderCalendario() {
-    const meses = [
-        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ];
-    
-    document.getElementById('mesAnoAtual').textContent = `${meses[currentMonth]} ${currentYear}`;
-    
-    const primeiroDia = new Date(currentYear, currentMonth, 1).getDay();
-    const ultimoDia = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const ultimoDiaMesAnterior = new Date(currentYear, currentMonth, 0).getDate();
-    
-    const diasContainer = document.getElementById('diasCalendario');
-    diasContainer.innerHTML = '';
-    
-    const hoje = new Date();
-    const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
-    
-    // Dias do mês anterior
-    for (let i = primeiroDia - 1; i >= 0; i--) {
-        const dia = ultimoDiaMesAnterior - i;
-        const diaEl = createDiaElement(dia, true, false);
-        diasContainer.appendChild(diaEl);
-    }
-    
-    // Dias do mês atual
-    for (let dia = 1; dia <= ultimoDia; dia++) {
-        const dataStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        const isHoje = dataStr === hojeStr;
-        const eventosNoDia = getEventosNoDia(dataStr);
-        
-        const diaEl = createDiaElement(dia, false, isHoje, eventosNoDia);
-        diasContainer.appendChild(diaEl);
-    }
-    
-    // Completar semana com dias do próximo mês
-    const totalDias = primeiroDia + ultimoDia;
-    const diasFaltando = totalDias % 7 === 0 ? 0 : 7 - (totalDias % 7);
-    
-    for (let dia = 1; dia <= diasFaltando; dia++) {
-        const diaEl = createDiaElement(dia, true, false);
-        diasContainer.appendChild(diaEl);
-    }
-}
-
-function createDiaElement(numero, outroMes, isHoje, eventos = []) {
-    const diaDiv = document.createElement('div');
-    diaDiv.className = 'dia-mes';
-    
-    if (outroMes) diaDiv.classList.add('outro-mes');
-    if (isHoje) diaDiv.classList.add('hoje');
-    if (eventos.length > 0) diaDiv.classList.add('tem-evento');
-    
-    const numeroDiv = document.createElement('div');
-    numeroDiv.className = 'dia-numero';
-    numeroDiv.textContent = numero;
-    diaDiv.appendChild(numeroDiv);
-    
-    // Mostrar eventos (máximo 2)
-    eventos.slice(0, 2).forEach(evento => {
-        const eventoDot = document.createElement('div');
-        eventoDot.className = 'evento-mini';
-        eventoDot.textContent = evento.titulo;
-        eventoDot.title = evento.titulo;
-        diaDiv.appendChild(eventoDot);
-    });
-    
-    // Badge se tiver mais eventos
-    if (eventos.length > 0) {
-        const badge = document.createElement('div');
-        badge.className = 'eventos-dia-badge';
-        badge.textContent = eventos.length;
-        diaDiv.appendChild(badge);
-    }
-    
-    // Click para ver eventos do dia
-    if (eventos.length > 0) {
-        diaDiv.style.cursor = 'pointer';
-        diaDiv.addEventListener('click', () => {
-            // Filtrar eventos deste dia
-            filteredEventos = eventos;
-            renderEventos();
-            // Scroll para a seção de eventos
-            document.querySelector('.eventos-section').scrollIntoView({ behavior: 'smooth' });
-        });
-    }
-    
-    return diaDiv;
-}
-
-function getEventosNoDia(dataStr) {
-    return allEventos.filter(evento => {
-        const inicio = evento.dataInicio.split('T')[0];
-        const fim = evento.dataFim ? evento.dataFim.split('T')[0] : inicio;
-        return dataStr >= inicio && dataStr <= fim;
-    });
-}
-
-// ===================================
-// RENDERIZAR EVENTOS
-// ===================================
-
-function renderEventos() {
-    const grid = document.getElementById('eventosGrid');
-    
-    if (filteredEventos.length === 0) {
-        grid.innerHTML = `
-            <div class="empty-state">
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                    <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" opacity="0.2"/>
-                    <path d="M32 20V34M32 42V42.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-                <p>Nenhum evento encontrado</p>
-            </div>
-        `;
+    if (!db || !auth) {
+        showErrorState('Não foi possível conectar ao servidor.');
         return;
     }
-    
-    grid.innerHTML = '';
-    
-    filteredEventos.forEach(evento => {
-        const card = createEventoCard(evento);
-        grid.appendChild(card);
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            await loadUserProfile(user);
+            setupListeners();
+            await Promise.all([loadEventos(), loadNoticias()]);
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+});
+
+function waitForFirebase(ms = 6000) {
+    return new Promise(resolve => {
+        if (window.db && window.auth) { resolve(); return; }
+        const t0 = Date.now();
+        const id = setInterval(() => {
+            if (window.db && window.auth)    { clearInterval(id); resolve(); return; }
+            if (Date.now() - t0 > ms)         { clearInterval(id); resolve(); }
+        }, 100);
     });
 }
 
-function createEventoCard(evento) {
-    const card = document.createElement('div');
-    card.className = 'evento-card';
-    card.onclick = () => openEventoModal(evento);
-    
-    const icons = {
-        'festa': '🎉',
-        'show': '🎵',
-        'feira': '🛍️',
-        'esporte': '⚽',
-        'religioso': '⛪',
-        'cultural': '🎭',
-        'gastronomico': '🍴'
-    };
-    
-    const dataInicio = formatDate(evento.dataInicio);
-    const dataFim = evento.dataFim ? formatDate(evento.dataFim) : null;
-    const dataTexto = dataFim && dataFim !== dataInicio ? `${dataInicio} até ${dataFim}` : dataInicio;
-    
-    card.innerHTML = `
-        <div class="evento-imagem">
-            ${evento.imagem ? `<img src="${evento.imagem}" alt="${evento.titulo}">` : (icons[evento.categoria] || '🎪')}
-            <div class="evento-badge">${evento.categoria}</div>
-        </div>
-        <div class="evento-info">
-            <div class="evento-data">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <rect x="2" y="3" width="12" height="11" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M5 1V3M11 1V3M2 6H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                ${dataTexto}
-            </div>
-            <h3 class="evento-titulo">${evento.titulo}</h3>
-            <p class="evento-descricao">${truncateText(evento.descricao, 120)}</p>
-            <div class="evento-detalhes">
-                ${evento.local ? `
-                    <div class="evento-detalhe-item">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M8 2C6 2 4 3.5 4 5.5C4 8.5 8 14 8 14C8 14 12 8.5 12 5.5C12 3.5 10 2 8 2Z" stroke="currentColor" stroke-width="1.5"/>
-                            <circle cx="8" cy="5.5" r="1.5" fill="currentColor"/>
-                        </svg>
-                        <span>${evento.local}</span>
-                    </div>
-                ` : ''}
-                ${evento.horario ? `
-                    <div class="evento-detalhe-item">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M8 4V8L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <span>${evento.horario}</span>
-                    </div>
-                ` : ''}
-                ${evento.entrada ? `
-                    <div class="evento-detalhe-item">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 8H13M10 5L13 8L10 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <span>${evento.entrada}</span>
-                    </div>
-                ` : ''}
-            </div>
-        </div>
-    `;
-    
-    return card;
-}
+// ─────────────────────────────────────────────────────────────────
+// PERFIL DO USUÁRIO
+// ─────────────────────────────────────────────────────────────────
 
-// ===================================
-// MODAL DETALHES
-// ===================================
-
-function openEventoModal(evento) {
-    const modal = document.getElementById('modalEvento');
-    const content = document.getElementById('modalEventoContent');
-    
-    const icons = {
-        'festa': '🎉',
-        'show': '🎵',
-        'feira': '🛍️',
-        'esporte': '⚽',
-        'religioso': '⛪',
-        'cultural': '🎭',
-        'gastronomico': '🍴'
-    };
-    
-    const dataInicio = formatDate(evento.dataInicio);
-    const dataFim = evento.dataFim ? formatDate(evento.dataFim) : null;
-    const dataTexto = dataFim && dataFim !== dataInicio ? `${dataInicio} até ${dataFim}` : dataInicio;
-    
-    content.innerHTML = `
-        <div class="modal-evento-imagem">
-            ${evento.imagem ? `<img src="${evento.imagem}" alt="${evento.titulo}">` : (icons[evento.categoria] || '🎪')}
-        </div>
-        <div class="modal-evento-info">
-            <div class="modal-evento-categoria">${evento.categoria}</div>
-            <h2 class="modal-evento-titulo">${evento.titulo}</h2>
-            <div class="modal-evento-data">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <rect x="3" y="4" width="14" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M6 2V4M14 2V4M3 8H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                ${dataTexto}
-            </div>
-            <p class="modal-evento-descricao">${evento.descricao}</p>
-            
-            <div class="modal-evento-detalhes">
-                ${evento.local ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 2C7.5 2 5 4 5 6.5C5 10.5 10 18 10 18C10 18 15 10.5 15 6.5C15 4 12.5 2 10 2Z" stroke="currentColor" stroke-width="1.5"/>
-                            <circle cx="10" cy="6.5" r="2" fill="currentColor"/>
-                        </svg>
-                        <div>
-                            <strong>Local</strong>
-                            <span>${evento.local}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.horario ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M10 5V10L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <div>
-                            <strong>Horário</strong>
-                            <span>${evento.horario}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.entrada ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="3" y="7" width="14" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 7V5C7 3.5 8.5 2 10 2C11.5 2 13 3.5 13 5V7" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <div>
-                            <strong>Entrada</strong>
-                            <span>${evento.entrada}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.organizador ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M5 17C5 14 7 12 10 12C13 12 15 14 15 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <div>
-                            <strong>Organização</strong>
-                            <span>${evento.organizador}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.contato ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M6 7L10 10L14 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <div>
-                            <strong>Contato</strong>
-                            <span>${evento.contato}</span>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                ${evento.link ? `
-                    <div class="modal-detalhe-item">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M8 10H12M7 6L10 3L13 6M7 14L10 17L13 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <div>
-                            <strong>Mais Informações</strong>
-                            <span><a href="${evento.link}" target="_blank" style="color: #2d5a3d; text-decoration: underline;">Acessar link</a></span>
-                        </div>
-                    </div>
-                ` : ''}
-            </div>
-        </div>
-    `;
-    
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModalEvento() {
-    const modal = document.getElementById('modalEvento');
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// ===================================
-// FILTROS
-// ===================================
-
-function applyFilters() {
-    const categoria = document.getElementById('filterCategoria').value;
-    const periodo = document.getElementById('filterPeriodo').value;
-    
-    filteredEventos = [...allEventos];
-    
-    // Filtrar por categoria
-    if (categoria !== 'todos') {
-        filteredEventos = filteredEventos.filter(e => e.categoria === categoria);
+async function loadUserProfile(user) {
+    try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        currentUser = {
+            uid:     user.uid,
+            email:   user.email,
+            nome:    user.displayName || user.email.split('@')[0],
+            isAdmin: false,
+            ...(doc.exists ? doc.data() : {})
+        };
+        window.sharedComponents?.renderUserInfo(currentUser);
+        await loadUserFavorites(user.uid);
+    } catch (err) {
+        console.error('❌ Perfil:', err);
+        currentUser = { uid: user.uid, email: user.email, nome: user.email.split('@')[0], isAdmin: false };
+        window.sharedComponents?.renderUserInfo(currentUser);
     }
-    
-    // Filtrar por período
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    
-    if (periodo === 'proximos') {
-        const limite = new Date(hoje);
-        limite.setDate(limite.getDate() + 30);
-        filteredEventos = filteredEventos.filter(e => {
-            const dataEvento = new Date(e.dataInicio);
-            return dataEvento >= hoje && dataEvento <= limite;
-        });
-    } else if (periodo === 'mes_atual') {
-        const mesAtual = hoje.getMonth();
-        const anoAtual = hoje.getFullYear();
-        filteredEventos = filteredEventos.filter(e => {
-            const dataEvento = new Date(e.dataInicio);
-            return dataEvento.getMonth() === mesAtual && dataEvento.getFullYear() === anoAtual;
-        });
-    } else if (periodo === 'proximo_mes') {
-        let proximoMes = hoje.getMonth() + 1;
-        let ano = hoje.getFullYear();
-        if (proximoMes > 11) {
-            proximoMes = 0;
-            ano++;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FAVORITOS
+// ─────────────────────────────────────────────────────────────────
+
+async function loadUserFavorites(uid) {
+    try {
+        const doc = await db.collection('users').doc(uid)
+                             .collection('favoritos').doc('eventos').get();
+        if (doc.exists && Array.isArray(doc.data().ids)) {
+            userFavorites = new Set(doc.data().ids);
         }
-        filteredEventos = filteredEventos.filter(e => {
-            const dataEvento = new Date(e.dataInicio);
-            return dataEvento.getMonth() === proximoMes && dataEvento.getFullYear() === ano;
-        });
+    } catch {
+        userFavorites = new Set();
     }
-    
-    renderEventos();
 }
 
-function clearFilters() {
-    document.getElementById('filterCategoria').value = 'todos';
-    document.getElementById('filterPeriodo').value = 'todos';
+async function toggleFavorite(eventoId, e) {
+    e?.stopPropagation();
+    if (!currentUser) return;
+
+    const wasFav = userFavorites.has(eventoId);
+    wasFav ? userFavorites.delete(eventoId) : userFavorites.add(eventoId);
+
+    // Atualiza o(s) botão(ões) de favorito na tela sem re-renderizar tudo
+    document.querySelectorAll(`[data-fav-id="${eventoId}"]`).forEach(btn => {
+        btn.classList.toggle('is-fav', !wasFav);
+        btn.setAttribute('aria-label', !wasFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+        const path = btn.querySelector('svg path, svg polygon');
+        if (path) path.setAttribute('fill', !wasFav ? 'currentColor' : 'none');
+    });
+
+    try {
+        await db.collection('users').doc(currentUser.uid)
+                .collection('favoritos').doc('eventos')
+                .set({ ids: Array.from(userFavorites), updatedAt: new Date() });
+    } catch (err) {
+        // Reverte em caso de falha
+        wasFav ? userFavorites.add(eventoId) : userFavorites.delete(eventoId);
+        console.error('❌ Favorito:', err);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CARREGAR EVENTOS DO FIRESTORE
+// ─────────────────────────────────────────────────────────────────
+
+async function loadEventos() {
+    showLoading(true);
+
+    try {
+        const snap = await db.collection('eventos')
+            .where('status', 'in', ['ativo', 'destaque'])
+            .orderBy('dataInicio', 'asc')
+            .get();
+
+        allEventos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    } catch {
+        // Fallback: sem orderBy (índice pode não existir)
+        try {
+            const snap2 = await db.collection('eventos')
+                .where('status', 'in', ['ativo', 'destaque'])
+                .get();
+
+            allEventos = snap2.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => toDate(a.dataInicio) - toDate(b.dataInicio));
+
+        } catch (err2) {
+            console.error('❌ loadEventos fallback:', err2);
+            showLoading(false);
+            showErrorState('Não foi possível carregar os eventos. Verifique sua conexão.');
+            return;
+        }
+    }
+
     filteredEventos = [...allEventos];
-    renderEventos();
+
+    populateCategoryFilter();
+    buildMiniCalendar();
+    buildUpcomingList();
+    updateHeroStats();
+    renderPage();
+    showLoading(false);
 }
 
-// ===================================
-// VIEW TOGGLE
-// ===================================
+// ─────────────────────────────────────────────────────────────────
+// ESTATÍSTICAS DO HERO
+// ─────────────────────────────────────────────────────────────────
 
-function setView(view) {
-    currentView = view;
-    
-    const grid = document.getElementById('eventosGrid');
-    const btnCards = document.getElementById('btnViewCards');
-    const btnList = document.getElementById('btnViewList');
-    
-    if (view === 'list') {
-        grid.classList.add('view-list');
-        btnList.classList.add('active');
-        btnCards.classList.remove('active');
+function updateHeroStats() {
+    const hoje = startOfDay(new Date());
+    const mes  = hoje.getMonth();
+    const ano  = hoje.getFullYear();
+
+    const eventosMes = allEventos.filter(ev => {
+        const d = toDate(ev.dataInicio);
+        return d && d.getMonth() === mes && d.getFullYear() === ano && d >= hoje;
+    });
+
+    setTxt('totalEventos', String(eventosMes.length));
+
+    const proximo = allEventos
+        .map(ev => ({ ...ev, _d: toDate(ev.dataInicio) }))
+        .filter(ev => ev._d && ev._d >= hoje)
+        .sort((a, b) => a._d - b._d)[0];
+
+    if (proximo) {
+        const dias = Math.ceil((proximo._d - hoje) / 86_400_000);
+        setTxt('proximoEvento', dias === 0 ? 'Hoje!' : dias === 1 ? 'Amanhã' : `Em ${dias} dias`);
     } else {
-        grid.classList.remove('view-list');
-        btnCards.classList.add('active');
-        btnList.classList.remove('active');
+        setTxt('proximoEvento', '—');
     }
 }
 
-// ===================================
-// UTILS
-// ===================================
+// ─────────────────────────────────────────────────────────────────
+// FILTRO DE CATEGORIAS DINÂMICO
+// ─────────────────────────────────────────────────────────────────
 
-function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const day = date.getDate();
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    
-    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    
-    return `${day} ${meses[month]} ${year}`;
+function populateCategoryFilter() {
+    const cats = [...new Set(allEventos.map(e => e.categoria).filter(Boolean))].sort();
+    const wrap = document.getElementById('evCats');
+    if (!wrap || !cats.length) return;
+
+    cats.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className    = 'ev-cat';
+        btn.dataset.cat  = cat;
+        btn.textContent  = cat;
+        btn.addEventListener('click', () => setCat(cat, btn));
+        wrap.appendChild(btn);
+    });
 }
 
-function truncateText(text, maxLength) {
-    if (!text) return '';
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+// ─────────────────────────────────────────────────────────────────
+// CALENDÁRIO MINI
+// ─────────────────────────────────────────────────────────────────
+
+let calYear, calMonth;
+
+function buildMiniCalendar(year, month) {
+    const wrap = document.getElementById('miniCal');
+    if (!wrap) return;
+
+    const hoje = new Date();
+    calYear  = year  ?? hoje.getFullYear();
+    calMonth = month ?? hoje.getMonth();
+
+    const daysInMonth  = new Date(calYear, calMonth + 1, 0).getDate();
+    const firstWeekday = new Date(calYear, calMonth, 1).getDay();
+
+    // Dias que têm evento neste mês/ano
+    const eventDays = new Set();
+    allEventos.forEach(ev => {
+        const d = toDate(ev.dataInicio);
+        if (d && d.getFullYear() === calYear && d.getMonth() === calMonth) {
+            eventDays.add(d.getDate());
+        }
+        // Também marca dias cobertos por dataFim
+        const df = toDate(ev.dataFim);
+        if (df && df.getFullYear() === calYear && df.getMonth() === calMonth) {
+            for (let dt = 1; dt <= daysInMonth; dt++) {
+                const check = new Date(calYear, calMonth, dt);
+                const dInicio = toDate(ev.dataInicio);
+                if (dInicio && check >= dInicio && check <= df) eventDays.add(dt);
+            }
+        }
+    });
+
+    const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    const WD     = ['D','S','T','Q','Q','S','S'];
+
+    const isCurrentMonth = (calYear === hoje.getFullYear() && calMonth === hoje.getMonth());
+    const todayDate      = hoje.getDate();
+
+    let daysHTML = '';
+    for (let i = 0; i < firstWeekday; i++) {
+        daysHTML += '<div class="ev-cal-day ev-cal-empty" aria-hidden="true"></div>';
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+        const isToday    = isCurrentMonth && d === todayDate;
+        const hasEvent   = eventDays.has(d);
+        const isPast     = !hasEvent && isCurrentMonth && d < todayDate;
+        let cls = 'ev-cal-day';
+        if (hasEvent) cls += ' ev-cal-has-event';
+        if (isToday)  cls += ' ev-cal-today';
+        if (isPast)   cls += ' ev-cal-past';
+        const label = `${d} de ${MONTHS[calMonth]}${hasEvent ? ' — com evento' : ''}`;
+        daysHTML += `<div class="${cls}" data-day="${d}" tabindex="${hasEvent ? 0 : -1}" role="${hasEvent ? 'button' : 'gridcell'}" aria-label="${label}">${d}</div>`;
+    }
+
+    wrap.innerHTML = `
+        <div class="ev-cal-nav">
+            <button class="ev-cal-nav-btn" id="calPrev" aria-label="Mês anterior">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M8.5 3L5 7l3.5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <span class="ev-cal-month-name">${MONTHS[calMonth]} ${calYear}</span>
+            <button class="ev-cal-nav-btn" id="calNext" aria-label="Próximo mês">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M5.5 3L9 7l-3.5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="ev-cal-grid" role="grid" aria-label="${MONTHS[calMonth]} ${calYear}">
+            ${WD.map(w => `<div class="ev-cal-wd" aria-hidden="true">${w}</div>`).join('')}
+            ${daysHTML}
+        </div>
+    `;
+
+    // Navegação entre meses
+    wrap.querySelector('#calPrev')?.addEventListener('click', () => {
+        let m = calMonth - 1, y = calYear;
+        if (m < 0) { m = 11; y--; }
+        buildMiniCalendar(y, m);
+    });
+    wrap.querySelector('#calNext')?.addEventListener('click', () => {
+        let m = calMonth + 1, y = calYear;
+        if (m > 11) { m = 0; y++; }
+        buildMiniCalendar(y, m);
+    });
+
+    // Clique/Enter em dia com evento
+    wrap.querySelectorAll('.ev-cal-has-event').forEach(el => {
+        const handler = () => filterByDay(calYear, calMonth, parseInt(el.dataset.day), el);
+        el.addEventListener('click', handler);
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+    });
+}
+
+function filterByDay(year, month, day, el) {
+    const isSelected = el.classList.contains('ev-cal-selected');
+
+    document.querySelectorAll('.ev-cal-day').forEach(e => e.classList.remove('ev-cal-selected'));
+
+    if (isSelected) {
+        // Toggle: remove filtro de dia e volta ao filtro de período
+        applyFilters();
+        return;
+    }
+
+    el.classList.add('ev-cal-selected');
+
+    const inicio = new Date(year, month, day, 0, 0, 0, 0);
+    const fim    = new Date(year, month, day, 23, 59, 59, 999);
+
+    filteredEventos = allEventos.filter(ev => {
+        const dInicio = toDate(ev.dataInicio);
+        const dFim    = toDate(ev.dataFim);
+        if (!dInicio) return false;
+
+        // O evento cobre o dia se começou antes do final do dia E termina depois do início do dia
+        const eventoFim = dFim ?? dInicio;
+        if (dInicio > fim || eventoFim < inicio) return false;
+
+        // Respeita filtro de categoria
+        if (activeCat !== 'todos' && ev.categoria !== activeCat) return false;
+
+        // Respeita busca
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const hay = [ev.titulo, ev.descricao, ev.local, ev.categoria, ev.organizador]
+                .filter(Boolean).join(' ').toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+
+        return true;
+    });
+
+    currentPage = 0;
+    renderPage();
+    updateCount();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PRÓXIMAS DATAS (sidebar)
+// ─────────────────────────────────────────────────────────────────
+
+function buildUpcomingList() {
+    const wrap = document.getElementById('upcomingList');
+    if (!wrap) return;
+
+    const hoje = startOfDay(new Date());
+
+    const coming = allEventos
+        .map(ev => ({ ...ev, _d: toDate(ev.dataInicio) }))
+        .filter(ev => ev._d && ev._d >= hoje)
+        .sort((a, b) => a._d - b._d)
+        .slice(0, 5);
+
+    if (!coming.length) {
+        wrap.innerHTML = `
+            <p class="ev-sidebar-title">Próximas datas</p>
+            <p class="ev-upcoming-empty">Sem eventos programados.</p>
+        `;
+        return;
+    }
+
+    const items = coming.map(ev => {
+        const d   = ev._d;
+        const day = d.getDate().toString().padStart(2, '0');
+        const mon = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
+        return `
+            <div class="ev-upcoming-item" data-id="${ev.id}" role="button" tabindex="0"
+                 aria-label="${esc(ev.titulo)} em ${day} de ${mon}">
+                <div class="ev-upcoming-date">
+                    <span class="ud-day">${day}</span>
+                    <span class="ud-mon">${mon}</span>
+                </div>
+                <div class="ev-upcoming-info">
+                    <strong>${esc(ev.titulo || 'Evento')}</strong>
+                    <span>${esc(ev.categoria || '')}${ev.local ? ' · ' + esc(ev.local) : ''}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    wrap.innerHTML = `<p class="ev-sidebar-title">Próximas datas</p>${items}`;
+
+    wrap.querySelectorAll('.ev-upcoming-item').forEach(el => {
+        const handler = () => {
+            const ev = allEventos.find(e => e.id === el.dataset.id);
+            if (ev) openModal(ev);
+        };
+        el.addEventListener('click', handler);
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FILTROS
+// ─────────────────────────────────────────────────────────────────
+
+function applyFilters() {
+    // Remove seleção manual de dia do calendário (o filterByDay tem sua própria lógica)
+    document.querySelectorAll('.ev-cal-selected').forEach(e => e.classList.remove('ev-cal-selected'));
+
+    const hoje       = startOfDay(new Date());
+    const fimDeHoje  = endOfDay(hoje);
+
+    filteredEventos = allEventos.filter(ev => {
+        const dInicio = toDate(ev.dataInicio);
+        const dFim    = toDate(ev.dataFim);
+
+        // ── Filtro de período ────────────────────────────────────
+        if (activePeriod !== 'todos') {
+            if (!dInicio) return false;
+
+            // Um evento "cobre" um intervalo se: dInicio <= fimIntervalo E eventoFim >= inicioIntervalo
+            const eventoFim = dFim ?? dInicio;
+
+            if (activePeriod === 'hoje') {
+                // Acontece hoje: começa antes ou em hoje E termina depois ou em hoje
+                if (dInicio > fimDeHoje || eventoFim < hoje) return false;
+            }
+            else if (activePeriod === 'semana') {
+                // Semana atual: domingo a sábado correntes
+                const iniSemana = startOfDay(new Date(hoje));
+                iniSemana.setDate(hoje.getDate() - hoje.getDay());
+                const fimSemana = endOfDay(new Date(iniSemana));
+                fimSemana.setDate(iniSemana.getDate() + 6);
+                if (dInicio > fimSemana || eventoFim < iniSemana) return false;
+            }
+            else if (activePeriod === 'mes') {
+                // Mês atual
+                const iniMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+                const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59, 999);
+                if (dInicio > fimMes || eventoFim < iniMes) return false;
+            }
+            else if (activePeriod === 'proximos') {
+                // A partir de hoje (inclui os que já começaram e ainda vão rolar)
+                if (eventoFim < hoje) return false;
+            }
+        }
+
+        // ── Filtro de categoria ──────────────────────────────────
+        if (activeCat !== 'todos' && ev.categoria !== activeCat) return false;
+
+        // ── Busca textual ─────────────────────────────────────────
+        if (searchQuery) {
+            const q   = searchQuery.toLowerCase();
+            const hay = [ev.titulo, ev.descricao, ev.local, ev.categoria, ev.organizador]
+                .filter(Boolean).join(' ').toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+
+        return true;
+    });
+
+    currentPage = 0;
+    renderPage();
+    updateCount();
+}
+
+function setPeriod(period, btn) {
+    activePeriod = period;
+    document.querySelectorAll('.ev-tab').forEach(b => {
+        b.classList.toggle('ev-tab-active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+    });
+    applyFilters();
+}
+
+function setCat(cat, btn) {
+    activeCat = cat;
+    document.querySelectorAll('.ev-cat').forEach(b => b.classList.toggle('ev-cat-active', b === btn));
+    applyFilters();
+}
+
+function updateCount() {
+    const el = document.getElementById('evCount');
+    if (!el) return;
+    el.textContent = filteredEventos.length
+        ? `${filteredEventos.length} evento${filteredEventos.length !== 1 ? 's' : ''}`
+        : '';
+}
+
+function clearAllFilters() {
+    activePeriod = 'todos';
+    activeCat    = 'todos';
+    searchQuery  = '';
+    currentPage  = 0;
+
+    document.querySelectorAll('.ev-cal-day').forEach(e => e.classList.remove('ev-cal-selected'));
+
+    document.querySelectorAll('.ev-tab').forEach(b => {
+        b.classList.toggle('ev-tab-active', b.dataset.period === 'todos');
+        b.setAttribute('aria-selected', b.dataset.period === 'todos' ? 'true' : 'false');
+    });
+    document.querySelectorAll('.ev-cat').forEach(b => b.classList.toggle('ev-cat-active', b.dataset.cat === 'todos'));
+
+    const si = document.getElementById('searchInput');
+    if (si) si.value = '';
+    const sc = document.getElementById('searchClear');
+    if (sc) sc.hidden = true;
+
+    filteredEventos = [...allEventos];
+    renderPage();
+    updateCount();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER — grade ou timeline
+// ─────────────────────────────────────────────────────────────────
+
+function renderPage() {
+    const grid     = document.getElementById('evGrid');
+    const timeline = document.getElementById('evTimeline');
+    const empty    = document.getElementById('evEmpty');
+    const more     = document.getElementById('evLoadMore');
+    if (!grid || !timeline || !empty || !more) return;
+
+    if (!filteredEventos.length) {
+        grid.hidden = timeline.hidden = more.hidden = true;
+        empty.hidden = false;
+
+        const title = searchQuery
+            ? `Nenhum evento encontrado para "${searchQuery}"`
+            : activeCat !== 'todos' || activePeriod !== 'todos'
+            ? 'Nenhum evento nesse filtro'
+            : 'Nenhum evento encontrado';
+
+        const desc = (searchQuery || activeCat !== 'todos' || activePeriod !== 'todos')
+            ? 'Tente ajustar os filtros ou a busca.'
+            : 'Ainda não há eventos cadastrados. Volte em breve!';
+
+        setTxt('evEmptyTitle', title);
+        setTxt('evEmptyDesc',  desc);
+        updateCount();
+        return;
+    }
+
+    empty.hidden = true;
+
+    const slice   = filteredEventos.slice(0, (currentPage + 1) * PAGE_SIZE);
+    const hasMore = slice.length < filteredEventos.length;
+    more.hidden   = !hasMore;
+
+    if (currentView === 'grid') {
+        timeline.hidden = true;
+        grid.hidden     = false;
+        grid.innerHTML  = '';
+        slice.forEach(ev => grid.appendChild(buildCard(ev)));
+    } else {
+        grid.hidden        = true;
+        timeline.hidden    = false;
+        timeline.innerHTML = '';
+        slice.forEach(ev => timeline.appendChild(buildTimelineItem(ev)));
+    }
+
+    updateCount();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CARD (grade)
+// ─────────────────────────────────────────────────────────────────
+
+function buildCard(ev) {
+    const d      = toDate(ev.dataInicio);
+    const hoje   = new Date();
+    const days   = d ? Math.ceil((d - hoje) / 86_400_000) : null;
+
+    const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
+    const month = d ? d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
+
+    let badgeHTML = '';
+    if (days !== null && days >= 0) {
+        if      (days === 0) badgeHTML = `<span class="ev-badge ev-badge-hoje">Hoje</span>`;
+        else if (days === 1) badgeHTML = `<span class="ev-badge ev-badge-amanha">Amanhã</span>`;
+        else if (days <= 7)  badgeHTML = `<span class="ev-badge ev-badge-breve">Em ${days} dias</span>`;
+    }
+
+    const imgStyle = ev.imagem
+        ? `background-image:url('${esc(ev.imagem)}')`
+        : '';
+
+    const isFav = userFavorites.has(ev.id);
+
+    const art = document.createElement('article');
+    art.className = 'ev-card';
+    art.setAttribute('tabindex', '0');
+    art.setAttribute('role', 'button');
+    art.setAttribute('aria-label', `Ver detalhes de ${esc(ev.titulo || 'evento')}`);
+
+    art.innerHTML = `
+        <div class="ev-card-top">
+            <div class="ev-card-date-col">
+                <span class="c-day">${day}</span>
+                <span class="c-month">${month}</span>
+            </div>
+            <div class="ev-card-img" style="${imgStyle}">
+                ${!ev.imagem ? `
+                <svg class="ev-card-img-placeholder" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                    <rect x="5" y="9" width="30" height="24" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M10 7v3M30 7v3M5 17h30" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="14" cy="26" r="1.5" fill="currentColor"/>
+                    <circle cx="20" cy="26" r="1.5" fill="currentColor"/>
+                    <circle cx="26" cy="26" r="1.5" fill="currentColor"/>
+                </svg>` : ''}
+                <div class="ev-card-badges">
+                    ${badgeHTML}
+                </div>
+            </div>
+        </div>
+        <div class="ev-card-body">
+            <div class="ev-card-header">
+                <span class="ev-card-cat">${esc(ev.categoria || 'Evento')}</span>
+                <button class="ev-card-fav ${isFav ? 'is-fav' : ''}"
+                    data-fav-id="${ev.id}"
+                    aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="${isFav ? 'currentColor' : 'none'}" aria-hidden="true">
+                        <polygon points="7,1.5 8.8,5.2 13,5.6 10,8.5 10.8,12.7 7,10.5 3.2,12.7 4,8.5 1,5.6 5.2,5.2"
+                            stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <h3 class="ev-card-title">${esc(ev.titulo || 'Evento sem título')}</h3>
+            ${ev.descricao ? `<p class="ev-card-desc">${esc(ev.descricao)}</p>` : ''}
+            <div class="ev-card-meta">
+                ${ev.local ? `
+                <div class="ev-card-meta-row">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M6 1C4.3 1 3 2.4 3 4C3 6.4 6 11 6 11S9 6.4 9 4C9 2.4 7.7 1 6 1Z" stroke="currentColor" stroke-width="1.4"/>
+                    </svg>
+                    ${esc(ev.local)}
+                </div>` : ''}
+                ${ev.horario ? `
+                <div class="ev-card-meta-row">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M6 3.5v2.8l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                    ${esc(ev.horario)}
+                </div>` : ''}
+                ${ev.entrada ? `
+                <div class="ev-card-meta-row">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <rect x="1" y="3" width="10" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M1 5.5h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                    ${esc(ev.entrada)}
+                </div>` : ''}
+            </div>
+        </div>
+        <div class="ev-card-footer">
+            <div class="ev-card-actions">
+                <button class="ev-action-btn ev-action-btn-whats" aria-label="Compartilhar no WhatsApp">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M21 12.08c0-4.97-4.03-9-9-9-2.1 0-4.05.65-5.68 1.76L3 21l7.47-1.96A8.93 8.93 0 0012 21c4.97 0 9-4.03 9-8.92z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17.5 14.5c-.4-.2-2.3-.9-2.6-1s-.4-.2-.6.2-.7 1-1 1.2-.4.2-.8.1a7.3 7.3 0 01-2.2-1.3c-.6-.6-.5-.9.4-1.9s1-1.6 1.1-1.9-.1-.6-.4-.8-1-1-1.5-1.1c-.5-.1-1-.1-1.4-.1s-1 .4-1.5 1.2c-.5.8-.6 1.8.8 3.3 1.4 1.5 3 2.5 4.2 2.9 1.2.4 1.9.3 2.3.2.4-.1 1.3-.5 1.5-1z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div class="ev-cal-wrap">
+                    <button class="ev-action-btn ev-action-btn-cal" aria-haspopup="true" aria-expanded="false" aria-label="Adicionar ao meu calendário">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                            <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <div class="ev-cal-dropdown" role="menu">
+                        <button class="ev-cal-dropdown-item" data-cal="google">Google Calendar</button>
+                        <button class="ev-cal-dropdown-item" data-cal="ics">Baixar .ics (Apple)</button>
+                    </div>
+                </div>
+            </div>
+            <span class="ev-card-link">
+                Ver detalhes
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </span>
+        </div>
+    `;
+
+    // Clique no card (exceto no botão favorito)
+    const openHandler = (e) => {
+        if (!e.target.closest('.ev-card-fav')) openModal(ev);
+    };
+    art.addEventListener('click', openHandler);
+    art.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHandler(e); } });
+
+    art.querySelector('.ev-card-fav').addEventListener('click', e => toggleFavorite(ev.id, e));
+
+    // Ações: WhatsApp e Calendário
+    const whatsBtn = art.querySelector('.ev-action-btn-whats');
+    const calBtn   = art.querySelector('.ev-action-btn-cal');
+    const calDrop  = art.querySelector('.ev-cal-dropdown');
+
+    if (whatsBtn) {
+        whatsBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            const url = `${location.origin}${location.pathname}?evento=${ev.id}`;
+            const dateStr = toDate(ev.dataInicio)?.toLocaleString('pt-BR') ?? '';
+            const text = `${ev.titulo || 'Evento'}\n${dateStr}\n${ev.local || ''}\n${url}`.trim();
+            const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(wa, '_blank');
+        });
+    }
+
+    if (calBtn && calDrop) {
+        calBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            closeAllCalDropdowns();
+            const expanded = calBtn.getAttribute('aria-expanded') === 'true';
+            calBtn.setAttribute('aria-expanded', String(!expanded));
+            calDrop.classList.toggle('show', !expanded);
+        });
+
+        calDrop.querySelectorAll('.ev-cal-dropdown-item').forEach(it => {
+            it.addEventListener('click', e => {
+                e.stopPropagation();
+                const kind = it.dataset.cal;
+                if (kind === 'google') openGoogleCalendar(ev);
+                else if (kind === 'ics') downloadICS(ev);
+                closeAllCalDropdowns();
+            });
+        });
+    }
+
+    return art;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ITEM DE TIMELINE
+// ─────────────────────────────────────────────────────────────────
+
+function buildTimelineItem(ev) {
+    const d     = toDate(ev.dataInicio);
+    const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
+    const month = d ? d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
+    const isFav = userFavorites.has(ev.id);
+
+    const item = document.createElement('div');
+    item.className = 'ev-tl-item';
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('role', 'button');
+    item.setAttribute('aria-label', `Ver detalhes de ${esc(ev.titulo || 'evento')}`);
+
+    item.innerHTML = `
+        <div class="ev-tl-date" aria-hidden="true">
+            <span class="tl-day">${day}</span>
+            <span class="tl-month">${month}</span>
+        </div>
+        <div class="ev-tl-body">
+            <h3 class="ev-tl-title">${esc(ev.titulo || 'Evento')}</h3>
+            <div class="ev-tl-meta">
+                ${ev.horario ? `
+                <div class="ev-tl-meta-item">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M6 3.5v2.8l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                    ${esc(ev.horario)}
+                </div>` : ''}
+                ${ev.local ? `
+                <div class="ev-tl-meta-item">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M6 1C4.3 1 3 2.4 3 4C3 6.4 6 11 6 11S9 6.4 9 4C9 2.4 7.7 1 6 1Z" stroke="currentColor" stroke-width="1.4"/>
+                    </svg>
+                    ${esc(ev.local)}
+                </div>` : ''}
+                ${ev.entrada ? `
+                <div class="ev-tl-meta-item">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <rect x="1" y="3" width="10" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                    </svg>
+                    ${esc(ev.entrada)}
+                </div>` : ''}
+            </div>
+        </div>
+        <div class="ev-tl-aside">
+            <span class="ev-tl-cat">${esc(ev.categoria || 'Evento')}</span>
+            <button class="ev-tl-fav ${isFav ? 'is-fav' : ''}"
+                data-fav-id="${ev.id}"
+                aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="${isFav ? 'currentColor' : 'none'}" aria-hidden="true">
+                    <polygon points="7,1.5 8.8,5.2 13,5.6 10,8.5 10.8,12.7 7,10.5 3.2,12.7 4,8.5 1,5.6 5.2,5.2"
+                        stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    `;
+
+    const openHandler = (e) => {
+        if (!e.target.closest('.ev-tl-fav')) openModal(ev);
+    };
+    item.addEventListener('click', openHandler);
+    item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHandler(e); } });
+
+    item.querySelector('.ev-tl-fav').addEventListener('click', e => toggleFavorite(ev.id, e));
+
+    return item;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MODAL DE DETALHES
+// ─────────────────────────────────────────────────────────────────
+
+function openModal(ev) {
+    const modal   = document.getElementById('modalEvento');
+    const content = document.getElementById('modalContent');
+    if (!modal || !content) return;
+
+    const dInicio = toDate(ev.dataInicio);
+    const dFim    = toDate(ev.dataFim);
+
+    const dStr    = dInicio
+        ? dInicio.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
+        : '—';
+    const dFimStr = dFim
+        ? dFim.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+        : null;
+
+    const imgStyle = ev.imagem
+        ? `background-image:url('${esc(ev.imagem)}'); background-size:cover; background-position:center;`
+        : '';
+
+    content.innerHTML = `
+        <div class="ev-modal-hero" style="${imgStyle}">
+            <span class="ev-modal-hero-cat">${esc(ev.categoria || 'Evento')}</span>
+        </div>
+        <div class="ev-modal-body">
+            <h2 class="ev-modal-title" id="modalEventoTitle">${esc(ev.titulo || 'Evento')}</h2>
+
+            <div class="ev-modal-info-grid">
+                <div class="ev-modal-info-item">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <rect x="2" y="3" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M5 2v2M12 2v2M2 7h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                    <div>
+                        <strong>Data</strong>
+                        <span>${dStr}${dFimStr ? ' até ' + dFimStr : ''}</span>
+                    </div>
+                </div>
+                ${ev.horario ? `
+                <div class="ev-modal-info-item">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <circle cx="8.5" cy="8.5" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M8.5 5v4l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                    <div><strong>Horário</strong><span>${esc(ev.horario)}</span></div>
+                </div>` : ''}
+                ${ev.local ? `
+                <div class="ev-modal-info-item">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <path d="M8.5 2C6 2 4 4 4 6.5C4 10 8.5 16 8.5 16S13 10 13 6.5C13 4 11 2 8.5 2Z" stroke="currentColor" stroke-width="1.6"/>
+                        <circle cx="8.5" cy="6.5" r="1.8" stroke="currentColor" stroke-width="1.4"/>
+                    </svg>
+                    <div><strong>Local</strong><span>${esc(ev.local)}</span></div>
+                </div>` : ''}
+                ${ev.entrada ? `
+                <div class="ev-modal-info-item">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <rect x="2" y="5" width="13" height="7" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M2 8h13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                    </svg>
+                    <div><strong>Entrada</strong><span>${esc(ev.entrada)}</span></div>
+                </div>` : ''}
+                ${ev.organizador ? `
+                <div class="ev-modal-info-item">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <circle cx="8.5" cy="6" r="2.8" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M3 15c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                    <div><strong>Organização</strong><span>${esc(ev.organizador)}</span></div>
+                </div>` : ''}
+                ${ev.contato ? `
+                <div class="ev-modal-info-item">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <rect x="2" y="4" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M2 7l6.5 4L15 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                    <div><strong>Contato</strong><span>${esc(ev.contato)}</span></div>
+                </div>` : ''}
+            </div>
+
+            ${ev.descricao ? `
+            <p class="ev-modal-desc-label">Sobre o evento</p>
+            <p class="ev-modal-desc">${esc(ev.descricao)}</p>
+            ` : ''}
+
+            <div class="ev-modal-footer">
+                ${ev.link ? `
+                <a href="${esc(ev.link)}" target="_blank" rel="noopener noreferrer" class="ev-modal-btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M9 2h3v3M12 2l-5.5 5.5M5 3.5H3a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V8"
+                            stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                    Mais informações
+                </a>` : ''}
+                <button class="ev-modal-btn-sec" id="modalShareBtn">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <circle cx="11" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="3"  cy="7"   r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="11" cy="11.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4.5 6.2l5-2.4M4.5 8l5 2.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                    Compartilhar
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modalShareBtn')?.addEventListener('click', () => {
+        const url = `${location.origin}${location.pathname}?evento=${ev.id}`;
+        if (navigator.share) {
+            navigator.share({ title: ev.titulo, url }).catch(() => {});
+        } else {
+            navigator.clipboard?.writeText(url).then(() => {
+                const btn = document.getElementById('modalShareBtn');
+                if (btn) { btn.textContent = 'Link copiado!'; setTimeout(() => location.reload(), 1500); }
+            });
+        }
+    });
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    document.getElementById('modalClose')?.focus();
+}
+
+function closeModal() {
+    const modal = document.getElementById('modalEvento');
+    if (modal) modal.hidden = true;
+    document.body.style.overflow = '';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// NOTÍCIAS
+// ─────────────────────────────────────────────────────────────────
+
+async function loadNoticias() {
+    const grid = document.getElementById('newsGrid');
+    if (!grid) return;
+
+    try {
+        const snap = await db.collection('noticias')
+            .where('status', '==', 'publicado')
+            .orderBy('createdAt', 'desc')
+            .limit(6)
+            .get();
+
+        if (snap.empty) {
+            document.getElementById('secNoticias')?.style.setProperty('display', 'none');
+            return;
+        }
+
+        grid.innerHTML = '';
+        snap.forEach(doc => grid.appendChild(buildNewsCard({ id: doc.id, ...doc.data() })));
+
+    } catch (err) {
+        console.warn('⚠️ noticias:', err);
+        document.getElementById('secNoticias')?.style.setProperty('display', 'none');
+    }
+}
+
+function buildNewsCard(n) {
+    const createdAt = n.createdAt?.toDate?.() ?? null;
+    const dateStr   = createdAt
+        ? createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+        : '';
+    const imgStyle = n.imagem
+        ? `background-image:url('${esc(n.imagem)}'); background-size:cover; background-position:center;`
+        : '';
+
+    const card = document.createElement('article');
+    card.className = 'news-card';
+    card.innerHTML = `
+        <div class="news-card-img" style="${imgStyle}" aria-hidden="${n.imagem ? 'false' : 'true'}">
+            ${!n.imagem ? `
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <rect x="3" y="7" width="30" height="22" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M7 5v3M29 5v3M3 15h30" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>` : ''}
+        </div>
+        <div class="news-card-body">
+            ${n.categoria ? `<span class="news-card-cat">${esc(n.categoria)}</span>` : ''}
+            <h3 class="news-card-title">${esc(n.titulo || 'Notícia')}</h3>
+            <p class="news-card-preview">${esc(n.resumo || (n.conteudo || '').slice(0, 120))}</p>
+        </div>
+        <div class="news-card-footer">
+            <span class="news-card-date">${dateStr}</span>
+            <span class="news-card-link">
+                Ler mais
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </span>
+        </div>
+    `;
+
+    card.addEventListener('click', () => openNewsModal(n));
+    return card;
+}
+
+function openNewsModal(n) {
+    const modal   = document.getElementById('modalEvento');
+    const content = document.getElementById('modalContent');
+    if (!modal || !content) return;
+
+    const createdAt = n.createdAt?.toDate?.() ?? null;
+    const dateStr   = createdAt
+        ? createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+        : '';
+    const imgStyle = n.imagem
+        ? `background-image:url('${esc(n.imagem)}'); background-size:cover; background-position:center;`
+        : '';
+
+    content.innerHTML = `
+        <div class="ev-modal-hero" style="${imgStyle}"></div>
+        <div class="news-modal-body">
+            ${n.categoria ? `<span class="news-modal-cat">${esc(n.categoria)}</span>` : ''}
+            <h2 class="news-modal-title" id="modalEventoTitle">${esc(n.titulo || 'Notícia')}</h2>
+            <p class="news-modal-meta">${n.autor ? esc(n.autor) + ' · ' : ''}${dateStr}</p>
+            <div class="news-modal-content">
+                ${(n.conteudo || '')
+                    .split('\n')
+                    .map(p => p.trim() ? `<p>${esc(p)}</p>` : '')
+                    .join('')}
+            </div>
+        </div>
+    `;
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// EVENT LISTENERS
+// ─────────────────────────────────────────────────────────────────
+
+function setupListeners() {
+    // Tabs de período
+    document.querySelectorAll('.ev-tab').forEach(btn => {
+        btn.addEventListener('click', () => setPeriod(btn.dataset.period, btn));
+    });
+
+    // Botão "Todas" nas categorias
+    const allCatBtn = document.querySelector('.ev-cat[data-cat="todos"]');
+    allCatBtn?.addEventListener('click', () => setCat('todos', allCatBtn));
+
+    // Toggle de visualização
+    document.querySelectorAll('.ev-view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentView = btn.dataset.view;
+            document.querySelectorAll('.ev-view-btn').forEach(b => b.classList.toggle('ev-view-active', b === btn));
+            currentPage = 0;
+            renderPage();
+        });
+    });
+
+    // Busca
+    const searchInput = document.getElementById('searchInput');
+    const searchClear = document.getElementById('searchClear');
+    let searchTimer;
+
+    searchInput?.addEventListener('input', () => {
+        clearTimeout(searchTimer);
+        searchQuery = searchInput.value.trim();
+        if (searchClear) searchClear.hidden = !searchQuery;
+        searchTimer = setTimeout(applyFilters, 280);
+    });
+
+    searchClear?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        searchQuery = '';
+        if (searchClear) searchClear.hidden = true;
+        applyFilters();
+        searchInput?.focus();
+    });
+
+    // Carregar mais
+    document.getElementById('btnLoadMore')?.addEventListener('click', () => {
+        currentPage++;
+        renderPage();
+        // Foca o primeiro novo item para acessibilidade
+        const items = currentView === 'grid'
+            ? document.querySelectorAll('.ev-card')
+            : document.querySelectorAll('.ev-tl-item');
+        items[currentPage * PAGE_SIZE]?.focus();
+    });
+
+    // Limpar filtros (estado vazio)
+    document.getElementById('evClearAll')?.addEventListener('click', clearAllFilters);
+
+    // Modal — fechar
+    document.getElementById('modalClose')?.addEventListener('click', closeModal);
+    document.getElementById('modalOverlay')?.addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    // Fecha dropdowns de calendário ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest || !e.target.closest('.ev-cal-wrap')) closeAllCalDropdowns();
+    });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ESTADOS DE UI
+// ─────────────────────────────────────────────────────────────────
+
+function showLoading(show) {
+    const ls = document.getElementById('evLoadingState');
+    if (!ls) return;
+    ls.style.display = show ? 'flex' : 'none';
+    const grid = document.getElementById('evGrid');
+    const tl   = document.getElementById('evTimeline');
+    if (grid) grid.hidden = show;
+    if (tl)   tl.hidden   = show;
+}
+
+function showErrorState(msg) {
+    const empty = document.getElementById('evEmpty');
+    if (!empty) return;
+    empty.hidden = false;
+    setTxt('evEmptyTitle', msg);
+    setTxt('evEmptyDesc',  '');
+    const clearBtn = document.getElementById('evClearAll');
+    if (clearBtn) clearBtn.hidden = true;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// UTILITÁRIOS
+// ─────────────────────────────────────────────────────────────────
+
+/** Converte qualquer valor de data do Firestore para Date ou null */
+function toDate(val) {
+    if (!val) return null;
+    if (val?.toDate)   return val.toDate();              // Firestore Timestamp
+    if (val?.seconds)  return new Date(val.seconds * 1000);
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+/** Retorna o início do dia (00:00:00.000) de uma data */
+function startOfDay(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+/** Retorna o fim do dia (23:59:59.999) de uma data */
+function endOfDay(date) {
+    const d = new Date(date);
+    d.setHours(23, 59, 59, 999);
+    return d;
+}
+
+function setTxt(id, txt) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+}
+
+/* Fecha todos os dropdowns de calendário abertos na página */
+function closeAllCalDropdowns() {
+    document.querySelectorAll('.ev-cal-dropdown.show').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.ev-action-btn-cal[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+}
+
+/* Abre o Google Calendar com os parâmetros do evento */
+function openGoogleCalendar(ev) {
+    const dStart = toDate(ev.dataInicio);
+    const dEnd   = toDate(ev.dataFim) || toDate(ev.dataInicio);
+    if (!dStart) return;
+    const fmt = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const text = ev.titulo || '';
+    const details = [ev.descricao || '', ev.link || ''].filter(Boolean).join('\n');
+    const location = ev.local || '';
+    const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(text)}&dates=${encodeURIComponent(fmt(dStart) + '/' + fmt(dEnd))}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}&sf=true&output=xml`;
+    window.open(url, '_blank');
+}
+
+/* Gera e baixa um arquivo .ics compatível com Apple/Outlook */
+function downloadICS(ev) {
+    const dStart = toDate(ev.dataInicio);
+    const dEnd   = toDate(ev.dataFim) || toDate(ev.dataInicio);
+    if (!dStart) return;
+
+    const fmt = d => {
+        // formata como YYYYMMDDTHHMMSSZ
+        return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
+    const uid = `evt-${(ev.id || Math.random().toString(36).slice(2,9))}@conectabueno.local`;
+    const now = fmt(new Date());
+    const ics = [`BEGIN:VCALENDAR`,`VERSION:2.0`,`PRODID:-//ConectaBueno//Agenda//PT-BR`,`BEGIN:VEVENT`,
+        `UID:${uid}`,
+        `DTSTAMP:${now}`,
+        `DTSTART:${fmt(dStart)}`,
+        `DTEND:${fmt(dEnd)}`,
+        `SUMMARY:${(ev.titulo || '').replace(/\n/g,' ')}`,
+        `DESCRIPTION:${(ev.descricao || '').replace(/\n/g,' ')}`,
+        `LOCATION:${(ev.local || '')}`,
+        `END:VEVENT`,`END:VCALENDAR`].join('\r\n');
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(ev.titulo || 'evento').replace(/[^a-z0-9]/gi,'_')}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/** Escapa caracteres HTML para evitar XSS */
+function esc(str) {
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
