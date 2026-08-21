@@ -234,8 +234,8 @@ function togglePassword(inputId) {
     const isHidden = input.type === 'password';
     input.type = isHidden ? 'text' : 'password';
 
-    // Atualiza aria-label do botão pai
-    const btn = input.closest('.input-wrapper')?.querySelector('.toggle-password');
+    const fieldWrap = input.closest('.field-wrap');
+    const btn = fieldWrap?.querySelector('.toggle-password');
     if (btn) btn.setAttribute('aria-label', isHidden ? 'Ocultar senha' : 'Mostrar senha');
 }
 

@@ -230,27 +230,28 @@ function getInitials(name) {
 
 function initApp() {
     console.log('🚀 Inicializando aplicação...');
-    
-    // Abrir sidebar por padrão no desktop
+
     const sidebar = document.getElementById('sidebar');
     const btnToggleMenu = document.getElementById('btnToggleMenu');
     const mapContainer = document.querySelector('.map-container');
-    
+
     if (sidebar && window.innerWidth > 1024) {
         sidebar.classList.add('active');
-        if (btnToggleMenu) btnToggleMenu.classList.add('active');
-        
-        // Ajustar mapa para dar espaço à sidebar
+        sidebar.classList.remove('sidebar-collapsed');
+        if (btnToggleMenu) {
+            btnToggleMenu.classList.add('active');
+            btnToggleMenu.setAttribute('aria-label', 'Recolher painel lateral');
+        }
+
         if (mapContainer) {
             mapContainer.style.marginLeft = '360px';
             mapContainer.style.width = 'calc(100% - 360px)';
         }
     } else if (mapContainer) {
-        // Mobile: mapa ocupa tudo
         mapContainer.style.marginLeft = '0';
         mapContainer.style.width = '100%';
     }
-    
+
     initMap();
     setupEventListeners();
     loadSpaces();
@@ -290,10 +291,14 @@ function initMap() {
         maxZoom: 19
     }).addTo(map);
 
-    // Ajustar tamanho após carregar
+    // Ajustar tamanho após carregar e após o layout do header/sidebar
     setTimeout(() => {
-        map.invalidateSize();
+        if (map) map.invalidateSize();
     }, 100);
+
+    setTimeout(() => {
+        if (map) map.invalidateSize();
+    }, 400);
 
     console.log('✅ Mapa inicializado');
 }
@@ -854,43 +859,50 @@ function updateResultsCount(count) {
 // ===================================
 
 function setupEventListeners() {
-    // Menu toggle
     const btnToggleMenu = document.getElementById('btnToggleMenu');
     const sidebar = document.getElementById('sidebar');
     const mapContainer = document.querySelector('.map-container');
-    
+
+    const applySidebarState = (collapsed) => {
+        if (!sidebar || !mapContainer) return;
+
+        sidebar.classList.toggle('sidebar-collapsed', collapsed);
+        sidebar.classList.toggle('active', !collapsed);
+
+        if (btnToggleMenu) {
+            btnToggleMenu.classList.toggle('active', !collapsed);
+            btnToggleMenu.setAttribute('aria-label', collapsed ? 'Expandir painel lateral' : 'Recolher painel lateral');
+            btnToggleMenu.innerHTML = collapsed ? '<span>›</span>' : '<span>‹</span>';
+        }
+
+        if (window.innerWidth > 1024) {
+            if (collapsed) {
+                mapContainer.style.marginLeft = '0';
+                mapContainer.style.width = '100%';
+            } else {
+                mapContainer.style.marginLeft = '360px';
+                mapContainer.style.width = 'calc(100% - 360px)';
+            }
+        } else {
+            mapContainer.style.marginLeft = '0';
+            mapContainer.style.width = '100%';
+        }
+
+        if (map) {
+            setTimeout(() => map.invalidateSize(), 180);
+        }
+    };
+
     if (btnToggleMenu && sidebar) {
         btnToggleMenu.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
-            // Toggle sidebar e botão
-            const wasActive = sidebar.classList.contains('active');
-            
-            sidebar.classList.toggle('active');
-            btnToggleMenu.classList.toggle('active');
-            
-            console.log('Toggle: sidebar', wasActive ? 'fechando' : 'abrindo');
-            
-            // Animar o mapa no desktop
-            if (window.innerWidth > 1024 && mapContainer) {
-                if (wasActive) {
-                    // Fechando: mapa expande
-                    mapContainer.style.marginLeft = '0';
-                    mapContainer.style.width = '100%';
-                } else {
-                    // Abrindo: mapa diminui
-                    mapContainer.style.marginLeft = '360px';
-                    mapContainer.style.width = 'calc(100% - 360px)';
-                }
-            }
-            
-            // Gerenciar overlay em mobile/tablet
+            const collapsed = !sidebar.classList.contains('sidebar-collapsed');
+            applySidebarState(collapsed);
+
             if (window.innerWidth <= 1024) {
                 const overlay = document.getElementById('sidebarOverlay');
-                
-                if (!wasActive) {
-                    // Abrir: criar overlay
+                if (collapsed) {
                     if (!overlay) {
                         const newOverlay = document.createElement('div');
                         newOverlay.id = 'sidebarOverlay';
@@ -906,45 +918,24 @@ function setupEventListeners() {
                             transition: opacity 0.3s ease;
                         `;
                         document.body.appendChild(newOverlay);
-                        
-                        // Fade in
                         setTimeout(() => {
                             newOverlay.style.opacity = '1';
                         }, 10);
-                        
-                        // Fechar ao clicar no overlay
                         newOverlay.addEventListener('click', () => {
-                            sidebar.classList.remove('active');
-                            btnToggleMenu.classList.remove('active');
+                            applySidebarState(true);
                             newOverlay.style.opacity = '0';
                             setTimeout(() => newOverlay.remove(), 300);
-                            
-                            // Ajustar mapa
-                            if (map) {
-                                setTimeout(() => map.invalidateSize(), 350);
-                            }
                         });
                     }
-                } else {
-                    // Fechar: remover overlay
-                    if (overlay) {
-                        overlay.style.opacity = '0';
-                        setTimeout(() => overlay.remove(), 300);
-                    }
+                } else if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.remove(), 300);
                 }
             }
-            
-            // Reajustar mapa após animação
-            setTimeout(() => {
-                if (map) {
-                    map.invalidateSize();
-                    console.log('Mapa redimensionado');
-                }
-            }, 350);
         });
     }
 
-    // User menu
+    // User menu - same behavior as the Events page
     const btnUserMenu = document.getElementById('btnUserMenu');
     const userDropdown = document.getElementById('userDropdown');
 
@@ -957,6 +948,13 @@ function setupEventListeners() {
 
         document.addEventListener('click', (event) => {
             if (!userDropdown.contains(event.target) && event.target !== btnUserMenu) {
+                userDropdown.classList.remove('active');
+                btnUserMenu.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && userDropdown.classList.contains('active')) {
                 userDropdown.classList.remove('active');
                 btnUserMenu.setAttribute('aria-expanded', 'false');
             }

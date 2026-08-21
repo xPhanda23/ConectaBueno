@@ -11,74 +11,6 @@
 <body class="auth-page">
 
     <!-- =====================================================
-         FUNDO FULLSCREEN (foto ou gradiente)
-         ===================================================== -->
-    <div class="bg-photo" id="bgPhoto" aria-hidden="true">
-        <!-- overlay escurece a foto para legibilidade -->
-        <div class="bg-photo__overlay"></div>
-    </div>
-
-    <!-- =====================================================
-         SELETOR DE FOTO DE FUNDO (canto inferior esquerdo)
-         ===================================================== -->
-    <div class="bg-picker" id="bgPicker" role="group" aria-label="Escolher foto de fundo">
-        <button class="bg-picker__toggle" id="bgPickerToggle"
-                aria-expanded="false" aria-controls="bgPickerPanel"
-                title="Escolher foto de fundo">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <rect x="2" y="2" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
-                <rect x="10" y="2" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
-                <rect x="2" y="10" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
-                <rect x="10" y="10" width="6" height="6" rx="1.5" stroke="white" stroke-width="1.5"/>
-            </svg>
-            <span>Foto de fundo</span>
-        </button>
-
-        <div class="bg-picker__panel" id="bgPickerPanel" hidden>
-            <p class="bg-picker__label">Escolha a imagem de fundo</p>
-
-            <div class="bg-picker__grid">
-
-                <!-- Opção 1: Gradiente verde padrão -->
-                <button class="bg-option active" data-bg="gradient"
-                        aria-label="Fundo verde padrão" title="Verde Padrão">
-                    <span class="bg-option__preview bg-option__preview--gradient"></span>
-                    <span>Padrão</span>
-                </button>
-
-                <!-- Opção 2: imagem turismo.png já existente -->
-                <button class="bg-option" data-bg="../assets/images/turismo.png"
-                        aria-label="Foto turismo" title="Turismo">
-                    <span class="bg-option__preview"
-                          style="background-image:url('../assets/images/turismo.png')"></span>
-                    <span>Turismo</span>
-                </button>
-
-                <!-- Opção 3: imagem bueno.png já existente -->
-                <button class="bg-option" data-bg="../assets/images/bueno.png"
-                        aria-label="Foto Bueno Brandão" title="Bueno">
-                    <span class="bg-option__preview"
-                          style="background-image:url('../assets/images/bueno.png')"></span>
-                    <span>Bueno</span>
-                </button>
-
-                <!-- Opção 4: upload de foto personalizada -->
-                <label class="bg-option bg-option--upload" title="Enviar foto">
-                    <input type="file" id="bgUpload" accept="image/*" hidden>
-                    <span class="bg-option__preview bg-option__preview--upload">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                            <path d="M10 3v10M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                            <path d="M3 14v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                        </svg>
-                    </span>
-                    <span>Enviar</span>
-                </label>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- =====================================================
          CONTEÚDO PRINCIPAL — lado esquerdo + card
          ===================================================== -->
     <div class="auth-layout">
@@ -402,7 +334,6 @@
 
             </div><!-- /.auth-card -->
 
-            <p class="auth-footnote">Plataforma oficial da Prefeitura de Bueno Brandão, MG</p>
         </div><!-- /.auth-card-wrap -->
     </div><!-- /.auth-layout -->
 
@@ -497,89 +428,6 @@
     <script src="../js/firebase-config.js"></script>
     <script src="../js/firebase-auth.js"></script>
     <script src="../js/auth.js"></script>
-
-    <!-- Seletor de foto de fundo -->
-    <script>
-    (function () {
-        'use strict';
-
-        const BG_KEY   = 'cb_login_bg';
-        const GRADIENT = 'gradient';
-
-        const bgPhoto  = document.getElementById('bgPhoto');
-        const toggle   = document.getElementById('bgPickerToggle');
-        const panel    = document.getElementById('bgPickerPanel');
-        const options  = document.querySelectorAll('.bg-option[data-bg]');
-        const upload   = document.getElementById('bgUpload');
-
-        /* ── Aplica um fundo ──────────────────────────────── */
-        function applyBg(value) {
-            if (value === GRADIENT || !value) {
-                bgPhoto.style.backgroundImage =
-                    'linear-gradient(145deg,#0f2419 0%,#1a3a2e 50%,#2d5a3d 100%)';
-            } else {
-                bgPhoto.style.backgroundImage = `url('${value}')`;
-            }
-        }
-
-        /* ── Marca a opção ativa ─────────────────────────── */
-        function markActive(value) {
-            options.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.bg === value);
-            });
-        }
-
-        /* ── Inicializa com valor salvo ──────────────────── */
-        function init() {
-            const saved = localStorage.getItem(BG_KEY) || GRADIENT;
-            applyBg(saved);
-            markActive(saved);
-        }
-
-        /* ── Clique em uma opção ─────────────────────────── */
-        options.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const val = btn.dataset.bg;
-                applyBg(val);
-                markActive(val);
-                localStorage.setItem(BG_KEY, val);
-            });
-        });
-
-        /* ── Upload de foto personalizada ────────────────── */
-        upload.addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (!file || !file.type.startsWith('image/')) return;
-
-            const reader = new FileReader();
-            reader.onload = ev => {
-                const dataUrl = ev.target.result;
-                applyBg(dataUrl);
-                // Não marca nenhuma opção como ativa (é upload personalizado)
-                options.forEach(b => b.classList.remove('active'));
-                localStorage.setItem(BG_KEY, dataUrl);
-            };
-            reader.readAsDataURL(file);
-        });
-
-        /* ── Toggle do painel ────────────────────────────── */
-        toggle.addEventListener('click', () => {
-            const isOpen = !panel.hidden;
-            panel.hidden = isOpen;
-            toggle.setAttribute('aria-expanded', String(!isOpen));
-        });
-
-        /* ── Fecha ao clicar fora ────────────────────────── */
-        document.addEventListener('click', e => {
-            if (!document.getElementById('bgPicker').contains(e.target)) {
-                panel.hidden = true;
-                toggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        init();
-    })();
-    </script>
 
 </body>
 </html>
