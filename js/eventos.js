@@ -173,7 +173,7 @@ async function loadEventos() {
 // ESTATÍSTICAS DO HERO
 // ─────────────────────────────────────────────────────────────────
 
-function updateHeroStats() {
+async function updateHeroStats() {
     const hoje = startOfDay(new Date());
     const mes  = hoje.getMonth();
     const ano  = hoje.getFullYear();
@@ -183,19 +183,104 @@ function updateHeroStats() {
         return d && d.getMonth() === mes && d.getFullYear() === ano && d >= hoje;
     });
 
-    setTxt('totalEventos', String(eventosMes.length));
-
     const proximo = allEventos
         .map(ev => ({ ...ev, _d: toDate(ev.dataInicio) }))
         .filter(ev => ev._d && ev._d >= hoje)
         .sort((a, b) => a._d - b._d)[0];
 
+    const safeValue = eventosMes.length || 0;
+    const nextLabel = proximo ? (proximo.titulo || 'Evento em destaque') : 'Agenda em atualização';
+    const countdownText = proximo
+        ? (() => {
+            const dias = Math.ceil((proximo._d - hoje) / 86_400_000);
+            if (dias === 0) return 'Hoje';
+            if (dias === 1) return 'Em 1 dia';
+            return `Em ${dias} dias`;
+        })()
+        : '—';
+
+    setTxt('heroAgendaValue', String(safeValue));
+    setTxt('heroAgendaLabel', safeValue === 1 ? 'evento em agenda' : 'eventos em agenda');
+    setTxt('heroAgendaCountdown', countdownText);
+    setTxt('heroAgendaPill', 'Neste mês');
+
     if (proximo) {
         const dias = Math.ceil((proximo._d - hoje) / 86_400_000);
-        setTxt('proximoEvento', dias === 0 ? 'Hoje!' : dias === 1 ? 'Amanhã' : `Em ${dias} dias`);
+        const weatherText = await getWeatherForDateSummary(proximo._d);
+        const metaText = weatherText
+            ? `${weatherText} · ${dias === 0 ? 'Hoje: ' : dias === 1 ? 'Amanhã: ' : `No dia do evento: `}${nextLabel}`
+            : `${dias === 0 ? 'Hoje: ' : dias === 1 ? 'Amanhã: ' : 'Próximo destaque: '}${nextLabel}`;
+
+        setTxt('heroAgendaMeta', metaText);
     } else {
-        setTxt('proximoEvento', '—');
+        setTxt('heroAgendaMeta', 'A agenda segue em atualização para o próximo período.');
+        setTxt('heroAgendaPill', 'Em breve');
     }
+}
+
+async function getWeatherForDateSummary(date) {
+    if (!date || Number.isNaN(date.getTime())) return '';
+
+    const lat = -21.9722;
+    const lon = -43.2814;
+    const dateStr = date.toISOString().slice(0, 10);
+
+    try {
+        const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,weather_code&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`
+        );
+        const data = await res.json();
+        const temp = data?.daily?.temperature_2m_max?.[0];
+        const code = data?.daily?.weather_code?.[0];
+        const label = getWeatherLabel(code);
+        const icon = getWeatherIcon(code);
+
+        if (typeof temp !== 'number' || Number.isNaN(temp)) return '';
+        return `${icon} ${Math.round(temp)}°C previstos · ${label}`;
+    } catch (err) {
+        console.warn('⚠️ Clima do evento indisponível:', err);
+        return '';
+    }
+}
+
+function getWeatherLabel(code) {
+    const map = {
+        0: 'céu limpo',
+        1: 'parcialmente nublado',
+        2: 'nublado',
+        3: 'encoberto',
+        45: 'nevoeiro',
+        48: 'nevoeiro',
+        51: 'garoa leve',
+        53: 'garoa',
+        61: 'chuva leve',
+        63: 'chuva moderada',
+        65: 'chuva forte',
+        80: 'pancadas',
+        81: 'chuva forte',
+        82: 'chuva forte'
+    };
+    return map[code] || 'tempo estável';
+}
+
+function getWeatherIcon(code) {
+    const map = {
+        0: '☀️',
+        1: '🌤️',
+        2: '⛅',
+        3: '☁️',
+        45: '🌫️',
+        48: '🌫️',
+        51: '🌦️',
+        53: '🌧️',
+        61: '🌧️',
+        63: '🌧️',
+        65: '🌧️',
+        80: '🌦️',
+        81: '🌧️',
+        82: '🌧️'
+    };
+    return map[code] || '🌤️';
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -582,24 +667,33 @@ function renderPage() {
 // CARD (grade)
 // ─────────────────────────────────────────────────────────────────
 
+function getTopPresenceEvent() {
+    if (!allEventos.length) return null;
+    return [...allEventos].sort((a, b) => (Number(b.presencasCount || 0) - Number(a.presencasCount || 0)))[0];
+}
+
 function buildCard(ev) {
     const d      = toDate(ev.dataInicio);
     const hoje   = new Date();
     const days   = d ? Math.ceil((d - hoje) / 86_400_000) : null;
+    const topEvent = getTopPresenceEvent();
+    const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
     const month = d ? d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
 
     let badgeHTML = '';
+    if (isTopPresence) {
+        badgeHTML += '<span class="ev-badge ev-badge-em-alta">🔥 Em Alta</span>';
+    }
     if (days !== null && days >= 0) {
-        if      (days === 0) badgeHTML = `<span class="ev-badge ev-badge-hoje">Hoje</span>`;
-        else if (days === 1) badgeHTML = `<span class="ev-badge ev-badge-amanha">Amanhã</span>`;
-        else if (days <= 7)  badgeHTML = `<span class="ev-badge ev-badge-breve">Em ${days} dias</span>`;
+        if      (days === 0) badgeHTML += '<span class="ev-badge ev-badge-hoje">Hoje</span>';
+        else if (days === 1) badgeHTML += '<span class="ev-badge ev-badge-amanha">Amanhã</span>';
+        else if (days <= 7)  badgeHTML += `<span class="ev-badge ev-badge-breve">Em ${days} dias</span>`;
     }
 
-    const imgStyle = ev.imagem
-        ? `background-image:url('${esc(ev.imagem)}')`
-        : '';
+    const imgUrl = ev.imagem || ev.image || '../assets/images/placeholder-city.svg';
+    const imgStyle = `background-image:url('${esc(imgUrl)}'); background-size:cover; background-position:center;`;
 
     const isFav = userFavorites.has(ev.id);
 
@@ -616,14 +710,6 @@ function buildCard(ev) {
                 <span class="c-month">${month}</span>
             </div>
             <div class="ev-card-img" style="${imgStyle}">
-                ${!ev.imagem ? `
-                <svg class="ev-card-img-placeholder" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                    <rect x="5" y="9" width="30" height="24" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
-                    <path d="M10 7v3M30 7v3M5 17h30" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    <circle cx="14" cy="26" r="1.5" fill="currentColor"/>
-                    <circle cx="20" cy="26" r="1.5" fill="currentColor"/>
-                    <circle cx="26" cy="26" r="1.5" fill="currentColor"/>
-                </svg>` : ''}
                 <div class="ev-card-badges">
                     ${badgeHTML}
                 </div>
@@ -670,26 +756,7 @@ function buildCard(ev) {
             </div>
         </div>
         <div class="ev-card-footer">
-            <div class="ev-card-actions">
-                <button class="ev-action-btn ev-action-btn-whats" aria-label="Compartilhar no WhatsApp">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M21 12.08c0-4.97-4.03-9-9-9-2.1 0-4.05.65-5.68 1.76L3 21l7.47-1.96A8.93 8.93 0 0012 21c4.97 0 9-4.03 9-8.92z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M17.5 14.5c-.4-.2-2.3-.9-2.6-1s-.4-.2-.6.2-.7 1-1 1.2-.4.2-.8.1a7.3 7.3 0 01-2.2-1.3c-.6-.6-.5-.9.4-1.9s1-1.6 1.1-1.9-.1-.6-.4-.8-1-1-1.5-1.1c-.5-.1-1-.1-1.4-.1s-1 .4-1.5 1.2c-.5.8-.6 1.8.8 3.3 1.4 1.5 3 2.5 4.2 2.9 1.2.4 1.9.3 2.3.2.4-.1 1.3-.5 1.5-1z" fill="currentColor"/>
-                    </svg>
-                </button>
-                <div class="ev-cal-wrap">
-                    <button class="ev-action-btn ev-action-btn-cal" aria-haspopup="true" aria-expanded="false" aria-label="Adicionar ao meu calendário">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.4"/>
-                            <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                        </svg>
-                    </button>
-                    <div class="ev-cal-dropdown" role="menu">
-                        <button class="ev-cal-dropdown-item" data-cal="google">Google Calendar</button>
-                        <button class="ev-cal-dropdown-item" data-cal="ics">Baixar .ics (Apple)</button>
-                    </div>
-                </div>
-            </div>
+            <button class="ev-rsvp-btn" data-evt-id="${ev.id}" aria-pressed="false" title="Confirmar presença">🔥 <span class="rsvp-count">${ev.presencasCount || 0}</span></button>
             <span class="ev-card-link">
                 Ver detalhes
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -708,40 +775,63 @@ function buildCard(ev) {
 
     art.querySelector('.ev-card-fav').addEventListener('click', e => toggleFavorite(ev.id, e));
 
-    // Ações: WhatsApp e Calendário
-    const whatsBtn = art.querySelector('.ev-action-btn-whats');
-    const calBtn   = art.querySelector('.ev-action-btn-cal');
-    const calDrop  = art.querySelector('.ev-cal-dropdown');
+    const rsvpBtn = art.querySelector('.ev-rsvp-btn');
+    if (rsvpBtn) {
+        const countEl = rsvpBtn.querySelector('.rsvp-count');
+        const updateUI = (count, going) => {
+            if (countEl) countEl.textContent = String(count);
+            rsvpBtn.setAttribute('aria-pressed', going ? 'true' : 'false');
+            rsvpBtn.classList.toggle('is-going', !!going);
+        };
 
-    if (whatsBtn) {
-        whatsBtn.addEventListener('click', e => {
+        const syncPresenceState = async () => {
+            if (!currentUser || !db) return;
+            const ref = db.collection('eventos').doc(ev.id).collection('presencas').doc(currentUser.uid);
+            const snap = await ref.get();
+            const going = !!snap.exists;
+            const newCount = Number((await db.collection('eventos').doc(ev.id).get()).data()?.presencasCount || 0);
+            ev.presencasCount = newCount;
+            updateUI(newCount, going);
+        };
+
+        rsvpBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            const url = `${location.origin}${location.pathname}?evento=${ev.id}`;
-            const dateStr = toDate(ev.dataInicio)?.toLocaleString('pt-BR') ?? '';
-            const text = `${ev.titulo || 'Evento'}\n${dateStr}\n${ev.local || ''}\n${url}`.trim();
-            const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(wa, '_blank');
-        });
-    }
+            if (!currentUser) { window.location.href = 'login.html'; return; }
+            const evtId = rsvpBtn.dataset.evtId;
+            const userRef = db.collection('eventos').doc(evtId).collection('presencas').doc(currentUser.uid);
+            try {
+                const exists = (await userRef.get()).exists;
+                const docRef = db.collection('eventos').doc(evtId);
+                if (exists) {
+                    await userRef.delete();
+                    await docRef.update({ presencasCount: firebase.firestore.FieldValue.increment(-1) });
+                } else {
+                    await userRef.set({ uid: currentUser.uid, nome: currentUser.nome || currentUser.email, createdAt: new Date() });
+                    await docRef.update({ presencasCount: firebase.firestore.FieldValue.increment(1) });
+                }
 
-    if (calBtn && calDrop) {
-        calBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            closeAllCalDropdowns();
-            const expanded = calBtn.getAttribute('aria-expanded') === 'true';
-            calBtn.setAttribute('aria-expanded', String(!expanded));
-            calDrop.classList.toggle('show', !expanded);
+                const updated = await docRef.get();
+                const nextCount = Number(updated.data()?.presencasCount || 0);
+                ev.presencasCount = nextCount;
+                const currentGoing = !(await userRef.get()).exists;
+                updateUI(nextCount, !currentGoing);
+
+                const idx = allEventos.findIndex(item => item.id === ev.id);
+                if (idx >= 0) allEventos[idx].presencasCount = nextCount;
+                const filtIdx = filteredEventos.findIndex(item => item.id === ev.id);
+                if (filtIdx >= 0) filteredEventos[filtIdx].presencasCount = nextCount;
+
+                const topEvent = getTopPresenceEvent();
+                if (topEvent && topEvent.id === ev.id) {
+                    renderPage();
+                }
+                await syncPresenceState();
+            } catch (err) {
+                console.error('RSVP erro:', err);
+            }
         });
 
-        calDrop.querySelectorAll('.ev-cal-dropdown-item').forEach(it => {
-            it.addEventListener('click', e => {
-                e.stopPropagation();
-                const kind = it.dataset.cal;
-                if (kind === 'google') openGoogleCalendar(ev);
-                else if (kind === 'ics') downloadICS(ev);
-                closeAllCalDropdowns();
-            });
-        });
+        syncPresenceState();
     }
 
     return art;
@@ -756,6 +846,8 @@ function buildTimelineItem(ev) {
     const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
     const month = d ? d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
     const isFav = userFavorites.has(ev.id);
+    const topEvent = getTopPresenceEvent();
+    const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     const item = document.createElement('div');
     item.className = 'ev-tl-item';
@@ -841,10 +933,13 @@ function openModal(ev) {
     const imgStyle = ev.imagem
         ? `background-image:url('${esc(ev.imagem)}'); background-size:cover; background-position:center;`
         : '';
+    const topEvent = getTopPresenceEvent();
+    const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     content.innerHTML = `
         <div class="ev-modal-hero" style="${imgStyle}">
             <span class="ev-modal-hero-cat">${esc(ev.categoria || 'Evento')}</span>
+            ${isTopPresence ? '<span class="ev-badge ev-badge-em-alta" style="position:absolute;right:18px;top:18px;z-index:2;">🔥 Em Alta</span>' : ''}
         </div>
         <div class="ev-modal-body">
             <h2 class="ev-modal-title" id="modalEventoTitle">${esc(ev.titulo || 'Evento')}</h2>
@@ -908,6 +1003,19 @@ function openModal(ev) {
             ` : ''}
 
             <div class="ev-modal-footer">
+                <div class="ev-modal-calendar-wrap">
+                    <button class="ev-modal-btn-primary" id="modalCalendarBtn" type="button">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                            <rect x="1.5" y="2.5" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                            <path d="M4 1.5v2M10 1.5v2M1.5 5.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                        </svg>
+                        Adicionar ao Calendário
+                    </button>
+                    <div class="ev-modal-calendar-menu" id="modalCalendarMenu" role="menu">
+                        <button class="ev-modal-calendar-option" type="button" data-cal="google">Google Calendar</button>
+                        <button class="ev-modal-calendar-option" type="button" data-cal="ics">Apple / Outlook (.ics)</button>
+                    </div>
+                </div>
                 ${ev.link ? `
                 <a href="${esc(ev.link)}" target="_blank" rel="noopener noreferrer" class="ev-modal-btn-primary">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -916,7 +1024,7 @@ function openModal(ev) {
                     </svg>
                     Mais informações
                 </a>` : ''}
-                <button class="ev-modal-btn-sec" id="modalShareBtn">
+                <button class="ev-modal-btn-sec" id="modalShareBtn" type="button">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                         <circle cx="11" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
                         <circle cx="3"  cy="7"   r="1.5" stroke="currentColor" stroke-width="1.5"/>
@@ -928,6 +1036,23 @@ function openModal(ev) {
             </div>
         </div>
     `;
+
+    const modalCalendarBtn = document.getElementById('modalCalendarBtn');
+    const modalCalendarMenu = document.getElementById('modalCalendarMenu');
+    modalCalendarBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = modalCalendarMenu?.classList.contains('show');
+        modalCalendarMenu?.classList.toggle('show', !isOpen);
+    });
+    modalCalendarMenu?.querySelectorAll('[data-cal]').forEach((item) => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            modalCalendarMenu?.classList.remove('show');
+            const kind = item.dataset.cal;
+            if (kind === 'google') openGoogleCalendar(ev);
+            if (kind === 'ics') downloadICS(ev);
+        });
+    });
 
     document.getElementById('modalShareBtn')?.addEventListener('click', () => {
         const url = `${location.origin}${location.pathname}?evento=${ev.id}`;

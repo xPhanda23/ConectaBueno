@@ -32,11 +32,11 @@ window.addEventListener('load', async () => {
         if (user) {
             await loadUserProfile(user);
             hideLoading();
-            // Carrega seções em paralelo
             await Promise.all([
                 loadStatistics(),
                 loadEventos(),
-                loadLugares()
+                loadLugares(),
+                loadWeather()
             ]);
         } else {
             window.location.href = 'login.html';
@@ -45,6 +45,7 @@ window.addEventListener('load', async () => {
 
     setupListeners();
     setupHeaderScroll();
+    setupAboutCarousel();
 });
 
 function waitForFirebase(ms = 5000) {
@@ -121,60 +122,37 @@ async function loadUserProfile(user) {
 // ══════════════════════════════════════════
 
 async function loadStatistics() {
-    console.log('🔄 Carregando estatísticas...');
-    console.log('DB disponível:', !!db);
-    console.log('Auth disponível:', !!auth);
-    console.log('User atual:', auth?.currentUser?.uid);
-    
     if (!db) {
-        console.error('❌ Firestore não disponível');
         setTxt('statPlaces', '0');
         setTxt('statEvents', '0');
         return;
     }
-    
-    try {
-        console.log('🔄 Testando acesso ao Firestore...');
-        
-        // Testar places
-        console.log('🔄 Buscando places...');
-        const pSnap = await db.collection('places').limit(1).get();
-        console.log('✅ Places query executada. Docs:', pSnap.size);
-        
-        // Buscar total
-        const pSnapAll = await db.collection('places').get();
-        console.log('✅ Places total:', pSnapAll.size);
-        
-        // Testar events
-        console.log('🔄 Buscando events...');
-        const eSnap = await db.collection('events').limit(1).get();
-        console.log('✅ Events query executada. Docs:', eSnap.size);
-        
-        // Buscar total
-        const eSnapAll = await db.collection('events').get();
-        console.log('✅ Events total:', eSnapAll.size);
 
-        // Animar contadores
-        animCount('statPlaces', pSnapAll.size);
-        animCount('statEvents', eSnapAll.size);
+    try {
+        const [placesSnap, eventsSnap] = await Promise.all([
+            db.collection('espacos').where('status', '==', 'ativo').get(),
+            db.collection('eventos').where('status', 'in', ['ativo', 'destaque']).get()
+        ]);
+
+        const placesCount = placesSnap.size || 0;
+        const eventsCount = eventsSnap.size || 0;
+
+        animCount('statPlaces', placesCount);
+        animCount('statEvents', eventsCount);
 
     } catch (err) {
-        console.error('❌ Erro ao carregar estatísticas:', err);
-        console.error('Código do erro:', err.code);
-        console.error('Mensagem:', err.message);
-        
-        // Tentar com coleções alternativas
+        console.warn('⚠️ Falha na contagem principal, tentando coleções alternativas:', err);
+
         try {
-            console.log('🔄 Tentando coleções alternativas (espacos/eventos)...');
-            const pSnap2 = await db.collection('espacos').get();
-            const eSnap2 = await db.collection('eventos').get();
-            console.log('✅ Espacos:', pSnap2.size);
-            console.log('✅ Eventos:', eSnap2.size);
-            
-            animCount('statPlaces', pSnap2.size);
-            animCount('statEvents', eSnap2.size);
+            const [placesAlt, eventsAlt] = await Promise.all([
+                db.collection('places').get(),
+                db.collection('events').get()
+            ]);
+
+            animCount('statPlaces', placesAlt.size || 0);
+            animCount('statEvents', eventsAlt.size || 0);
         } catch (err2) {
-            console.error('❌ Erro com coleções alternativas:', err2);
+            console.error('❌ Erro ao carregar estatísticas:', err2);
             setTxt('statPlaces', '0');
             setTxt('statEvents', '0');
         }
@@ -231,19 +209,38 @@ async function loadEventos() {
     const grid = document.getElementById('eventosGrid');
     if (!grid) return;
 
-    try {
-        const now = new Date(); 
-        now.setHours(0,0,0,0);
+    grid.innerHTML = '<div class="loading-content"><div class="spinner"></div><span>Carregando eventos…</span></div>';
 
-        const snap = await db.collection('events')
-            .where('startDate','>=', now)
-            .orderBy('startDate','asc')
-            .limit(4)
-            .get();
+    try {
+        let snap;
+
+        try {
+            snap = await db.collection('eventos')
+                .where('status', 'in', ['ativo', 'destaque'])
+                .orderBy('dataInicio', 'asc')
+                .limit(4)
+                .get();
+        } catch (err) {
+            const fallback = await db.collection('eventos')
+                .where('status', 'in', ['ativo', 'destaque'])
+                .get();
+
+            snap = {
+                docs: fallback.docs
+                    .map(doc => ({ ...doc, data: doc.data }))
+                    .sort((a, b) => (toDate(a.data().dataInicio) || 0) - (toDate(b.data().dataInicio) || 0))
+                    .slice(0, 4)
+            };
+        }
+
+        if (!snap || !snap.docs || !snap.docs.length) {
+            const alt = await db.collection('events').limit(4).get();
+            snap = alt;
+        }
 
         grid.innerHTML = '';
 
-        if (snap.empty) {
+        if (!snap || !snap.docs || !snap.docs.length) {
             grid.innerHTML = `<div class="empty-state">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
                     <rect x="8" y="10" width="32" height="28" rx="3" stroke="currentColor" stroke-width="2.5"/>
@@ -255,8 +252,18 @@ async function loadEventos() {
             return;
         }
 
-        snap.forEach(doc => {
-            const ev = { id: doc.id, ...doc.data() };
+        snap.docs.slice(0, 4).forEach(doc => {
+            const raw = doc.data ? doc.data() : doc;
+            const ev = {
+                id: doc.id,
+                ...raw,
+                title: raw.titulo || raw.title || 'Evento sem título',
+                description: raw.descricao || raw.description || '',
+                location: raw.local || raw.location || '',
+                category: raw.categoria || raw.category || 'Evento',
+                startDate: raw.dataInicio || raw.startDate || null,
+                endDate: raw.dataFim || raw.endDate || null
+            };
             grid.appendChild(buildEventCard(ev));
         });
 
@@ -269,8 +276,7 @@ async function loadEventos() {
 }
 
 function buildEventCard(ev) {
-    const date = ev.startDate?.toDate ? ev.startDate.toDate() : null;
-    const endDt = ev.endDate?.toDate ? ev.endDate.toDate() : null;
+    const date = toDate(ev.startDate || ev.dataInicio);
     const now = new Date();
     const days = date ? Math.ceil((date - now) / 86400000) : null;
 
@@ -353,9 +359,14 @@ async function loadLugares() {
     if (!grid) return;
 
     try {
-        const snap = await db.collection('places').limit(24).get();
+        let snap;
+        try {
+            snap = await db.collection('espacos').where('status', '==', 'ativo').limit(24).get();
+        } catch (err) {
+            snap = await db.collection('places').limit(24).get();
+        }
 
-        if (snap.empty) {
+        if (!snap || snap.empty) {
             grid.innerHTML = `<div class="empty-state">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
                     <path d="M24 8C17 8 11 14 11 20C11 29 24 42 24 42S37 29 37 20C37 14 31 8 24 8Z" stroke="currentColor" stroke-width="2.5"/>
@@ -463,6 +474,77 @@ function buildPlaceCard(place) {
     return card;
 }
 
+async function loadWeather() {
+    const weatherTemp = document.getElementById('weatherTemp');
+    const weatherDesc = document.getElementById('weatherDesc');
+    const weatherUpdated = document.getElementById('weatherUpdated');
+    const weatherIcon = document.getElementById('weatherIcon');
+    if (!weatherTemp || !weatherDesc || !weatherUpdated) return;
+
+    const lat = -21.9722;
+    const lon = -43.2814;
+
+    try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
+        const data = await res.json();
+        const temp = data?.current?.temperature_2m;
+        const code = data?.current?.weather_code;
+        const label = getWeatherLabel(code);
+        const icon = getWeatherIcon(code);
+
+        weatherTemp.textContent = `${Math.round(temp)}°C`;
+        weatherDesc.textContent = label;
+        if (weatherIcon) weatherIcon.textContent = icon;
+        weatherUpdated.textContent = 'agora';
+    } catch (err) {
+        console.warn('⚠️ Clima indisponível:', err);
+        weatherTemp.textContent = '22°C';
+        weatherDesc.textContent = 'Tempo limpo';
+        if (weatherIcon) weatherIcon.textContent = '☀️';
+        weatherUpdated.textContent = 'offline';
+    }
+}
+
+function getWeatherLabel(code) {
+    const map = {
+        0: 'Céu limpo',
+        1: 'Parcialmente nublado',
+        2: 'Nublado',
+        3: 'Encoberto',
+        45: 'Nevoeiro',
+        48: 'Nevoeiro',
+        51: 'Garoa leve',
+        53: 'Garoa',
+        61: 'Chuva leve',
+        63: 'Chuva moderada',
+        65: 'Chuva forte',
+        80: 'Pancadas',
+        81: 'Chuva forte',
+        82: 'Chuva forte'
+    };
+    return map[code] || 'Clima estável';
+}
+
+function getWeatherIcon(code) {
+    const map = {
+        0: '☀️',
+        1: '🌤️',
+        2: '⛅',
+        3: '☁️',
+        45: '🌫️',
+        48: '🌫️',
+        51: '🌦️',
+        53: '🌧️',
+        61: '🌧️',
+        63: '🌧️',
+        65: '🌧️',
+        80: '🌦️',
+        81: '🌧️',
+        82: '🌧️'
+    };
+    return map[code] || '☀️';
+}
+
 // ══════════════════════════════════════════
 // EVENT LISTENERS
 // ══════════════════════════════════════════
@@ -474,6 +556,19 @@ function setupListeners() {
         allBtn.addEventListener('click', () => filterByCategory('all'));
     }
 
+    document.querySelectorAll('.hero-stat-link').forEach((stat) => {
+        stat.addEventListener('click', () => {
+            const target = stat.dataset.target;
+            if (target === 'map') {
+                window.location.href = '../index.html';
+                return;
+            }
+            if (target === 'eventos') {
+                window.location.href = 'eventos.html';
+            }
+        });
+    });
+
     // Scroll suave para indicador do hero
     const scrollIndicator = document.querySelector('.hero-scroll-indicator');
     if (scrollIndicator) {
@@ -484,6 +579,22 @@ function setupListeners() {
             }
         });
     }
+}
+
+function setupAboutCarousel() {
+    const slider = document.getElementById('aboutSlider');
+    if (!slider) return;
+
+    const slides = Array.from(slider.querySelectorAll('.about-slide'));
+    if (slides.length < 2) return;
+
+    let index = 0;
+
+    setInterval(() => {
+        slides[index].classList.remove('active');
+        index = (index + 1) % slides.length;
+        slides[index].classList.add('active');
+    }, 3600);
 }
 
 // ══════════════════════════════════════════
@@ -503,6 +614,14 @@ function hideLoading() {
 // ══════════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════════
+
+function toDate(val) {
+    if (!val) return null;
+    if (val && typeof val.toDate === 'function') return val.toDate();
+    if (val && typeof val.seconds === 'number') return new Date(val.seconds * 1000);
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? null : d;
+}
 
 function esc(str) {
     return String(str ?? '')
