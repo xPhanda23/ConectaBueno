@@ -108,10 +108,29 @@ async function _handleLoginSubmit(e) {
     const email    = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     const btn      = document.getElementById('btnLogin');
+    const remember = document.getElementById('rememberMe')?.checked;
 
     _setLoading(btn, true);
 
-    await _waitForFirebase();
+    try {
+        await _waitForFirebase();
+    } catch (error) {
+        _setLoading(btn, false);
+        console.error('Inicialização do Firebase:', error);
+        showToast('O serviço está indisponível. Tente novamente.', 'error');
+        return;
+    }
+
+        try {
+            await window.auth.setPersistence(
+                remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION
+            );
+        } catch (error) {
+            _setLoading(btn, false);
+            console.error('Persistência do login:', error);
+            showToast('Não foi possível salvar a preferência de sessão.', 'error');
+            return;
+        }
 
     const resultado = await fazerLogin(email, password); // firebase-auth.js
 
@@ -128,11 +147,18 @@ async function _handleLoginSubmit(e) {
 /* ============================================================
    GOOGLE — exposta para onclick no HTML
    ============================================================ */
-async function handleGoogleLogin() {
-    const btn = event?.currentTarget || document.getElementById('btnGoogle');
+async function handleGoogleLogin(evt) {
+    const btn = evt?.currentTarget || document.getElementById('btnGoogle');
     _setLoading(btn, true);
 
-    await _waitForFirebase();
+    try {
+        await _waitForFirebase();
+    } catch (error) {
+        _setLoading(btn, false);
+        console.error('Inicialização do Firebase:', error);
+        showToast('O serviço está indisponível. Tente novamente.', 'error');
+        return;
+    }
 
     const resultado = await loginComGoogle(); // firebase-auth.js
 
@@ -155,7 +181,14 @@ async function handleVisitorLogin() {
     const btn = document.getElementById('btnVisitor');
     _setLoading(btn, true);
 
-    await _waitForFirebase();
+    try {
+        await _waitForFirebase();
+    } catch (error) {
+        _setLoading(btn, false);
+        console.error('Inicialização do Firebase:', error);
+        showToast('O serviço está indisponível. Tente novamente.', 'error');
+        return;
+    }
 
     const resultado = await loginComoVisitante(); // firebase-auth.js
 
@@ -183,7 +216,14 @@ async function _handleRegisterSubmit(e) {
 
     _setLoading(btn, true);
 
-    await _waitForFirebase();
+    try {
+        await _waitForFirebase();
+    } catch (error) {
+        _setLoading(btn, false);
+        console.error('Inicialização do Firebase:', error);
+        showToast('O serviço está indisponível. Tente novamente.', 'error');
+        return;
+    }
 
     const resultado = await cadastrarUsuario(name, email, password); // firebase-auth.js
 
@@ -209,7 +249,14 @@ async function _handleForgotSubmit(e) {
 
     _setLoading(btn, true);
 
-    await _waitForFirebase();
+    try {
+        await _waitForFirebase();
+    } catch (error) {
+        _setLoading(btn, false);
+        console.error('Inicialização do Firebase:', error);
+        showToast('O serviço está indisponível. Tente novamente.', 'error');
+        return;
+    }
 
     const resultado = await recuperarSenha(email); // firebase-auth.js
 
@@ -480,56 +527,47 @@ function _setLoading(btn, isLoading) {
    Inicia somente após Firebase estar pronto
    ============================================================ */
 async function _initVitrine() {
-    await _waitForFirebase();
-
     const container = document.getElementById('eventosListaVitrine');
     if (!container) return;
 
     try {
-        const now    = new Date();
-        const future = new Date();
+        await _waitForFirebase();
+
+        const now = new Date();
+        const future = new Date(now);
         future.setDate(future.getDate() + 30);
 
-        const snap = await window.db
-            .collection('events')
-            .where('startDate', '>=', now)
-            .where('startDate', '<=', future)
-            .orderBy('startDate', 'asc')
-            .limit(6)
-            .get();
+        const snapshots = await Promise.allSettled([
+            window.db.collection('eventos').limit(100).get(),
+            window.db.collection('events').limit(100).get(),
+        ]);
 
-        if (snap.empty) {
+        const eventos = snapshots.flatMap(resultado => {
+            if (resultado.status !== 'fulfilled') return [];
+            return resultado.value.docs.map(doc => _normalizeShowcaseEvent(doc.data(), doc.id));
+        })
+            .filter(evento => evento.date && evento.date >= now && evento.date <= future)
+            .sort((a, b) => a.date - b.date)
+            .slice(0, 6);
+
+        if (!eventos.length) {
             _renderVitrineEmpty(container);
             return;
         }
 
         container.innerHTML = '';
 
-        snap.forEach(doc => {
-            const ev   = doc.data();
-            const date = ev.startDate?.toDate ? ev.startDate.toDate() : null;
-            const days = date ? Math.ceil((date - now) / 86400000) : null;
+        const freeCount = eventos.filter(evento => evento.free).length;
+        const freePercent = Math.round((freeCount / eventos.length) * 100);
+        const next = eventos[0];
+        const days = Math.max(0, Math.ceil((next.date - now) / 86400000));
 
-            const card = document.createElement('div');
-            card.className = 'showcase-card';
-            card.innerHTML = `
-                ${date ? `
-                <div class="showcase-date">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
-                        <rect x="1" y="2" width="9" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                        <path d="M3 1v1M8 1v1M1 5h9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                    </svg>
-                    ${date.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' })}
-                </div>` : ''}
-                <div class="showcase-title">${_escapeHtml(ev.title ?? 'Evento')}</div>
-                ${days !== null ? `
-                <span class="showcase-badge ${days <= 7 ? 'urgente' : ''}">
-                    ${days <= 7 ? '🔥 ' + days + 'd' : '📅 Em breve'}
-                </span>` : ''}
-            `;
-
-            container.appendChild(card);
-        });
+        container.className = 'insight-content insight-content--ready';
+        container.innerHTML = `
+            <div class="insight-metric"><strong>${freePercent}%</strong><span>dos próximos eventos têm entrada gratuita</span></div>
+            <div class="insight-visual" aria-hidden="true"><span style="width:${Math.max(freePercent, 8)}%"></span></div>
+            <p class="insight-caption"><b>Próximo destaque:</b> ${_escapeHtml(next.title)} · ${days === 0 ? 'hoje' : 'em ' + days + ' dias'}</p>
+        `;
 
     } catch (err) {
         console.error('Vitrine:', err);
@@ -537,9 +575,30 @@ async function _initVitrine() {
     }
 }
 
+function _normalizeShowcaseEvent(data, id) {
+    const rawDate = data.dataInicio ?? data.startDate;
+    let date = null;
+
+    if (rawDate?.toDate) {
+        date = rawDate.toDate();
+    } else if (rawDate instanceof Date) {
+        date = rawDate;
+    } else if (typeof rawDate === 'string') {
+        date = new Date(rawDate.length === 10 ? `${rawDate}T00:00:00` : rawDate);
+    }
+
+    return {
+        id,
+        date: date && !Number.isNaN(date.getTime()) ? date : null,
+        title: data.titulo ?? data.title ?? 'Evento',
+        location: data.local ?? data.location ?? '',
+        free: data.entrada?.toLowerCase?.().includes('grat') || data.gratuito === true,
+    };
+}
+
 function _renderVitrineEmpty(container, isError = false) {
     container.innerHTML = `
-        <div class="showcase-state">
+        <div class="showcase-state swiper-slide">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
                 <rect x="4" y="7" width="28" height="22" rx="2" stroke="#ccc" stroke-width="1.8"/>
                 <path d="M10 4v3M26 4v3M4 14h28" stroke="#ccc" stroke-width="1.8" stroke-linecap="round"/>
