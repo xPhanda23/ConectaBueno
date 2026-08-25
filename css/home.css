@@ -44,6 +44,54 @@ body {
     padding: 0 24px; 
 }
 
+/* Estado de acesso limitado para contas anonimas. */
+.visitor-account-note {
+    margin: 12px 16px;
+    padding: 12px;
+    border: 1px solid rgba(106, 173, 128, .35);
+    border-radius: 10px;
+    background: rgba(232, 245, 238, .8);
+    color: var(--green-800);
+    font-size: .78rem;
+    line-height: 1.4;
+}
+
+.visitor-account-note strong,
+.visitor-account-note p {
+    display: block;
+}
+
+.visitor-account-note p {
+    margin: 3px 0 9px;
+}
+
+.visitor-account-note button {
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--green-700);
+    color: #fff;
+    font: inherit;
+    font-size: .76rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.visitor-account-note button:hover,
+.visitor-account-note button:focus-visible {
+    background: var(--green-600);
+}
+
+.visitor-account-note button:focus-visible {
+    outline: 3px solid rgba(106, 173, 128, .45);
+    outline-offset: 2px;
+}
+
+body.visitor-mode #menuAdminPanel {
+    display: none !important;
+}
+
 /* ================================================================
    LOADING OVERLAY
    ================================================================ */
