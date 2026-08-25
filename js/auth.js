@@ -96,6 +96,9 @@ function _setupForms() {
     if (formLogin)    formLogin.addEventListener('submit',    _handleLoginSubmit);
     if (formRegister) formRegister.addEventListener('submit', _handleRegisterSubmit);
     if (formForgot)   formForgot.addEventListener('submit',   _handleForgotSubmit);  // FIX #3
+
+    const visitorButton = document.getElementById('btnVisitor');
+    if (visitorButton) visitorButton.addEventListener('click', handleVisitorLogin);
 }
 
 /* ============================================================
@@ -121,16 +124,16 @@ async function _handleLoginSubmit(e) {
         return;
     }
 
-        try {
-            await window.auth.setPersistence(
-                remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION
-            );
-        } catch (error) {
-            _setLoading(btn, false);
-            console.error('Persistência do login:', error);
-            showToast('Não foi possível salvar a preferência de sessão.', 'error');
-            return;
-        }
+    try {
+        await window.auth.setPersistence(
+            remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION
+        );
+    } catch (error) {
+        _setLoading(btn, false);
+        console.error('Persistência do login:', error);
+        showToast('Não foi possível salvar a preferência de sessão.', 'error');
+        return;
+    }
 
     const resultado = await fazerLogin(email, password); // firebase-auth.js
 
@@ -564,10 +567,24 @@ async function _initVitrine() {
 
         container.className = 'insight-content insight-content--ready';
         container.innerHTML = `
-            <div class="insight-metric"><strong>${freePercent}%</strong><span>dos próximos eventos têm entrada gratuita</span></div>
-            <div class="insight-visual" aria-hidden="true"><span style="width:${Math.max(freePercent, 8)}%"></span></div>
-            <p class="insight-caption"><b>Próximo destaque:</b> ${_escapeHtml(next.title)} · ${days === 0 ? 'hoje' : 'em ' + days + ' dias'}</p>
+            <div class="insight-slide is-active" aria-hidden="false">
+                <div class="insight-metric"><strong>${freePercent}%</strong><span>dos próximos eventos têm entrada gratuita</span></div>
+                <div class="insight-visual" aria-hidden="true"><span style="width:${Math.max(freePercent, 8)}%"></span></div>
+                <p class="insight-caption"><b>Leitura da agenda:</b> acesso cultural para todos</p>
+            </div>
+            <div class="insight-slide" aria-hidden="true">
+                <div class="insight-metric"><strong>${eventos.length}</strong><span>eventos encontrados nos próximos 30 dias</span></div>
+                <div class="insight-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                <p class="insight-caption"><b>Próximo destaque:</b> ${_escapeHtml(next.title)}</p>
+            </div>
+            <div class="insight-slide" aria-hidden="true">
+                <div class="insight-metric"><strong>${days === 0 ? 'Hoje' : days + 'd'}</strong><span>até o próximo encontro cultural</span></div>
+                <div class="insight-date" aria-hidden="true">${next.date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</div>
+                <p class="insight-caption"><b>Onde:</b> ${_escapeHtml(next.location || 'Bueno Brandão')}</p>
+            </div>
+            <div class="insight-dots" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
         `;
+        document.dispatchEvent(new CustomEvent('insight:ready'));
 
     } catch (err) {
         console.error('Vitrine:', err);
