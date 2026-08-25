@@ -63,6 +63,8 @@ async function cadastrarUsuario(nome, email, senha) {
             uid: user.uid,
             nome: nome,
             email: email,
+            tipoUsuario: 'permanente',
+            isAdmin: false,
             dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
             ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
             favoritosIds: [],
@@ -212,6 +214,8 @@ async function loginComGoogle() {
                 uid: user.uid,
                 nome: user.displayName,
                 email: user.email,
+                tipoUsuario: 'permanente',
+                isAdmin: false,
                 foto: user.photoURL,
                 dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
                 ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
@@ -269,7 +273,9 @@ async function loginComoVisitante() {
         await docRef.set({
             uid: user.uid,
             nome: 'Visitante',
+            email: user.email || null,
             tipoUsuario: 'anonimo',
+            isAdmin: false,
             dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
             ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
             favoritosIds: [],
@@ -291,9 +297,23 @@ async function loginComoVisitante() {
     } catch (error) {
         console.error('❌ Erro ao fazer login anônimo:', error);
 
+        let mensagem = 'Erro ao entrar como visitante. Tente novamente.';
+        switch (error.code) {
+            case 'auth/operation-not-allowed':
+                mensagem = 'O acesso visitante está desativado no Firebase.';
+                break;
+            case 'auth/network-request-failed':
+                mensagem = 'Sem conexão com o Firebase. Verifique sua internet.';
+                break;
+            case 'auth/too-many-requests':
+                mensagem = 'Muitas tentativas. Aguarde e tente novamente.';
+                break;
+        }
+
         return {
             success: false,
-            error: 'Erro ao entrar como visitante. Tente novamente.'
+            error: mensagem,
+            code: error.code || 'auth/unknown-error'
         };
     }
 }

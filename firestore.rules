@@ -67,8 +67,8 @@ service cloud.firestore {
     // ── Eventos ───────────────────────────────────────────────
 
     match /events/{eventoId} {
-      // Leitura pública para qualquer usuário autenticado
-      allow read: if isAuth();
+      // Eventos são conteúdo público e aparecem antes do login
+      allow read: if true;
 
       // Apenas admin pode criar, atualizar e deletar
       allow create: if isAdmin();
@@ -78,8 +78,8 @@ service cloud.firestore {
 
     // Compatibilidade com nome antigo
     match /eventos/{eventoId} {
-      // Leitura pública para qualquer usuário autenticado
-      allow read: if isAuth();
+      // Compatibilidade: eventos públicos também podem aparecer antes do login
+      allow read: if true;
 
       // Apenas admin pode criar, atualizar e deletar
       allow create: if isAdmin();
