@@ -6,52 +6,16 @@
     <meta name="theme-color" content="#2d5a3d">
     <meta name="description" content="Conecta Bueno — Plataforma cultural de Bueno Brandão, Serra da Mantiqueira, MG.">
     <title>Conecta Bueno — Acesse a Plataforma</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/auth.css">
-    <link rel="stylesheet" href="../css/auth-polish.css">
 </head>
 <body class="auth-page">
     <!-- =====================================================
-         CONTEÚDO PRINCIPAL — lado esquerdo + card
+         CONTEÚDO PRINCIPAL — cartão de acesso centralizado
          ===================================================== -->
     <div class="auth-layout">
-
-        <!-- Lado esquerdo — brand e tagline sobre a foto -->
-        <div class="auth-hero">
-            <div class="auth-hero__brand">
-                <div class="auth-hero__logo">
-                    <img src="../assets/images/logo.png" alt="Logo Conecta Bueno">
-                </div>
-                <div>
-                    <span class="auth-hero__name">Conecta Bueno</span>
-                    <span class="auth-hero__sub">Bueno Brandão · Serra da Mantiqueira</span>
-                </div>
-            </div>
-
-            <div class="auth-hero__tagline">
-                <p class="auth-hero__eyebrow">Território, cultura e natureza · Minas Gerais</p>
-                <h1>
-                    Viva a serra.<br>
-                    <em>Conheça Bueno.</em>
-                </h1>
-                <p class="auth-hero__copy">Um olhar conectado sobre os lugares, as pessoas e as experiências que fazem Bueno Brandão ser única.</p>
-            </div>
-
-            <section class="cultural-insight" aria-labelledby="insightTitle">
-                <div class="impact-showcase__head">
-                    <div>
-                        <span class="impact-showcase__eyebrow">Insight cultural do dia</span>
-                        <h2 id="insightTitle">Dados que contam histórias</h2>
-                    </div>
-                    <a href="eventos.html" class="impact-showcase__all">Agenda <span aria-hidden="true">↗</span></a>
-                </div>
-                <div id="eventosListaVitrine" class="insight-content" aria-live="polite">
-                    <div class="showcase-loading">
-                        <div class="vitrine-spinner" aria-hidden="true"></div>
-                        <span>Analisando a agenda cultural…</span>
-                    </div>
-                </div>
-            </section>
-        </div>
 
         <!-- Card de autenticação -->
         <div class="auth-card-wrap">
@@ -102,7 +66,7 @@
                                 <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
                             </svg>
                             <input type="email" id="loginEmail" class="form-input"
-                                placeholder="seu@email.com" autocomplete="email">
+                                placeholder="seu@email.com" autocomplete="email" aria-label="E-mail">
                         </div>
                         <span class="field__error" id="loginEmailError" role="alert"></span>
                     </div>
@@ -115,7 +79,7 @@
                                 <path d="M4.5 6.5V5a3 3 0 016 0v1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                             </svg>
                             <input type="password" id="loginPassword" class="form-input"
-                                placeholder="Sua senha" autocomplete="current-password">
+                                placeholder="Sua senha" autocomplete="current-password" aria-label="Senha">
                             <button type="button" class="toggle-password"
                                 onclick="togglePassword('loginPassword')"
                                 aria-label="Mostrar/ocultar senha">
@@ -182,7 +146,7 @@
                                 <path d="M2 13.5c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                             </svg>
                             <input type="text" id="registerName" class="form-input"
-                                placeholder="Seu nome completo" autocomplete="name">
+                                placeholder="Seu nome completo" autocomplete="name" aria-label="Nome completo">
                         </div>
                         <span class="field__error" id="registerNameError" role="alert"></span>
                     </div>
@@ -195,7 +159,7 @@
                                 <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
                             </svg>
                             <input type="email" id="registerEmail" class="form-input"
-                                placeholder="seu@email.com" autocomplete="email">
+                                placeholder="seu@email.com" autocomplete="email" aria-label="E-mail">
                         </div>
                         <span class="field__error" id="registerEmailError" role="alert"></span>
                     </div>
@@ -208,7 +172,7 @@
                                 <path d="M4.5 6.5V5a3 3 0 016 0v1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                             </svg>
                             <input type="password" id="registerPassword" class="form-input"
-                                placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+                                placeholder="Mínimo 6 caracteres" autocomplete="new-password" aria-label="Senha (mínimo 6 caracteres)">
                             <button type="button" class="toggle-password"
                                 onclick="togglePassword('registerPassword')"
                                 aria-label="Mostrar/ocultar senha">
@@ -287,7 +251,7 @@
                                 <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
                             </svg>
                             <input type="email" id="forgotEmail" class="form-input"
-                                placeholder="seu@email.com" autocomplete="email">
+                                placeholder="seu@email.com" autocomplete="email" aria-label="E-mail cadastrado">
                         </div>
                         <span class="field__error" id="forgotEmailError" role="alert"></span>
                     </div>

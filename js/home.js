@@ -31,6 +31,7 @@ window.addEventListener('load', async () => {
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             await loadUserProfile(user);
+            setupVisitorMode(user);
             hideLoading();
             await Promise.all([
                 loadStatistics(),
@@ -43,6 +44,48 @@ window.addEventListener('load', async () => {
         }
     });
 
+
+function setupVisitorMode(user) {
+    const isAnonymous = Boolean(user?.isAnonymous);
+    document.body.classList.toggle('visitor-mode', isAnonymous);
+
+    const dropdown = document.getElementById('userDropdown');
+    if (!dropdown) return;
+
+    const existingNote = dropdown.querySelector('.visitor-account-note');
+    if (existingNote) existingNote.remove();
+
+    document.querySelectorAll('a[href*="panel.html"], a[href*="settings.html"]').forEach(link => {
+        if (link.dataset.visitorGuarded === 'true') return;
+        link.dataset.visitorGuarded = 'true';
+        link.addEventListener('click', event => {
+            if (!isAnonymous) return;
+            event.preventDefault();
+            if (typeof window.showConvertModal === 'function') {
+                window.showConvertModal();
+            }
+        });
+    });
+
+    if (!isAnonymous) return;
+
+    const note = document.createElement('div');
+    note.className = 'visitor-account-note';
+    note.setAttribute('role', 'status');
+    note.innerHTML = '<strong>Modo visitante</strong><p>Explore mapas, lugares e eventos. Recursos pessoais ficam disponíveis após criar uma conta.</p>';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Criar conta gratuita';
+    button.addEventListener('click', () => {
+        if (typeof window.showConvertModal === 'function') window.showConvertModal();
+    });
+    note.appendChild(button);
+
+    const profile = dropdown.querySelector('.hd-dd-profile');
+    if (profile) profile.insertAdjacentElement('afterend', note);
+    else dropdown.prepend(note);
+}
     setupListeners();
     setupHeaderScroll();
     setupAboutCarousel();
@@ -86,7 +129,7 @@ async function loadUserProfile(user) {
         currentUser = {
             uid: user.uid,
             email: user.email,
-            nome: user.displayName || user.email.split('@')[0],
+            nome: user.displayName || (user.isAnonymous ? 'Visitante' : user.email?.split('@')[0] || 'Usuário'),
             isAdmin: false,
             ...(doc.exists ? doc.data() : {})
         };
@@ -108,7 +151,7 @@ async function loadUserProfile(user) {
         currentUser = { 
             uid: user.uid, 
             email: user.email, 
-            nome: user.email.split('@')[0], 
+            nome: user.displayName || (user.isAnonymous ? 'Visitante' : user.email?.split('@')[0] || 'Usuário'), 
             isAdmin: false 
         };
         if (window.sharedComponents) {
