@@ -265,7 +265,7 @@ async function loginComGoogle() {
  */
 async function loginComoVisitante() {
     try {
-        const result = await auth.signInAnonymously();
+        const result = await firebase.auth().signInAnonymously();
         const user = result.user;
 
         // Cria perfil básico para visitante

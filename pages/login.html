@@ -28,11 +28,12 @@
             </div>
 
             <div class="auth-hero__tagline">
+                <p class="auth-hero__eyebrow">Território, cultura e natureza · Minas Gerais</p>
                 <h1>
-                    Descubra a<br>
-                    <em>alma cultural</em><br>
-                    da cidade
+                    Viva a serra.<br>
+                    <em>Conheça Bueno.</em>
                 </h1>
+                <p class="auth-hero__copy">Um olhar conectado sobre os lugares, as pessoas e as experiências que fazem Bueno Brandão ser única.</p>
             </div>
 
             <section class="cultural-insight" aria-labelledby="insightTitle">
@@ -57,16 +58,22 @@
             <div class="auth-card">
 
                 <!-- Logos institucionais -->
-                <div class="card-logos">
-                    <figure class="card-logo">
-                        <img src="../assets/images/bueno.png" alt="Logo de Bueno Brandão">
-                        <figcaption>Prefeitura de Bueno Brandão</figcaption>
-                    </figure>
-                    <figure class="card-logo card-logo--project">
-                        <img src="../assets/images/logo.png" alt="Logo Conecta Bueno">
-                        <figcaption>Conecta Bueno</figcaption>
-                    </figure>
+                <div class="header-logos-fixed">
+                    <div class="logo-item">
+                        <img class="logo-img-fixed" src="../assets/images/bueno.png" alt="Logo de Bueno Brandão">
+                        <span class="logo-text-fixed">Prefeitura de Bueno Brandão</span>
+                    </div>
+                    <div class="logo-item">
+                        <img class="logo-img-fixed" src="../assets/images/logo.png" alt="Logo Conecta Bueno">
+                        <span class="logo-text-fixed">Conecta Bueno</span>
+                    </div>
                 </div>
+
+                <header class="auth-card__intro">
+                    <p class="auth-card__eyebrow">Observatório cultural</p>
+                    <h1>Acesse sua conta</h1>
+                    <p>Bem-vindo ao Conecta Bueno</p>
+                </header>
 
                 <!-- Tabs -->
                 <div class="card-tabs" role="tablist" aria-label="Modo de acesso">
@@ -150,7 +157,7 @@
                             Google
                         </button>
                         <button type="button" class="btn-social btn-visitor"
-                            id="btnVisitor" onclick="handleVisitorLogin()">
+                            id="btnVisitor">
                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
                                 <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
                                 <path d="M2 13.5c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -297,18 +304,28 @@
     </div><!-- /.auth-layout -->
 
     <aside class="a11y-tools" aria-label="Opções de acessibilidade">
-        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
             <span aria-hidden="true">Aa</span>
         </button>
         <div class="a11y-menu" id="a11yMenu" hidden>
-            <p class="a11y-menu__title">Acessibilidade</p>
-            <button type="button" data-a11y="focus">Modo foco</button>
-            <button type="button" data-a11y="contrast">Alto contraste</button>
-            <button type="button" data-a11y="color">Contraste de cores</button>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+            <div class="a11y-menu__group" role="group" aria-label="Modos de leitura">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="color" aria-pressed="false">Contraste de cores <small>Leitura facilitada</small></button>
+            </div>
             <div class="a11y-size" role="group" aria-label="Tamanho do texto">
                 <span>Tamanho do texto</span>
-                <button type="button" data-text-size="decrease" aria-label="Diminuir texto">-</button>
-                <button type="button" data-text-size="increase" aria-label="Aumentar texto">+</button>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
             </div>
         </div>
     </aside>
