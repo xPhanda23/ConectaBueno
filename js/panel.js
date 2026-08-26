@@ -159,6 +159,7 @@ function setupEventListeners() {
     document.getElementById('btnAddCategoria').addEventListener('click', () => openCategoriaModal());
     document.getElementById('btnAddEvento').addEventListener('click', () => openEventoModal());
     document.getElementById('btnAddNoticia').addEventListener('click', () => openNoticiaModal());
+    document.getElementById('btnAddHospedagem').addEventListener('click', () => openHospedagemModal());
 
     // Forms
     document.getElementById('formLugar').addEventListener('submit', saveLugar);
@@ -166,6 +167,7 @@ function setupEventListeners() {
     document.getElementById('formCategoria').addEventListener('submit', saveCategoria);
     document.getElementById('formEvento').addEventListener('submit', saveEvento);
     document.getElementById('formNoticia').addEventListener('submit', saveNoticia);
+    document.getElementById('formHospedagem').addEventListener('submit', saveHospedagem);
 }
 
 async function logout() {
@@ -211,6 +213,8 @@ function showSection(sectionName) {
         categorias: 'Gerenciar Categorias',
         eventos: 'Gerenciar Eventos',
         configuracoes: 'Configurações',
+        noticias: 'Gerenciar Notícias',
+        hospedagens: 'Gerenciar Hospedagens',
         logs: 'Logs de Atividade'
     };
     
@@ -243,6 +247,9 @@ function loadSectionData(sectionName) {
             break;
         case 'eventos':
             loadEventos();
+            break;
+        case 'hospedagens':
+            loadHospedagens();
             break;
         case 'noticias':
             loadNoticias();
@@ -1332,7 +1339,7 @@ function openNoticiaModal(noticiaId = null) {
         loadNoticiaData(noticiaId);
     }
 
-    openModal('modalNoticia');
+    document.getElementById('modalNoticia').classList.add('active');
 }
 
 async function loadNoticiaData(noticiaId) {
@@ -1426,3 +1433,185 @@ window.editNoticia   = (id) => openNoticiaModal(id);
 window.deleteNoticia = deleteNoticia;
 window.openNoticiaModal = openNoticiaModal;
 window.loadNoticias  = loadNoticias;
+
+// =====================================================================
+// HOSPEDAGENS — CRUD COMPLETO
+// =====================================================================
+
+const HOSPEDAGEM_PRECO_LABELS = { economico: '$ Econômico', moderado: '$$ Moderado', alto_padrao: '$$$ Alto padrão' };
+
+async function loadHospedagens() {
+    const tbody = document.getElementById('tableHospedagens');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="6"><div class="loading-spinner-small"></div><span>Carregando...</span></td></tr>';
+
+    try {
+        const snap = await firebase.firestore()
+            .collection('hospedagens')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        if (snap.empty) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:32px">Nenhuma hospedagem cadastrada.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        snap.forEach(doc => {
+            const d = doc.data();
+            const updatedAt = d.updatedAt?.toDate
+                ? d.updatedAt.toDate().toLocaleDateString('pt-BR')
+                : '—';
+
+            const statusClass = d.status === 'ativo' ? 'status-active' : 'status-inactive';
+            const statusLabel = d.status === 'ativo' ? 'Ativo' : 'Inativo';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${escPanel(d.nome || '—')}</strong></td>
+                    <td>${escPanel(d.tipo || '—')}</td>
+                    <td>${escPanel(HOSPEDAGEM_PRECO_LABELS[d.faixaPreco] || '—')}</td>
+                    <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                    <td>${updatedAt}</td>
+                    <td>
+                        <button class="btn-icon-table" onclick="editHospedagem('${doc.id}')" title="Editar">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 15L13.5 4.5C14.3 3.7 15.5 3.7 16.3 4.5C17.1 5.3 17.1 6.5 16.3 7.3L5.8 17.8L3 15Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M12 6L15 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon-table danger" onclick="deleteHospedagem('${doc.id}', '${escPanel(d.nome)}')" title="Excluir">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        console.error('❌ loadHospedagens:', err);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c00;padding:24px">Erro ao carregar hospedagens.</td></tr>';
+    }
+}
+
+function openHospedagemModal(hospedagemId = null) {
+    document.getElementById('modalHospedagemTitle').textContent = hospedagemId ? 'Editar Hospedagem' : 'Nova Hospedagem';
+    document.getElementById('hospedagemId').value = hospedagemId || '';
+    document.getElementById('formHospedagem').reset();
+    document.getElementById('hospedagemStatus').value = 'ativo';
+    document.querySelectorAll('.hospedagemComodidade').forEach(cb => { cb.checked = false; });
+
+    if (hospedagemId) {
+        loadHospedagemData(hospedagemId);
+    }
+
+    document.getElementById('modalHospedagem').classList.add('active');
+}
+
+async function loadHospedagemData(hospedagemId) {
+    try {
+        const doc = await firebase.firestore()
+            .collection('hospedagens').doc(hospedagemId).get();
+
+        if (!doc.exists) return;
+        const d = doc.data();
+
+        document.getElementById('hospedagemNome').value        = d.nome        || '';
+        document.getElementById('hospedagemTipo').value        = d.tipo        || '';
+        document.getElementById('hospedagemDescricao').value   = d.descricao   || '';
+        document.getElementById('hospedagemEndereco').value    = d.endereco    || '';
+        document.getElementById('hospedagemFaixaPreco').value  = d.faixaPreco  || '';
+        document.getElementById('hospedagemNumQuartos').value  = d.numQuartos  ?? '';
+        document.getElementById('hospedagemCapacidade').value  = d.capacidade  ?? '';
+        document.getElementById('hospedagemStatus').value      = d.status      || 'ativo';
+        document.getElementById('hospedagemTelefone').value    = d.telefone    || '';
+        document.getElementById('hospedagemWhatsapp').value    = d.whatsapp    || '';
+        document.getElementById('hospedagemWebsite').value     = d.website     || '';
+        document.getElementById('hospedagemImagem').value      = d.imagem      || '';
+
+        const comodidades = Array.isArray(d.comodidades) ? d.comodidades : [];
+        document.querySelectorAll('.hospedagemComodidade').forEach(cb => {
+            cb.checked = comodidades.includes(cb.value);
+        });
+    } catch (err) {
+        console.error('❌ loadHospedagemData:', err);
+        showToast('Erro ao carregar hospedagem.', 'error');
+    }
+}
+
+async function saveHospedagem(e) {
+    e.preventDefault();
+
+    const id   = document.getElementById('hospedagemId').value;
+    const nome = document.getElementById('hospedagemNome').value.trim();
+    const tipo = document.getElementById('hospedagemTipo').value;
+
+    if (!nome || !tipo) {
+        showToast('Preencha o nome e o tipo.', 'error');
+        return;
+    }
+
+    const numQuartos = parseInt(document.getElementById('hospedagemNumQuartos').value, 10);
+    const capacidade = parseInt(document.getElementById('hospedagemCapacidade').value, 10);
+    const comodidades = Array.from(document.querySelectorAll('.hospedagemComodidade:checked')).map(cb => cb.value);
+
+    const payload = {
+        nome, tipo,
+        status: document.getElementById('hospedagemStatus').value,
+        descricao: document.getElementById('hospedagemDescricao').value.trim(),
+        endereco: document.getElementById('hospedagemEndereco').value.trim(),
+        faixaPreco: document.getElementById('hospedagemFaixaPreco').value || null,
+        numQuartos: Number.isNaN(numQuartos) ? null : numQuartos,
+        capacidade: Number.isNaN(capacidade) ? null : capacidade,
+        comodidades,
+        telefone: document.getElementById('hospedagemTelefone').value.trim(),
+        whatsapp: document.getElementById('hospedagemWhatsapp').value.trim(),
+        website: document.getElementById('hospedagemWebsite').value.trim() || null,
+        imagem: document.getElementById('hospedagemImagem').value.trim() || null,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (id) {
+            await firebase.firestore().collection('hospedagens').doc(id).update(payload);
+            showToast('Hospedagem atualizada com sucesso!', 'success');
+            await logAction('update', 'hospedagens', `Editou: ${nome}`);
+        } else {
+            payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await firebase.firestore().collection('hospedagens').add(payload);
+            showToast('Hospedagem criada com sucesso!', 'success');
+            await logAction('create', 'hospedagens', `Criou: ${nome}`);
+        }
+
+        closeModal('modalHospedagem');
+        loadHospedagens();
+    } catch (err) {
+        console.error('❌ saveHospedagem:', err);
+        showToast('Erro ao salvar hospedagem: ' + err.message, 'error');
+    }
+}
+
+function deleteHospedagem(hospedagemId, nome) {
+    showConfirm(
+        `Tem certeza que deseja excluir "${nome}"?`,
+        async () => {
+            try {
+                await firebase.firestore().collection('hospedagens').doc(hospedagemId).delete();
+                showToast('Hospedagem excluída com sucesso!', 'success');
+                await logAction('delete', 'hospedagens', `Excluiu: ${nome}`);
+                loadHospedagens();
+            } catch (err) {
+                console.error('❌ deleteHospedagem:', err);
+                showToast('Erro ao excluir hospedagem.', 'error');
+            }
+        }
+    );
+}
+
+// Expor funções globais de Hospedagens
+window.editHospedagem = (id) => openHospedagemModal(id);
+window.deleteHospedagem = deleteHospedagem;
+window.openHospedagemModal = openHospedagemModal;
+window.loadHospedagens = loadHospedagens;

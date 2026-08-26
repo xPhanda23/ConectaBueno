@@ -1077,6 +1077,12 @@ select.form-control {
     cursor: pointer;
 }
 
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+}
+
 /* ===================================
    TOAST
    =================================== */

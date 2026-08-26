@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#2d5a3d">
     <meta name="description" content="Conecta Bueno — Explore a cultura, natureza e história de Bueno Brandão, Serra da Mantiqueira, MG.">
     <title>Conecta Bueno — Bueno Brandão, MG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/home.css">
@@ -22,12 +25,10 @@
     <header class="site-header" id="siteHeader">
         <div class="hd-inner">
             <a href="home.html" class="hd-brand">
-                <div class="hd-brand-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2C8.7 2 6 4.8 6 8C6 13 12 22 12 22S18 13 18 8C18 4.8 15.3 2 12 2Z" fill="white"/>
-                        <circle cx="12" cy="8" r="2.5" fill="rgba(255,255,255,0.4)"/>
-                    </svg>
-                </div>
+                <span class="hd-brand-seals">
+                    <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                    <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                </span>
                 <span class="hd-brand-name">Conecta Bueno</span>
             </a>
 
@@ -69,17 +70,24 @@
         </div>
     </header>
 
-    <!-- HERO -->
+    <!-- HERO — tela cheia, adapta ao dispositivo -->
     <section class="hero">
         <video class="hero-video" autoplay muted loop playsinline>
             <source src="../assets/home.mp4" type="video/mp4">
         </video>
         <div class="hero-overlay"></div>
 
+        <div class="hero-weather-corner" id="weatherWidget" aria-live="polite">
+            <span class="hero-weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
+            <span class="hero-weather-temp" id="weatherTemp">--°C</span>
+        </div>
+
         <div class="hero-content">
-            <span class="hero-location">Serra da Mantiqueira · Minas Gerais</span>
-            <h1 class="hero-title">Bem-vindo a <strong>Bueno Brandão</strong></h1>
-            <p class="hero-subtitle">Num cantinho de Minas Gerais, nas cristas da Mantiqueira, encontra-se um pedaço do paraíso. Explore cultura, natureza e história.</p>
+
+            <div class="hero-textblock">
+                <h1 class="hero-title">Bem-vindo a <strong>Bueno Brandão</strong></h1>
+                <p class="hero-subtitle">Num cantinho de Minas Gerais, nas cristas da Mantiqueira, encontra-se um pedaço do paraíso. Explore cultura, natureza e história.</p>
+            </div>
 
             <div class="hero-actions">
                 <a href="../index.html" class="hero-btn hero-btn-primary">
@@ -91,48 +99,112 @@
                     Ver Eventos
                 </a>
             </div>
-
-            <div class="weather-widget" id="weatherWidget" aria-live="polite">
-                <div class="weather-main">
-                    <span class="weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
-                    <span class="weather-temp" id="weatherTemp">--°C</span>
-                    <span class="weather-desc" id="weatherDesc">Carregando clima…</span>
-                </div>
-                <div class="weather-meta">
-                    <span class="weather-city">Bueno Brandão</span>
-                    <span class="weather-updated" id="weatherUpdated">agora</span>
-                </div>
-            </div>
-
-            <div class="hero-stats">
-                <button class="hero-stat hero-stat-link" type="button" data-target="map" aria-label="Ver lugares em mapa">
-                    <span class="stat-num" id="statPlaces">—</span>
-                    <span class="stat-label">Lugares</span>
-                </button>
-                <div class="hero-stat-divider"></div>
-                <button class="hero-stat hero-stat-link" type="button" data-target="eventos" aria-label="Ver eventos ativos">
-                    <span class="stat-num" id="statEvents">—</span>
-                    <span class="stat-label">Eventos Ativos</span>
-                </button>
-                <div class="hero-stat-divider"></div>
-                <div class="hero-stat">
-                    <span class="stat-num">~10k</span>
-                    <span class="stat-label">Habitantes</span>
-                </div>
-            </div>
         </div>
 
         <div class="hero-scroll-indicator">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M6 9l6 6 6-6" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <span>Deslize para explorar</span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M5 8l5 5 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+        </div>
+    </section>
+
+    <!-- DADOS RÁPIDOS — estatísticas ao vivo -->
+    <section class="section-quickfacts">
+        <div class="container">
+            <div class="quickfacts-card reveal">
+                <div class="hero-stats">
+                    <button class="hero-stat hero-stat-link" type="button" data-target="map" aria-label="Ver lugares em mapa">
+                        <span class="stat-num" id="statPlaces">—</span>
+                        <span class="stat-label">Lugares</span>
+                    </button>
+                    <div class="hero-stat-divider"></div>
+                    <button class="hero-stat hero-stat-link" type="button" data-target="eventos" aria-label="Ver eventos ativos">
+                        <span class="stat-num" id="statEvents">—</span>
+                        <span class="stat-label">Eventos Ativos</span>
+                    </button>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="stat-num" id="statWaterfalls">~30</span>
+                        <span class="stat-label">Cachoeiras</span>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <span class="stat-num" id="statPopulation">~10k</span>
+                        <span class="stat-label">Habitantes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section class="section section-about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-text reveal">
+                    <span class="section-tag">Nossa Cidade</span>
+                    <h2>Bem-vindo!</h2>
+                    <p>Num cantinho de Minas Gerais, nas cristas da Mantiqueira, encontra-se um pedaço do paraíso. Com clima ameno na maior parte do ano, fontes de águas cristalinas e cachoeiras inesquecíveis, a cidade encanta também por sua gente.</p>
+                    <p><strong>Esta é Bueno Brandão.</strong> Terra de natureza exuberante, cultura rica e tradições preservadas.</p>
+                    <div class="about-highlights">
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <div><strong>~356 km²</strong><span>de área territorial</span></div>
+                        </div>
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="8" r="5" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 3-7 7-7h4c4 0 7 3 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <div><strong id="aboutPopulation">~10 mil</strong><span>habitantes (IBGE)</span></div>
+                        </div>
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 9v6c0 5.55 3.84 10.74 10 12 6.16-1.26 10-6.45 10-12V9l-10-7z" stroke="currentColor" stroke-width="2"/></svg>
+                            <div><strong>~97%</strong><span>área preservada</span></div>
+                        </div>
+                    </div>
+                    <a href="../index.html" class="btn-primary">
+                        Explorar o Mapa
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </a>
+                </div>
+                <div class="about-visual reveal" aria-label="Galeria de paisagens de Bueno Brandão">
+                    <!-- ATENÇÃO: imagens de terceiros hotlinked (sem licença própria) — risco de
+                         disponibilidade e legal. onerror remove a slide graciosamente se cair. -->
+                    <div class="about-slider" id="aboutSlider">
+                        <img class="about-slide active" alt="Vista de Bueno Brandão" src="https://terradascachoeiras.com.br/wp-content/uploads/2020/08/foto-secretaria-de-turismo.jpg" onerror="this.remove()">
+                        <img class="about-slide" alt="Paisagem de Bueno Brandão" src="https://i0.wp.com/arotaalternativaviagens.com/wp-content/uploads/2025/01/img_3791.jpeg?fit=1170%2C1458&ssl=1" onerror="this.remove()">
+                        <img class="about-slide" alt="Entardecer em Bueno Brandão" src="https://terradascachoeiras.com.br/wp-content/uploads/2020/08/bueno-ao-entardecer.jpg" onerror="this.remove()">
+                        <img class="about-slide" alt="Cachoeira do Félix" src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/55/70/f1/venha-ser-felix-venha.jpg?w=1400&h=-1&s=1" onerror="this.remove()">
+                    </div>
+                    <div class="about-map-badge" aria-label="Localização de Bueno Brandão">
+                        <span class="about-map-pin">📍</span>
+                        <div>
+                            <strong>Bueno Brandão</strong>
+                            <small>Serra da Mantiqueira</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LINHA DO TEMPO -->
+    <section class="section section-timeline bg-off" id="secTimeline">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Nossa História</span>
+                    <h2>Linha do Tempo</h2>
+                    <p>De Bom Jesus da Pedra Fria a Bueno Brandão — mais de dois séculos de história</p>
+                </div>
+            </div>
+            <div class="timeline" id="timelineTrack"></div>
         </div>
     </section>
 
     <!-- EVENTOS -->
     <section class="section section-eventos" id="secEventos">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <div class="section-header-text">
                     <span class="section-tag">Agenda Cultural</span>
                     <h2>Próximos Eventos</h2>
@@ -155,7 +227,7 @@
     <!-- LUGARES -->
     <section class="section section-explore bg-off">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <div class="section-header-text">
                     <span class="section-tag">Descubra</span>
                     <h2>Explore Bueno Brandão</h2>
@@ -178,48 +250,50 @@
         </div>
     </section>
 
-    <!-- SOBRE -->
-    <section class="section section-about">
+    <!-- CULTURA VIVA -->
+    <section class="section section-cultura-viva" id="secCulturaViva">
         <div class="container">
-            <div class="about-grid">
-                <div class="about-text">
-                    <span class="section-tag">Nossa Cidade</span>
-                    <h2>Bem-vindo!</h2>
-                    <p>Num cantinho de Minas Gerais, nas cristas da Mantiqueira, encontra-se um pedaço do paraíso. Com clima ameno na maior parte do ano, fontes de águas cristalinas e cachoeiras inesquecíveis, a cidade encanta também por sua gente.</p>
-                    <p><strong>Esta é Bueno Brandão.</strong> Terra de natureza exuberante, cultura rica e tradições preservadas.</p>
-                    <div class="about-highlights">
-                        <div class="highlight-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            <div><strong>~450 km²</strong><span>de área territorial</span></div>
-                        </div>
-                        <div class="highlight-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="8" r="5" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 3-7 7-7h4c4 0 7 3 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                            <div><strong>~10 mil</strong><span>habitantes</span></div>
-                        </div>
-                        <div class="highlight-item">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 9v6c0 5.55 3.84 10.74 10 12 6.16-1.26 10-6.45 10-12V9l-10-7z" stroke="currentColor" stroke-width="2"/></svg>
-                            <div><strong>~97%</strong><span>área preservada</span></div>
-                        </div>
-                    </div>
-                    <a href="../index.html" class="btn-primary">
-                        Explorar o Mapa
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    </a>
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Identidade</span>
+                    <h2>Cultura Viva</h2>
+                    <p>Natureza, fé e tradição — o que faz de Bueno Brandão um lugar único</p>
                 </div>
-                <div class="about-visual" aria-label="Galeria de paisagens de Bueno Brandão">
-                    <div class="about-slider" id="aboutSlider">
-                        <div class="about-slide active" style="background-image: url('https://terradascachoeiras.com.br/wp-content/uploads/2020/08/foto-secretaria-de-turismo.jpg');"></div>
-                        <div class="about-slide" style="background-image: url('https://i0.wp.com/arotaalternativaviagens.com/wp-content/uploads/2025/01/img_3791.jpeg?fit=1170%2C1458&ssl=1');"></div>
-                        <div class="about-slide" style="background-image: url('https://terradascachoeiras.com.br/wp-content/uploads/2020/08/bueno-ao-entardecer.jpg');"></div>
-                        <div class="about-slide" style="background-image: url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/55/70/f1/venha-ser-felix-venha.jpg?w=1400&h=-1&s=1');"></div>
-                    </div>
-                    <div class="about-map-badge" aria-label="Localização de Bueno Brandão">
-                        <span class="about-map-pin">📍</span>
-                        <div>
-                            <strong>Bueno Brandão</strong>
-                            <small>Serra da Mantiqueira</small>
-                        </div>
-                    </div>
+            </div>
+            <div class="cv-facts-grid" id="cvFactsGrid"></div>
+            <h3 class="cv-subheading reveal">Vozes da Nossa Cultura</h3>
+            <div class="cv-profiles-grid" id="cvProfilesGrid"></div>
+        </div>
+    </section>
+
+    <!-- DEPOIMENTOS -->
+    <section class="section section-depoimentos bg-off" id="secDepoimentos">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Quem Vive Aqui</span>
+                    <h2>Depoimentos</h2>
+                    <p>O que os moradores dizem sobre viver em Bueno Brandão</p>
+                </div>
+            </div>
+            <div class="testimonials-grid" id="testimonialsGrid"></div>
+        </div>
+    </section>
+
+    <!-- HOSPEDAGENS -->
+    <section class="section section-hospedagens" id="secHospedagens">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Onde Ficar</span>
+                    <h2>Hospedagens</h2>
+                    <p>Hotéis, pousadas e chalés para sua estadia em Bueno Brandão</p>
+                </div>
+            </div>
+            <div class="hospedagens-grid" id="hospedagensGrid">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <span>Carregando hospedagens…</span>
                 </div>
             </div>
         </div>
@@ -260,6 +334,33 @@
             </div>
         </div>
     </footer>
+
+    <aside class="a11y-tools" aria-label="Opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
+            <span aria-hidden="true">Aa</span>
+        </button>
+        <div class="a11y-menu" id="a11yMenu" hidden>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+            <div class="a11y-menu__group" role="group" aria-label="Modos de leitura">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="color" aria-pressed="false">Contraste de cores <small>Leitura facilitada</small></button>
+            </div>
+            <div class="a11y-size" role="group" aria-label="Tamanho do texto">
+                <span>Tamanho do texto</span>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
+            </div>
+        </div>
+    </aside>
 
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
