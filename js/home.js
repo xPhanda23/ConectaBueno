@@ -93,6 +93,7 @@ function setupVisitorMode(user) {
     setupAboutCarousel();
     setupRevealAnimations();
     renderTimeline();
+    setupTimelineModal();
     renderCulturaViva();
     renderTestimonials();
 });
@@ -637,9 +638,8 @@ async function loadWeather() {
 // ══════════════════════════════════════════
 
 async function loadPopulation() {
-    const heroStat = document.getElementById('statPopulation');
     const aboutStat = document.getElementById('aboutPopulation');
-    if (!heroStat && !aboutStat) return;
+    if (!aboutStat) return;
 
     try {
         // Código do município de Bueno Brandão, MG no IBGE: 3109105
@@ -651,9 +651,7 @@ async function loadPopulation() {
 
         if (!valor || Number.isNaN(valor)) return;
 
-        const formatted = `${(valor / 1000).toFixed(1).replace('.0', '')} mil`;
-        if (heroStat) heroStat.textContent = `~${formatted}`;
-        if (aboutStat) aboutStat.textContent = `~${valor.toLocaleString('pt-BR')}`;
+        aboutStat.textContent = `~${valor.toLocaleString('pt-BR')}`;
     } catch (err) {
         console.warn('⚠️ População (IBGE) indisponível:', err);
     }
@@ -727,7 +725,7 @@ function setupListeners() {
     const scrollIndicator = document.querySelector('.hero-scroll-indicator');
     if (scrollIndicator) {
         scrollIndicator.addEventListener('click', () => {
-            const firstSection = document.querySelector('.section-quickfacts');
+            const firstSection = document.querySelector('.section-about');
             if (firstSection) {
                 firstSection.scrollIntoView({ behavior: 'smooth' });
             }
@@ -788,35 +786,81 @@ function setupAboutCarousel() {
 // ══════════════════════════════════════════
 
 const TIMELINE_DATA = [
-    { date: '~1800', title: 'Ocupação bandeirante', desc: 'Colonizadores portugueses — Capitão Antônio Amaral, Antonio Nunes Brigagão e o Coronel Agostinho — se estabelecem às margens do Ribeirão das Antas.' },
+    { date: '~1800', title: 'Ocupação bandeirante', desc: 'Colonizadores portugueses — Capitão Antônio Amaral, Antonio Nunes Brigagão e o Coronel Agostinho — se estabelecem às margens do Ribeirão das Antas.', preview: true },
     { date: '1800', title: 'Bom Jesus da Pedra Fria', desc: 'Patrício José Joaquim de Miranda traz a imagem do Senhor Bom Jesus da Pedra Fria. O povoado recebe seu primeiro nome.' },
     { date: '~1850', title: 'Campo Místico', desc: 'O frade italiano Eugênio Maria de Gênova sugere "Bom Jesus do Campo Místico", logo abreviado para Campo Místico.' },
     { date: '1º de julho de 1850', title: 'Distrito de Pouso Alegre', desc: 'Pela Lei Provincial nº 471, Campo Místico se torna distrito de Pouso Alegre.' },
     { date: '23 de julho de 1864', title: 'Subordinado a Jaguari/Camanducaia', desc: 'A Lei Provincial nº 1.190 muda a subordinação administrativa do distrito.' },
     { date: '4 de novembro de 1880', title: 'Transferido para Ouro Fino', desc: 'A Lei Provincial nº 2.658 vincula o distrito ao município de Ouro Fino.' },
-    { date: '17 de dezembro de 1938', title: 'Emancipação: nasce Bueno Brandão', desc: 'O Decreto-Lei nº 148 cria o município, rebatizado em homenagem ao ex-governador de Minas Gerais Júlio Bueno Brandão.', featured: true },
+    { date: '17 de dezembro de 1938', title: 'Emancipação: nasce Bueno Brandão', desc: 'O Decreto-Lei nº 148 cria o município, rebatizado em homenagem ao ex-governador de Minas Gerais Júlio Bueno Brandão.', featured: true, preview: true },
     { date: '2013', title: 'Monumento a Júlio Bueno Brandão', desc: 'Inaugurado na Praça Virgílio de Melo Franco, no centro da cidade.' },
-    { date: 'Hoje', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.' }
+    { date: 'Hoje', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.', preview: true }
 ];
 
+function buildTimelineItem(item) {
+    const el = document.createElement('div');
+    el.className = 'timeline-item' + (item.featured ? ' timeline-featured' : '');
+    el.innerHTML = `
+        <span class="timeline-dot" aria-hidden="true"></span>
+        <div class="timeline-card">
+            <span class="timeline-date">${esc(item.date)}</span>
+            <h3 class="timeline-title">${esc(item.title)}</h3>
+            <p class="timeline-desc">${esc(item.desc)}</p>
+        </div>
+    `;
+    return el;
+}
+
+// Por padrão mostramos só 3 marcos (início, emancipação, hoje) para não
+// obrigar a rolar a página inteira. "Ver linha do tempo completa" abre
+// o modal com todos os marcos — ver setupTimelineModal().
 function renderTimeline() {
     const track = document.getElementById('timelineTrack');
-    if (!track) return;
+    if (track) {
+        track.innerHTML = '';
+        TIMELINE_DATA.filter(item => item.preview).forEach(item => {
+            const el = buildTimelineItem(item);
+            observeReveal(el);
+            track.appendChild(el);
+        });
+    }
 
-    track.innerHTML = '';
-    TIMELINE_DATA.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'timeline-item' + (item.featured ? ' timeline-featured' : '');
-        el.innerHTML = `
-            <span class="timeline-dot" aria-hidden="true"></span>
-            <div class="timeline-card">
-                <span class="timeline-date">${esc(item.date)}</span>
-                <h3 class="timeline-title">${esc(item.title)}</h3>
-                <p class="timeline-desc">${esc(item.desc)}</p>
-            </div>
-        `;
-        observeReveal(el);
-        track.appendChild(el);
+    const fullTrack = document.getElementById('timelineModalTrack');
+    if (fullTrack) {
+        fullTrack.innerHTML = '';
+        TIMELINE_DATA.forEach(item => {
+            fullTrack.appendChild(buildTimelineItem(item));
+        });
+    }
+}
+
+function setupTimelineModal() {
+    const modal = document.getElementById('timelineModal');
+    const openBtn = document.getElementById('btnTimelineFull');
+    const closeBtn = document.getElementById('timelineModalClose');
+    if (!modal || !openBtn) return;
+
+    const openTimelineModal = () => {
+        modal.hidden = false;
+        document.body.classList.add('modal-open');
+        closeBtn?.focus();
+    };
+
+    const closeTimelineModal = () => {
+        modal.hidden = true;
+        document.body.classList.remove('modal-open');
+        openBtn.focus();
+    };
+
+    openBtn.addEventListener('click', openTimelineModal);
+    closeBtn?.addEventListener('click', closeTimelineModal);
+
+    modal.querySelectorAll('[data-close-timeline]').forEach(el => {
+        el.addEventListener('click', closeTimelineModal);
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !modal.hidden) closeTimelineModal();
     });
 }
 
