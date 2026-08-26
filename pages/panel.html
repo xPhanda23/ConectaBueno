@@ -111,6 +111,13 @@
                     <span>Notícias</span>
                 </button>
 
+                <button class="nav-item" data-section="hospedagens">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 17V8L10 3L17 8V17H12V12H8V17H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Hospedagens</span>
+                </button>
+
                 <button class="nav-item" data-section="logs">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <rect x="4" y="3" width="12" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -568,6 +575,45 @@
                 </div>
             </section>
 
+            <!-- Hospedagens Section -->
+            <section id="sectionHospedagens" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Gerenciar Hospedagens</h3>
+                        <p>Hotéis, pousadas e chalés exibidos na home page</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnAddHospedagem">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Nova Hospedagem
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Faixa de Preço</th>
+                                <th>Status</th>
+                                <th>Atualizado</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableHospedagens">
+                            <tr class="loading-row">
+                                <td colspan="6">
+                                    <div class="loading-spinner-small"></div>
+                                    <span>Carregando hospedagens...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Logs Section -->
             <section id="sectionLogs" class="section-content">
                 <div class="section-header">
@@ -999,6 +1045,118 @@
                     <div class="modal-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('modalNoticia')">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Salvar Notícia</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Adicionar/Editar Hospedagem -->
+    <div id="modalHospedagem" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modalHospedagemTitle">Nova Hospedagem</h3>
+                <button class="btn-close" onclick="closeModal('modalHospedagem')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formHospedagem">
+                    <input type="hidden" id="hospedagemId">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome *</label>
+                            <input type="text" id="hospedagemNome" class="form-control" required placeholder="Nome da hospedagem">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo *</label>
+                            <select id="hospedagemTipo" class="form-control" required>
+                                <option value="">Selecione...</option>
+                                <option value="Hotel">🏨 Hotel</option>
+                                <option value="Pousada">🏡 Pousada</option>
+                                <option value="Chale">🏔️ Chalé</option>
+                                <option value="Camping">⛺ Camping</option>
+                                <option value="Hostel">🛏️ Hostel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="hospedagemDescricao" class="form-control" rows="3" placeholder="Breve descrição da hospedagem"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="hospedagemEndereco" class="form-control" placeholder="Endereço completo">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Faixa de Preço</label>
+                            <select id="hospedagemFaixaPreco" class="form-control">
+                                <option value="">Não informar</option>
+                                <option value="economico">$ Econômico</option>
+                                <option value="moderado">$$ Moderado</option>
+                                <option value="alto_padrao">$$$ Alto padrão</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nº de Quartos</label>
+                            <input type="number" id="hospedagemNumQuartos" class="form-control" min="0" placeholder="Ex: 8">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Capacidade (hóspedes)</label>
+                            <input type="number" id="hospedagemCapacidade" class="form-control" min="0" placeholder="Ex: 24">
+                        </div>
+                        <div class="form-group">
+                            <label>Status *</label>
+                            <select id="hospedagemStatus" class="form-control" required>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="hospedagemTelefone" class="form-control" placeholder="(35) 3333-3333">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp</label>
+                            <input type="text" id="hospedagemWhatsapp" class="form-control" placeholder="55 35 9....">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="url" id="hospedagemWebsite" class="form-control" placeholder="https://...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Comodidades</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="wifi"><span>Wi-Fi</span></label>
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="cafeDaManha"><span>Café da manhã</span></label>
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="piscina"><span>Piscina</span></label>
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="petFriendly"><span>Pet friendly</span></label>
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="estacionamento"><span>Estacionamento</span></label>
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="arCondicionado"><span>Ar-condicionado</span></label>
+                            <label class="checkbox-label"><input type="checkbox" class="hospedagemComodidade" value="churrasqueira"><span>Churrasqueira</span></label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL da Imagem</label>
+                        <input type="url" id="hospedagemImagem" class="form-control" placeholder="https://...">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modalHospedagem')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Hospedagem</button>
                     </div>
                 </form>
             </div>

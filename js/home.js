@@ -37,7 +37,9 @@ window.addEventListener('load', async () => {
                 loadStatistics(),
                 loadEventos(),
                 loadLugares(),
-                loadWeather()
+                loadWeather(),
+                loadPopulation(),
+                loadHospedagens()
             ]);
         } else {
             window.location.href = 'login.html';
@@ -89,6 +91,10 @@ function setupVisitorMode(user) {
     setupListeners();
     setupHeaderScroll();
     setupAboutCarousel();
+    setupRevealAnimations();
+    renderTimeline();
+    renderCulturaViva();
+    renderTestimonials();
 });
 
 function waitForFirebase(ms = 5000) {
@@ -377,6 +383,7 @@ function buildEventCard(ev) {
         </div>
     `;
 
+    observeReveal(card);
     return card;
 }
 
@@ -385,7 +392,8 @@ function getCatIcon(cat) {
         'Música':'🎵','Teatro':'🎭','Dança':'💃','Cinema':'🎬',
         'Exposição':'🖼️','Festival':'🎪','Literatura':'📚',
         'Gastronomia':'🍽️','Esporte':'⚽','Tradicional':'🎉',
-        'Cultural':'🎨','Religioso':'⛪','Artesanato':'🧶'
+        'Cultural':'🎨','Religioso':'⛪','Artesanato':'🧶',
+        'Hotel':'🏨','Pousada':'🏡','Chale':'🏔️','Camping':'⛺','Hostel':'🛏️'
     };
     return icons[cat] || '📅';
 }
@@ -514,18 +522,97 @@ function buildPlaceCard(place) {
         }
     });
 
+    observeReveal(card);
+    return card;
+}
+
+// ══════════════════════════════════════════
+// HOSPEDAGENS
+// ══════════════════════════════════════════
+
+const AMENITY_LABELS = {
+    wifi: 'Wi-Fi',
+    cafeDaManha: 'Café da manhã',
+    piscina: 'Piscina',
+    petFriendly: 'Pet friendly',
+    estacionamento: 'Estacionamento',
+    arCondicionado: 'Ar-condicionado',
+    churrasqueira: 'Churrasqueira'
+};
+
+const PRECO_LABELS = {
+    economico: '$',
+    moderado: '$$',
+    alto_padrao: '$$$'
+};
+
+async function loadHospedagens() {
+    const grid = document.getElementById('hospedagensGrid');
+    if (!grid) return;
+
+    try {
+        const snap = await db.collection('hospedagens').where('status', '==', 'ativo').limit(9).get();
+        grid.innerHTML = '';
+
+        if (!snap || snap.empty) {
+            grid.innerHTML = `<div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <path d="M5 40V17L24 6L43 17V40H27V27H21V40H5Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+                </svg>
+                <p>Nenhuma hospedagem cadastrada no momento</p>
+            </div>`;
+            return;
+        }
+
+        snap.docs.forEach(doc => {
+            grid.appendChild(buildHospedagemCard({ id: doc.id, ...doc.data() }));
+        });
+
+    } catch (err) {
+        console.error('❌ Hospedagens:', err);
+        grid.innerHTML = `<div class="empty-state">
+            <p>Não foi possível carregar as hospedagens</p>
+        </div>`;
+    }
+}
+
+function buildHospedagemCard(h) {
+    const imgStyle = h.imagem ? ` style="background-image:url('${esc(h.imagem)}')"` : '';
+    const precoTag = PRECO_LABELS[h.faixaPreco] || '';
+    const amenities = Array.isArray(h.comodidades) ? h.comodidades.slice(0, 4) : [];
+
+    const card = document.createElement('article');
+    card.className = 'hospedagem-card';
+    card.innerHTML = `
+        <div class="hosp-img"${imgStyle}>
+            ${!h.imagem ? `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M5 30V13L18 5L31 13V30H20V20H16V30H5Z" stroke="currentColor" stroke-width="2"/></svg>` : ''}
+            ${precoTag ? `<span class="hosp-price-badge">${precoTag}</span>` : ''}
+        </div>
+        <div class="hosp-content">
+            <span class="hosp-type">${getCatIcon(h.tipo)} ${esc(h.tipo || 'Hospedagem')}</span>
+            <h3 class="hosp-name">${esc(h.nome || 'Hospedagem')}</h3>
+            ${h.descricao ? `<p class="hosp-desc">${esc(h.descricao)}</p>` : ''}
+            ${amenities.length ? `<div class="hosp-amenities">${amenities.map(a => `<span class="hosp-amenity">${esc(AMENITY_LABELS[a] || a)}</span>`).join('')}</div>` : ''}
+            <div class="hosp-actions">
+                ${h.whatsapp ? `<a class="hosp-action-btn hosp-action-btn-primary" href="https://wa.me/${esc(h.whatsapp.replace(/\D/g, ''))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+                ${h.website ? `<a class="hosp-action-btn" href="${esc(h.website)}" target="_blank" rel="noopener">Site</a>` : ''}
+            </div>
+        </div>
+    `;
+
+    observeReveal(card);
     return card;
 }
 
 async function loadWeather() {
+    const weatherWidget = document.getElementById('weatherWidget');
     const weatherTemp = document.getElementById('weatherTemp');
-    const weatherDesc = document.getElementById('weatherDesc');
-    const weatherUpdated = document.getElementById('weatherUpdated');
     const weatherIcon = document.getElementById('weatherIcon');
-    if (!weatherTemp || !weatherDesc || !weatherUpdated) return;
+    if (!weatherTemp) return;
 
-    const lat = -21.9722;
-    const lon = -43.2814;
+    // Coordenadas de Bueno Brandão, MG (Serra da Mantiqueira)
+    const lat = -22.4408;
+    const lon = -46.3508;
 
     try {
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
@@ -533,18 +620,42 @@ async function loadWeather() {
         const temp = data?.current?.temperature_2m;
         const code = data?.current?.weather_code;
         const label = getWeatherLabel(code);
-        const icon = getWeatherIcon(code);
 
         weatherTemp.textContent = `${Math.round(temp)}°C`;
-        weatherDesc.textContent = label;
-        if (weatherIcon) weatherIcon.textContent = icon;
-        weatherUpdated.textContent = 'agora';
+        if (weatherIcon) weatherIcon.textContent = getWeatherIcon(code);
+        if (weatherWidget) weatherWidget.title = `${label} em Bueno Brandão`;
     } catch (err) {
         console.warn('⚠️ Clima indisponível:', err);
         weatherTemp.textContent = '22°C';
-        weatherDesc.textContent = 'Tempo limpo';
         if (weatherIcon) weatherIcon.textContent = '☀️';
-        weatherUpdated.textContent = 'offline';
+        if (weatherWidget) weatherWidget.title = 'Tempo limpo em Bueno Brandão';
+    }
+}
+
+// ══════════════════════════════════════════
+// POPULAÇÃO (IBGE — estimativa oficial)
+// ══════════════════════════════════════════
+
+async function loadPopulation() {
+    const heroStat = document.getElementById('statPopulation');
+    const aboutStat = document.getElementById('aboutPopulation');
+    if (!heroStat && !aboutStat) return;
+
+    try {
+        // Código do município de Bueno Brandão, MG no IBGE: 3109105
+        const res = await fetch('https://servicodados.ibge.gov.br/api/v3/agregados/6579/periodos/-1/variaveis/9324?localidades=N6[3109105]');
+        const data = await res.json();
+        const serie = data?.[0]?.resultados?.[0]?.series?.[0]?.serie;
+        const ano = serie ? Object.keys(serie)[0] : null;
+        const valor = ano ? parseInt(serie[ano], 10) : null;
+
+        if (!valor || Number.isNaN(valor)) return;
+
+        const formatted = `${(valor / 1000).toFixed(1).replace('.0', '')} mil`;
+        if (heroStat) heroStat.textContent = `~${formatted}`;
+        if (aboutStat) aboutStat.textContent = `~${valor.toLocaleString('pt-BR')}`;
+    } catch (err) {
+        console.warn('⚠️ População (IBGE) indisponível:', err);
     }
 }
 
@@ -616,12 +727,42 @@ function setupListeners() {
     const scrollIndicator = document.querySelector('.hero-scroll-indicator');
     if (scrollIndicator) {
         scrollIndicator.addEventListener('click', () => {
-            const firstSection = document.querySelector('.section-eventos');
+            const firstSection = document.querySelector('.section-quickfacts');
             if (firstSection) {
                 firstSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
     }
+}
+
+// ══════════════════════════════════════════
+// REVELAR AO ROLAR
+// ══════════════════════════════════════════
+
+let revealObserver = null;
+
+function setupRevealAnimations() {
+    if (!('IntersectionObserver' in window)) {
+        document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
+        return;
+    }
+
+    revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+}
+
+function observeReveal(el) {
+    el.classList.add('reveal');
+    if (revealObserver) revealObserver.observe(el);
+    else el.classList.add('is-visible');
 }
 
 function setupAboutCarousel() {
@@ -638,6 +779,149 @@ function setupAboutCarousel() {
         index = (index + 1) % slides.length;
         slides[index].classList.add('active');
     }, 3600);
+}
+
+// ══════════════════════════════════════════
+// LINHA DO TEMPO
+// Conteúdo estático — fatos históricos reais pesquisados
+// (Câmara Municipal de Bueno Brandão, IBGE, AltaMontanha)
+// ══════════════════════════════════════════
+
+const TIMELINE_DATA = [
+    { date: '~1800', title: 'Ocupação bandeirante', desc: 'Colonizadores portugueses — Capitão Antônio Amaral, Antonio Nunes Brigagão e o Coronel Agostinho — se estabelecem às margens do Ribeirão das Antas.' },
+    { date: '1800', title: 'Bom Jesus da Pedra Fria', desc: 'Patrício José Joaquim de Miranda traz a imagem do Senhor Bom Jesus da Pedra Fria. O povoado recebe seu primeiro nome.' },
+    { date: '~1850', title: 'Campo Místico', desc: 'O frade italiano Eugênio Maria de Gênova sugere "Bom Jesus do Campo Místico", logo abreviado para Campo Místico.' },
+    { date: '1º de julho de 1850', title: 'Distrito de Pouso Alegre', desc: 'Pela Lei Provincial nº 471, Campo Místico se torna distrito de Pouso Alegre.' },
+    { date: '23 de julho de 1864', title: 'Subordinado a Jaguari/Camanducaia', desc: 'A Lei Provincial nº 1.190 muda a subordinação administrativa do distrito.' },
+    { date: '4 de novembro de 1880', title: 'Transferido para Ouro Fino', desc: 'A Lei Provincial nº 2.658 vincula o distrito ao município de Ouro Fino.' },
+    { date: '17 de dezembro de 1938', title: 'Emancipação: nasce Bueno Brandão', desc: 'O Decreto-Lei nº 148 cria o município, rebatizado em homenagem ao ex-governador de Minas Gerais Júlio Bueno Brandão.', featured: true },
+    { date: '2013', title: 'Monumento a Júlio Bueno Brandão', desc: 'Inaugurado na Praça Virgílio de Melo Franco, no centro da cidade.' },
+    { date: 'Hoje', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.' }
+];
+
+function renderTimeline() {
+    const track = document.getElementById('timelineTrack');
+    if (!track) return;
+
+    track.innerHTML = '';
+    TIMELINE_DATA.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'timeline-item' + (item.featured ? ' timeline-featured' : '');
+        el.innerHTML = `
+            <span class="timeline-dot" aria-hidden="true"></span>
+            <div class="timeline-card">
+                <span class="timeline-date">${esc(item.date)}</span>
+                <h3 class="timeline-title">${esc(item.title)}</h3>
+                <p class="timeline-desc">${esc(item.desc)}</p>
+            </div>
+        `;
+        observeReveal(el);
+        track.appendChild(el);
+    });
+}
+
+// ══════════════════════════════════════════════════════════
+// CULTURA VIVA
+// CV_FACTS: fatos reais pesquisados sobre tradições locais.
+//
+// CULTURA_VIVA_PROFILES — PERFIS DE EXEMPLO (PLACEHOLDER)
+// Nomes e biografias são ILUSTRATIVOS, não pessoas reais.
+// Diferente do restante do site ("Zero Mock Data" — apenas
+// Firestore real), este array é conteúdo estático editorial
+// a ser substituído por perfis reais antes da publicação.
+// Cada item tem `placeholder: true` para localizar/substituir,
+// e o cartão exibe a tag visível "Exemplo ilustrativo".
+// ══════════════════════════════════════════════════════════
+
+const CV_FACTS = [
+    { icon: '💧', title: 'Cidade das Cachoeiras', desc: 'Cerca de 30 quedas d’água, entre elas a Cachoeira dos Luiz, do Félix, do Cigano, de Santa Rita e do Davi.' },
+    { icon: '⛪', title: 'Arquitetura de Fé', desc: 'Aproximadamente 30 igrejas históricas erguidas com a torre única, marca registrada da arquitetura religiosa da região.' },
+    { icon: '⛰️', title: 'Picos da Serra', desc: 'Pedra da Torre (~1.750 m), Pico Dois Irmãos (~1.560 m) e Pedra Vermelha (~1.600 m) coroam a paisagem.' },
+    { icon: '🍇', title: 'Tradição Vinícola', desc: 'Herança dos colonizadores portugueses, viva até hoje na produção local de vinho.' },
+    { icon: '🐐', title: 'Queijos de Cabra', desc: 'Produção artesanal de laticínios caprinos, um saber-fazer passado de geração em geração.' }
+];
+
+const CULTURA_VIVA_PROFILES = [
+    { nome: 'Seu Ronaldo', papel: 'Violeiro e Contador de Causos', bio: 'Há mais de 40 anos toca viola e reúne vizinhos nas tardes de domingo para contar as histórias antigas da Serra da Mantiqueira.', placeholder: true },
+    { nome: 'Dona Zélia', papel: 'Guardiã da Tradição do Queijo', bio: 'Aprendeu com a mãe o ofício dos queijos de cabra artesanais, uma receita que atravessa gerações na região.', placeholder: true },
+    { nome: 'Marina', papel: 'Poeta da Serra', bio: 'Escreve sobre as cachoeiras, as igrejas de torre única e a vida simples do interior mineiro em versos publicados em jornais locais.', placeholder: true }
+];
+
+function initialsOf(name) {
+    return String(name || '').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function renderCulturaViva() {
+    const factsGrid = document.getElementById('cvFactsGrid');
+    if (factsGrid) {
+        factsGrid.innerHTML = '';
+        CV_FACTS.forEach(f => {
+            const card = document.createElement('div');
+            card.className = 'cv-fact-card';
+            card.innerHTML = `
+                <div class="cv-fact-icon" aria-hidden="true">${f.icon}</div>
+                <h3 class="cv-fact-title">${esc(f.title)}</h3>
+                <p class="cv-fact-desc">${esc(f.desc)}</p>
+            `;
+            observeReveal(card);
+            factsGrid.appendChild(card);
+        });
+    }
+
+    const profilesGrid = document.getElementById('cvProfilesGrid');
+    if (profilesGrid) {
+        profilesGrid.innerHTML = '';
+        CULTURA_VIVA_PROFILES.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'cv-profile-card';
+            card.innerHTML = `
+                ${p.placeholder ? '<span class="example-tag">Exemplo ilustrativo</span>' : ''}
+                <div class="cv-profile-avatar" aria-hidden="true">${esc(initialsOf(p.nome))}</div>
+                <h4 class="cv-profile-name">${esc(p.nome)}</h4>
+                <span class="cv-profile-role">${esc(p.papel)}</span>
+                <p class="cv-profile-bio">${esc(p.bio)}</p>
+            `;
+            observeReveal(card);
+            profilesGrid.appendChild(card);
+        });
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// DEPOIMENTOS — PLACEHOLDER
+// Mesma convenção da seção Cultura Viva acima: nomes curtos,
+// biografias ILUSTRATIVAS, tag visível "Exemplo ilustrativo".
+// ══════════════════════════════════════════════════════════
+
+const TESTIMONIALS_DATA = [
+    { nome: 'Cida', papel: 'Moradora, Bairro Centro', texto: 'Aqui a gente ainda conhece o vizinho pelo nome. É esse acolhimento que faz Bueno Brandão ser especial.', placeholder: true },
+    { nome: 'João', papel: 'Produtor Rural', texto: 'Cresci ouvindo o som das cachoeiras. Hoje mostro esse mesmo som para meus filhos — e para quem vem nos visitar.', placeholder: true },
+    { nome: 'Helena', papel: 'Comerciante Local', texto: 'A gente vive do turismo com orgulho, porque cada visitante que chega se apaixona pela nossa serra como a gente.', placeholder: true }
+];
+
+function renderTestimonials() {
+    const grid = document.getElementById('testimonialsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    TESTIMONIALS_DATA.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'testimonial-card';
+        card.innerHTML = `
+            ${t.placeholder ? '<span class="example-tag">Exemplo ilustrativo</span>' : ''}
+            <span class="testimonial-quote-mark" aria-hidden="true">"</span>
+            <p class="testimonial-text">${esc(t.texto)}</p>
+            <div class="testimonial-footer">
+                <div class="testimonial-avatar" aria-hidden="true">${esc(initialsOf(t.nome))}</div>
+                <div>
+                    <div class="testimonial-name">${esc(t.nome)}</div>
+                    <div class="testimonial-role">${esc(t.papel)}</div>
+                </div>
+            </div>
+        `;
+        observeReveal(card);
+        grid.appendChild(card);
+    });
 }
 
 // ══════════════════════════════════════════

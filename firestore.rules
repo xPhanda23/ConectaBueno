@@ -106,6 +106,20 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // ── Hospedagens ───────────────────────────────────────────
+
+    match /hospedagens/{hospedagemId} {
+      // Leitura para qualquer usuário autenticado (mesmo padrão de "espacos")
+      allow read: if isAuth();
+
+      // Apenas admin pode criar, atualizar e deletar
+      allow create: if isAdmin() &&
+        hasFields(['nome', 'tipo', 'status']);
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
     // ── Notícias ──────────────────────────────────────────────
 
     match /noticias/{noticiaId} {
