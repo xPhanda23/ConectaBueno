@@ -851,112 +851,7 @@ body {
    Componente próprio, prefixo .pc-*, com estética de app nativo.
    ================================================================ */
 
-/* ── Casca do Leaflet ─────────────────────────────────────────── */
-.leaflet-popup-content-wrapper {
-    border-radius: 20px !important;
-    box-shadow: 0 24px 60px rgba(12, 32, 20, .28) !important;
-    padding: 0 !important;
-    overflow: hidden;
-    border: 1px solid rgba(20, 45, 30, .06);
-}
-
-.leaflet-popup-content {
-    margin: 0 !important;
-    width: auto !important;
-    /* Trava para não vazar em telas estreitas, mesmo com a largura
-       inline que o Leaflet calcula. */
-    max-width: min(340px, calc(100vw - 32px)) !important;
-    font-family: var(--font-body);
-}
-
-.leaflet-popup-tip {
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .1) !important;
-}
-
-/* Conteúdo mais alto que o limite: a rolagem fica só no miolo, para a
-   capa e as ações permanecerem sempre visíveis. */
-.leaflet-popup-content.leaflet-popup-scrolled {
-    padding: 0 !important;
-    border-bottom: none !important;
-    overflow: hidden !important;
-    display: flex;
-    flex-direction: column;
-}
-
-.leaflet-popup-scrolled .pc-card {
-    flex: 1;
-    min-height: 0;
-}
-
-.leaflet-popup-scrolled .pc-body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-}
-
-.leaflet-popup-scrolled .pc-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.leaflet-popup-scrolled .pc-body::-webkit-scrollbar-thumb {
-    background: var(--grey-300);
-    border-radius: 3px;
-}
-
-/* ── Botão de fechar: translúcido, sobreposto à capa ───────────── */
-.leaflet-popup-close-button {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 40px !important;
-    height: 40px !important;
-    right: 10px !important;
-    top: 10px !important;
-    padding: 0 !important;
-    font: 0/0 a;
-    border-radius: 50%;
-    background: rgba(14, 30, 20, .46) !important;
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, .3);
-    color: transparent !important;
-    z-index: 20;
-    transition: background .2s ease, transform .2s ease;
-}
-
-/* Glifo desenhado em CSS: o "×" do Leaflet não centraliza de forma
-   confiável entre navegadores. */
-.leaflet-popup-close-button::before,
-.leaflet-popup-close-button::after {
-    content: "";
-    position: absolute;
-    width: 14px;
-    height: 2px;
-    border-radius: 2px;
-    background: #fff;
-}
-
-.leaflet-popup-close-button::before { transform: rotate(45deg); }
-.leaflet-popup-close-button::after { transform: rotate(-45deg); }
-
-.leaflet-popup-close-button:hover {
-    background: rgba(14, 30, 20, .68) !important;
-    transform: scale(1.06);
-}
-
-.leaflet-popup-close-button:focus-visible {
-    outline: 3px solid var(--leaf-400);
-    outline-offset: 2px;
-}
-
-/* Alvo de toque confortável em telas sensíveis */
-@media (pointer: coarse) {
-    .leaflet-popup-close-button {
-        width: 44px !important;
-        height: 44px !important;
-    }
-}
+/* ── Casca do painel de detalhes (ver bloco .sd-* mais abaixo) ──── */
 
 /* ── Estrutura do card ────────────────────────────────────────── */
 .pc-card {
@@ -964,6 +859,9 @@ body {
     flex-direction: column;
     background: #fff;
     color: var(--grey-900);
+    flex: 1;
+    min-height: 0;
+    height: 100%;
 }
 
 /* ── Capa ─────────────────────────────────────────────────────── */
@@ -999,6 +897,19 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.pc-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.pc-body::-webkit-scrollbar-thumb {
+    background: var(--grey-300);
+    border-radius: 3px;
 }
 
 .pc-title {
@@ -1031,33 +942,6 @@ body {
     text-transform: uppercase;
     color: #fff;
     white-space: nowrap;
-}
-
-.pc-rating {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.pc-rating__stars {
-    display: inline-flex;
-    gap: 1px;
-}
-
-.pc-rating__stars svg {
-    width: 14px;
-    height: 14px;
-}
-
-.pc-rating__value {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--grey-900);
-}
-
-.pc-rating__count {
-    font-size: 12px;
-    color: var(--grey-400);
 }
 
 /* ── Tags livres ──────────────────────────────────────────────── */
@@ -1135,11 +1019,11 @@ body {
     border-top: 1px solid var(--grey-200);
 }
 
-/* Rotas lado a lado. minmax(0,1fr) — sem o 0 as colunas herdam o
-   min-content do botão e ficam desiguais. */
+/* Rotas empilhadas em largura total — uma ação por linha, alvo de
+   toque generoso e sem competir por espaço com o rótulo do botão. */
 .pc-routes {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
 }
 
@@ -1251,69 +1135,205 @@ body {
     background: var(--green-50);
 }
 
-/* O Leaflet define `.leaflet-container a { color: #0078A8 }`, com
-   especificidade maior que a das classes acima — daí a reafirmação com
-   o mesmo prefixo, em vez de recorrer a !important. */
-.leaflet-container .pc-btn--primary,
-.leaflet-container .pc-btn--primary:hover {
+/* O global.css define `a { color: var(--primary-color) }` — a
+   reafirmação abaixo (mesma especificidade, sem !important) garante que
+   os botões/links do card usem a paleta própria do componente. */
+.pc-btn--primary,
+.pc-btn--primary:hover {
     color: #fff;
 }
 
-.leaflet-container .pc-btn--secondary {
+.pc-btn--secondary {
     color: var(--grey-700);
 }
 
-.leaflet-container .pc-btn--secondary:hover {
+.pc-btn--secondary:hover {
     color: var(--leaf-900);
 }
 
-.leaflet-container .pc-btn--secondary .pc-icon {
+.pc-btn--secondary .pc-icon {
     color: var(--leaf-700);
 }
 
-.leaflet-container .pc-btn--outline {
+.pc-btn--outline {
     color: var(--grey-600);
 }
 
-.leaflet-container .pc-btn--outline:hover {
+.pc-btn--outline:hover {
     color: var(--leaf-900);
 }
 
-.leaflet-container .pc-share {
+.pc-share {
     color: var(--grey-500);
 }
 
-.leaflet-container .pc-share:hover {
+.pc-share:hover {
     color: var(--leaf-900);
 }
 
-.leaflet-container .pc-info__item a {
+.pc-info__item a {
     color: var(--leaf-700);
     font-weight: 600;
     text-decoration: none;
 }
 
-.leaflet-container .pc-info__item a:hover {
+.pc-info__item a:hover {
     text-decoration: underline;
 }
 
 /* Foco visível e consistente em todos os controles do card */
-.leaflet-container .pc-btn:focus-visible,
-.leaflet-container .pc-share:focus-visible,
-.leaflet-container .pc-info__item a:focus-visible {
+.pc-btn:focus-visible,
+.pc-share:focus-visible,
+.pc-info__item a:focus-visible {
     outline: 3px solid var(--leaf-400);
     outline-offset: 2px;
 }
 
-/* O card mede min(340px, 100vw - 32px): abaixo de 372px de viewport ele
-   encolhe e os rótulos começariam a ser cortados em duas colunas, então
-   as ações passam a ocupar a linha inteira. */
+/* Painel estreito (mobile pequeno): os links de apoio passam a ocupar
+   a linha inteira, já que .pc-routes agora é sempre uma coluna só. */
 @media (max-width: 371px) {
-    .pc-routes,
     .pc-links,
     .pc-links:has(> :nth-child(2)) {
         grid-template-columns: minmax(0, 1fr);
     }
+}
+
+/* ================================================================
+   PAINEL DE DETALHES (substitui o popup do Leaflet)
+   Desacoplado do marcador: gaveta (bottom sheet) no mobile, painel
+   lateral no desktop. Reaproveita o .pc-card por dentro.
+   ================================================================ */
+.sd-backdrop {
+    position: fixed;
+    inset: 0;
+    top: var(--header-h);
+    background: rgba(6, 15, 10, 0);
+    z-index: 1050;
+    transition: background .3s ease;
+}
+
+.sd-backdrop.is-visible {
+    background: rgba(6, 15, 10, .4);
+}
+
+.sd-panel {
+    position: fixed;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1060;
+    transition: transform .34s cubic-bezier(.16, 1, .3, 1);
+}
+
+.sd-panel:not(.is-open) {
+    pointer-events: none;
+}
+
+/* Alça: só faz sentido visualmente no modo gaveta (mobile) */
+.sd-handle {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .7);
+    z-index: 5;
+}
+
+/* Botão de fechar: mesmo desenho translúcido que o antigo botão do
+   Leaflet, agora em fluxo normal no canto do painel. */
+.sd-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    background: rgba(14, 30, 20, .46);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, .3);
+    cursor: pointer;
+    z-index: 5;
+    transition: background .2s ease, transform .2s ease;
+}
+
+.sd-close:hover {
+    background: rgba(14, 30, 20, .68);
+    transform: scale(1.06);
+}
+
+.sd-close:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+    .sd-close {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+.sd-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Desktop: painel desliza pela lateral direita, sobreposto ao mapa
+   (não redimensiona o #map — sem necessidade de invalidateSize). */
+@media (min-width: 1025px) {
+    .sd-panel {
+        top: var(--header-h);
+        right: 0;
+        bottom: 0;
+        width: min(420px, 92vw);
+        border-radius: 0;
+        box-shadow: -12px 0 40px rgba(12, 32, 20, .18);
+        transform: translateX(100%);
+    }
+
+    .sd-panel.is-open {
+        transform: translateX(0);
+    }
+}
+
+/* Mobile/tablet: gaveta que sobe da base da tela. */
+@media (max-width: 1024px) {
+    .sd-panel {
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 82vh;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -12px 40px rgba(12, 32, 20, .22);
+        transform: translateY(100%);
+    }
+
+    .sd-panel.is-open {
+        transform: translateY(0);
+    }
+
+    .sd-handle {
+        display: block;
+    }
+}
+
+/* Marcador com o painel de detalhes aberto: destaque visual, já que
+   não existe mais uma seta de popup apontando para ele. */
+.marker-selected .marker-pin {
+    transform: scale(1.22);
+    box-shadow: 0 0 0 5px rgba(47, 158, 82, .32), 0 8px 20px rgba(0, 0, 0, .38);
 }
 
 /* ================================================================
@@ -1414,10 +1434,6 @@ body {
         bottom: 16px;
         left: 16px;
         max-width: 170px;
-    }
-
-    .leaflet-popup-content {
-        max-width: min(320px, calc(100vw - 40px)) !important;
     }
 
     .pc-media {
