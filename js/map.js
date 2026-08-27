@@ -253,6 +253,14 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.p
     });
     map.addLayer(markerClusterGroup);
 
+    // O Leaflet rotula o botão de fechar em inglês; traduzimos ao abrir.
+    map.on('popupopen', (event) => {
+        const closeBtn = event.popup.getElement()?.querySelector('.leaflet-popup-close-button');
+        if (!closeBtn) return;
+        closeBtn.setAttribute('aria-label', 'Fechar');
+        closeBtn.setAttribute('title', 'Fechar');
+    });
+
     setTimeout(() => { if (map) map.invalidateSize(); }, 100);
     setTimeout(() => { if (map) map.invalidateSize(); }, 400);
 
@@ -566,8 +574,8 @@ function createMarker(space) {
     });
 
     marker.bindPopup(createPopupContent(space), {
-        maxWidth: 380,
-        minWidth: 300,
+        maxWidth: 340,
+        minWidth: 260,
         // Clamp obrigatório: sem o piso, telas baixas (ou innerHeight ainda
         // não medido) geram altura negativa e o Leaflet marca o popup como
         // rolável sem aplicar limite nenhum.
@@ -580,214 +588,227 @@ function createMarker(space) {
     return marker;
 }
 
+// Ícones do card — declarados uma vez, marcados como decorativos (o
+// significado vai no texto/aria-label ao lado).
+const PC_ICON = {
+    pin: '<svg class="pc-icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2C6.5 2 4.5 4 4.5 6.5C4.5 10.4 9 16 9 16C9 16 13.5 10.4 13.5 6.5C13.5 4 11.5 2 9 2ZM9 8.5C8 8.5 7 7.5 7 6.5C7 5.5 8 4.5 9 4.5C10 4.5 11 5.5 11 6.5C11 7.5 10 8.5 9 8.5Z" fill="currentColor"/></svg>',
+    clock: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 5V9L12 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    phone: '<svg class="pc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.01 15.38C18.78 15.38 17.59 15.18 16.48 14.82C16.13 14.7 15.74 14.79 15.47 15.06L13.9 17.03C11.07 15.68 8.42 13.13 7.01 10.2L8.96 8.54C9.23 8.26 9.31 7.87 9.2 7.52C8.83 6.41 8.64 5.22 8.64 3.99C8.64 3.45 8.19 3 7.65 3H4.19C3.65 3 3 3.24 3 3.99C3 13.28 10.73 21 20.01 21C20.72 21 21 20.37 21 19.82V16.37C21 15.83 20.55 15.38 20.01 15.38Z" fill="currentColor"/></svg>',
+    ticket: '<svg class="pc-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 6H16L14 4H10L8 6H4C2.9 6 2 6.9 2 8V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V8C22 6.9 21.1 6 20 6ZM20 18H4V8H8.83L10.83 6H13.17L15.17 8H20V18ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/></svg>',
+    navigate: '<svg class="pc-icon" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 1L3 7H7V13H11V7H15L9 1Z" fill="currentColor"/><rect x="3" y="15" width="12" height="2" rx="1" fill="currentColor"/></svg>',
+    waze: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M9 2.5C5.97 2.5 3.5 4.7 3.5 7.7C3.5 10.5 5.6 12.6 8.2 12.9L8.2 14.5H9.8V12.9C12.4 12.6 14.5 10.5 14.5 7.7C14.5 4.7 12.03 2.5 9 2.5Z" stroke="currentColor" stroke-width="1.4"/><circle cx="9" cy="8" r="2.1" stroke="currentColor" stroke-width="1.4"/></svg>',
+    info: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M9 6V9L12 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    instagram: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>',
+    globe: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M3 9H15M9 3C9 3 7 5 7 9C7 13 9 15 9 15M9 3C9 3 11 5 11 9C11 13 9 15 9 15" stroke="currentColor" stroke-width="1.5"/></svg>',
+    share: '<svg class="pc-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><circle cx="12.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="3.5" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="12.5" cy="12.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M5.3 7L10.7 4.2M5.3 9L10.7 11.8" stroke="currentColor" stroke-width="1.4"/></svg>'
+};
+
+/**
+ * Normaliza texto vindo do Firestore: colapsa espaços e remove pontuação
+ * pendente no fim (o caso comum é o endereço terminar em "- " quando o
+ * complemento ficou vazio no cadastro).
+ */
+function tidyText(value) {
+    return String(value ?? '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/[\s,;:.\-–—/|]+$/u, '')
+        .trim();
+}
+
+function formatRating(value) {
+    return value.toFixed(1).replace('.', ',');
+}
+
+/** Monta o href de discagem; assume DDI brasileiro quando só há DDD + número. */
+function toTelHref(telefone) {
+    const raw = String(telefone).replace(/[^\d+]/g, '');
+    if (raw.startsWith('+')) return raw;
+    const digits = raw.replace(/\D/g, '');
+    return (digits.length === 10 || digits.length === 11) ? `+55${digits}` : digits;
+}
+
 function createPopupContent(space) {
-    const color = categoryColors[space.categoria] || '#2d5a3d';
+    const nome = tidyText(space.nome) || 'Local';
+    const titleId = `pc-title-${space.id}`;
+    const hasCoords = Number.isFinite(space.lat) && Number.isFinite(space.lng);
 
-    let photosHTML = '';
-    const photo = space.foto || (space.galeria && space.galeria[0]);
-    if (photo) {
-        photosHTML = `
-            <div class="popup-photo">
-                <img src="${esc(photo)}" alt="${esc(space.nome)}" onerror="this.closest('.popup-photo').remove()">
+    // ── Capa ────────────────────────────────────────────────────────
+    const photo = space.foto || (Array.isArray(space.galeria) ? space.galeria[0] : null);
+    const mediaHTML = photo ? `
+        <figure class="pc-media">
+            <img class="pc-media__img" src="${esc(photo)}" alt="Foto de ${esc(nome)}"
+                 onerror="this.closest('.pc-media').remove()">
+        </figure>
+    ` : '';
+
+    // ── Categoria + avaliação na mesma linha ────────────────────────
+    const metaParts = [];
+
+    if (space.categoria) {
+        const color = categoryColors[space.categoria] || '#2d5a3d';
+        metaParts.push(`<span class="pc-chip" style="background:${color}">${esc(tidyText(space.categoria))}</span>`);
+    }
+
+    // Só exibe avaliação se houver nota real gravada — nada de valor inventado.
+    if (Number.isFinite(space.rating)) {
+        const reviews = Number.isFinite(space.reviewCount) ? space.reviewCount : 0;
+        const label = `Avaliação ${formatRating(space.rating)} de 5${reviews ? `, ${reviews} avaliações` : ''}`;
+        metaParts.push(`
+            <span class="pc-rating" role="img" aria-label="${esc(label)}">
+                <span class="pc-rating__stars" aria-hidden="true">${generateStars(space.rating, space.id)}</span>
+                <span class="pc-rating__value">${formatRating(space.rating)}</span>
+                ${reviews ? `<span class="pc-rating__count">(${reviews})</span>` : ''}
+            </span>
+        `);
+    }
+
+    const metaHTML = metaParts.length ? `<div class="pc-meta">${metaParts.join('')}</div>` : '';
+
+    // ── Tags livres ─────────────────────────────────────────────────
+    const tags = Array.isArray(space.tags) ? space.tags.map(tidyText).filter(Boolean).slice(0, 4) : [];
+    const tagsHTML = tags.length
+        ? `<ul class="pc-tags">${tags.map(t => `<li class="pc-tag">${esc(t)}</li>`).join('')}</ul>`
+        : '';
+
+    // ── Descrição ───────────────────────────────────────────────────
+    const descricao = tidyText(space.descricao);
+    const descHTML = descricao
+        ? `<p class="pc-desc">${esc(descricao.length > 140 ? descricao.slice(0, 140).trimEnd() + '…' : descricao)}</p>`
+        : '';
+
+    // ── Dados de contato/visita ─────────────────────────────────────
+    const infoItems = [];
+
+    const endereco = tidyText(space.endereco);
+    if (endereco) {
+        infoItems.push(`<li class="pc-info__item">${PC_ICON.pin}<span>${esc(endereco)}</span></li>`);
+    }
+
+    const horario = tidyText(space.horario);
+    if (horario) {
+        infoItems.push(`<li class="pc-info__item">${PC_ICON.clock}<span>${esc(horario)}</span></li>`);
+    }
+
+    const telefone = tidyText(space.telefone);
+    if (telefone) {
+        const tel = toTelHref(telefone);
+        infoItems.push(`
+            <li class="pc-info__item">${PC_ICON.phone}
+                <a href="tel:${esc(tel)}" aria-label="Ligar para ${esc(nome)}, telefone ${esc(telefone)}">${esc(telefone)}</a>
+            </li>
+        `);
+    }
+
+    const entradaConfig = {
+        gratuita: { text: 'Entrada gratuita', className: 'pc-info__item--free' },
+        paga: { text: 'Entrada paga', className: 'pc-info__item--paid' }
+    };
+    const entrada = entradaConfig[space.entrada];
+    if (entrada) {
+        infoItems.push(`<li class="pc-info__item ${entrada.className}">${PC_ICON.ticket}<span>${entrada.text}</span></li>`);
+    }
+
+    const infoHTML = infoItems.length ? `<ul class="pc-info">${infoItems.join('')}</ul>` : '';
+
+    // ── Ações ───────────────────────────────────────────────────────
+    // Rotas lado a lado (grid), depois links de apoio em outline e, por
+    // último, o compartilhar discreto.
+    let routesHTML = '';
+    if (hasCoords) {
+        const dest = `${space.lat},${space.lng}`;
+        routesHTML = `
+            <div class="pc-routes">
+                <a class="pc-btn pc-btn--primary"
+                   href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}"
+                   target="_blank" rel="noopener"
+                   aria-label="Traçar rota até ${esc(nome)} no Google Maps (abre em nova aba)">
+                    ${PC_ICON.navigate}<span>Google Maps</span>
+                </a>
+                <a class="pc-btn pc-btn--secondary"
+                   href="https://www.waze.com/ul?ll=${encodeURIComponent(dest)}&navigate=yes"
+                   target="_blank" rel="noopener"
+                   aria-label="Traçar rota até ${esc(nome)} no Waze (abre em nova aba)">
+                    ${PC_ICON.waze}<span>Waze</span>
+                </a>
             </div>
         `;
     }
 
-    let ratingHTML = '';
+    let linksInner = '';
     if (space.googleLink) {
-        const rating = space.rating || 4.5;
-        const reviewCount = space.reviewCount || 0;
-
-        ratingHTML = `
-            <div class="popup-rating">
-                <div class="popup-stars">${generateStars(rating)}</div>
-                <span class="popup-rating-text">${rating.toFixed(1)}</span>
-                ${reviewCount > 0 ? `<span class="popup-rating-count">(${reviewCount})</span>` : ''}
-            </div>
-        `;
-    }
-
-    let tagsHTML = '';
-    if (space.tags && space.tags.length > 0) {
-        tagsHTML = `<div class="popup-tags">${space.tags.slice(0, 4).map(tag => `<span class="popup-tag">${esc(tag)}</span>`).join('')}</div>`;
-    }
-
-    let descHTML = '';
-    if (space.descricao) {
-        const shortDesc = space.descricao.length > 120 ? space.descricao.substring(0, 120) + '...' : space.descricao;
-        descHTML = `<p class="popup-description">${esc(shortDesc)}</p>`;
-    }
-
-    let infoHTML = '';
-
-    if (space.endereco) {
-        infoHTML += `
-            <div class="popup-info-item">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <path d="M9 2C6.5 2 4.5 4 4.5 6.5C4.5 10.4 9 16 9 16C9 16 13.5 10.4 13.5 6.5C13.5 4 11.5 2 9 2ZM9 8.5C8 8.5 7 7.5 7 6.5C7 5.5 8 4.5 9 4.5C10 4.5 11 5.5 11 6.5C11 7.5 10 8.5 9 8.5Z" fill="currentColor"/>
-                </svg>
-                <span>${esc(space.endereco)}</span>
-            </div>
-        `;
-    }
-
-    if (space.horario) {
-        infoHTML += `
-            <div class="popup-info-item">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M9 5V9L12 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>${esc(space.horario)}</span>
-            </div>
-        `;
-    }
-
-    if (space.telefone) {
-        infoHTML += `
-            <div class="popup-info-item">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20.01 15.38C18.78 15.38 17.59 15.18 16.48 14.82C16.13 14.7 15.74 14.79 15.47 15.06L13.9 17.03C11.07 15.68 8.42 13.13 7.01 10.2L8.96 8.54C9.23 8.26 9.31 7.87 9.2 7.52C8.83 6.41 8.64 5.22 8.64 3.99C8.64 3.45 8.19 3 7.65 3H4.19C3.65 3 3 3.24 3 3.99C3 13.28 10.73 21 20.01 21C20.72 21 21 20.37 21 19.82V16.37C21 15.83 20.55 15.38 20.01 15.38Z" fill="currentColor"/>
-                </svg>
-                <span>${esc(space.telefone)}</span>
-            </div>
-        `;
-    }
-
-    if (space.entrada) {
-        const entradaConfig = {
-            gratuita: {
-                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6H16L14 4H10L8 6H4C2.9 6 2 6.9 2 8V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V8C22 6.9 21.1 6 20 6ZM20 18H4V8H8.83L10.83 6H13.17L15.17 8H20V18ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9ZM12 13C11.45 13 11 12.55 11 12C11 11.45 11.45 11 12 11C12.55 11 13 11.45 13 12C13 12.55 12.55 13 12 13Z" fill="currentColor"/></svg>',
-                text: 'Entrada Gratuita',
-                color: '#4caf50'
-            },
-            paga: {
-                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11.8 10.9C9.53 10.31 8.8 9.7 8.8 8.75C8.8 7.66 9.81 6.9 11.5 6.9C13.28 6.9 13.94 7.75 14 9H16.21C16.14 7.28 15.09 5.7 13 5.19V3H10V5.16C8.06 5.58 6.5 6.84 6.5 8.77C6.5 11.08 8.41 12.23 11.2 12.9C13.7 13.5 14.2 14.38 14.2 15.31C14.2 16 13.71 17.1 11.5 17.1C9.44 17.1 8.63 16.18 8.52 15H6.32C6.44 17.19 8.08 18.42 10 18.83V21H13V18.85C14.95 18.48 16.5 17.35 16.5 15.3C16.5 12.46 14.07 11.49 11.8 10.9Z" fill="currentColor"/></svg>',
-                text: 'Entrada Paga',
-                color: '#ff9800'
-            }
-        };
-
-        const config = entradaConfig[space.entrada];
-        if (config) {
-            infoHTML += `
-                <div class="popup-info-item">
-                    <span class="entrada-icon">${config.icon}</span>
-                    <span style="color:${config.color};font-weight:600;">${config.text}</span>
-                </div>
-            `;
-        }
-    }
-
-    // Botões largos empilhados, com rótulo descritivo — mesma leitura do
-    // layout anterior, agora com a linguagem visual nova.
-    let actionsHTML = '<div class="popup-actions">';
-
-    actionsHTML += `
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${space.lat},${space.lng}" target="_blank" rel="noopener" class="popup-btn popup-btn-primary">
-            <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                <path d="M9 1L3 7H7V13H11V7H15L9 1Z" fill="currentColor"/>
-                <rect x="3" y="15" width="12" height="2" rx="1" fill="currentColor"/>
-            </svg>
-            <span>Ir com Google Maps</span>
-        </a>
-        <a href="https://waze.com/ul?ll=${space.lat},${space.lng}&navigate=yes" target="_blank" rel="noopener" class="popup-btn popup-btn-secondary">
-            <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                <path d="M9 2.5C5.97 2.5 3.5 4.7 3.5 7.7C3.5 10.5 5.6 12.6 8.2 12.9L8.2 14.5H9.8V12.9C12.4 12.6 14.5 10.5 14.5 7.7C14.5 4.7 12.03 2.5 9 2.5Z" stroke="currentColor" stroke-width="1.4"/>
-                <circle cx="9" cy="8" r="2.1" stroke="currentColor" stroke-width="1.4"/>
-            </svg>
-            <span>Ir com Waze</span>
-        </a>
-    `;
-
-    if (space.googleLink) {
-        actionsHTML += `
-            <a href="${esc(space.googleLink)}" target="_blank" rel="noopener" class="popup-btn popup-btn-secondary">
-                <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                    <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M9 6V9L12 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Ver Mais</span>
+        linksInner += `
+            <a class="pc-btn pc-btn--outline" href="${esc(space.googleLink)}" target="_blank" rel="noopener"
+               aria-label="Ver mais informações sobre ${esc(nome)} (abre em nova aba)">
+                ${PC_ICON.info}<span>Ver mais</span>
             </a>
         `;
     }
-
     if (space.website) {
-        const isInstagram = space.website.includes('instagram');
-        actionsHTML += `
-            <a href="${esc(space.website)}" target="_blank" rel="noopener" class="popup-btn popup-btn-secondary">
-                ${isInstagram ? `
-                    <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                        <rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/>
-                        <circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/>
-                        <circle cx="13" cy="5" r="0.5" fill="currentColor"/>
-                    </svg>
-                ` : `
-                    <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M3 9H15M9 3C9 3 7 5 7 9C7 13 9 15 9 15M9 3C9 3 11 5 11 9C11 13 9 15 9 15" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                `}
-                <span>${isInstagram ? 'Ver no Instagram' : 'Visitar site'}</span>
+        const isInstagram = /instagram\./i.test(space.website);
+        linksInner += `
+            <a class="pc-btn pc-btn--outline" href="${esc(space.website)}" target="_blank" rel="noopener"
+               aria-label="${isInstagram ? 'Abrir o Instagram de' : 'Abrir o site de'} ${esc(nome)} (abre em nova aba)">
+                ${isInstagram ? PC_ICON.instagram : PC_ICON.globe}
+                <span>${isInstagram ? 'Instagram' : 'Site oficial'}</span>
             </a>
         `;
     }
 
-    // Ação leve — fica por último, sem peso de botão cheio
-    actionsHTML += `
-        <button type="button" class="popup-btn popup-btn-ghost" onclick="shareSpace('${space.id}')">
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                <circle cx="12.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/>
-                <circle cx="3.5" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/>
-                <circle cx="12.5" cy="12.5" r="2" stroke="currentColor" stroke-width="1.4"/>
-                <path d="M5.3 7L10.7 4.2M5.3 9L10.7 11.8" stroke="currentColor" stroke-width="1.4"/>
-            </svg>
-            <span>Compartilhar</span>
+    const linksHTML = linksInner ? `<div class="pc-links">${linksInner}</div>` : '';
+
+    const shareHTML = `
+        <button type="button" class="pc-share" data-share-id="${esc(space.id)}"
+                aria-label="Compartilhar ${esc(nome)}">
+            ${PC_ICON.share}<span>Compartilhar</span>
         </button>
     `;
 
-    actionsHTML += '</div>';
-
     return `
-        <div class="custom-popup-content">
-            ${photosHTML}
-            <div class="popup-body">
-                <div class="popup-header">
-                    <h3>${esc(space.nome)}</h3>
-                    <span class="popup-category" style="background: ${color}">${esc(space.categoria)}</span>
-                </div>
-                ${ratingHTML}
+        <article class="pc-card" aria-labelledby="${esc(titleId)}">
+            ${mediaHTML}
+            <div class="pc-body">
+                <h3 class="pc-title" id="${esc(titleId)}">${esc(nome)}</h3>
+                ${metaHTML}
                 ${tagsHTML}
                 ${descHTML}
-                ${infoHTML ? `<div class="popup-info">${infoHTML}</div>` : ''}
+                ${infoHTML}
             </div>
-            ${actionsHTML}
-        </div>
+            <footer class="pc-actions">
+                ${routesHTML}
+                ${linksHTML}
+                ${shareHTML}
+            </footer>
+        </article>
     `;
 }
 
-function generateStars(rating) {
-    let starsHTML = '';
+// `uid` evita ids duplicados no documento quando há mais de um card com
+// meia-estrela (ids repetidos quebram a referência do gradiente).
+function generateStars(rating, uid = '') {
+    const path = 'M9 2L11 7L16 7.5L12 11.5L13 17L9 14L5 17L6 11.5L2 7.5L7 7L9 2Z';
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
+    let starsHTML = '';
 
     for (let i = 0; i < 5; i++) {
         if (i < fullStars) {
-            starsHTML += `<svg viewBox="0 0 18 18" fill="#ffa726"><path d="M9 2L11 7L16 7.5L12 11.5L13 17L9 14L5 17L6 11.5L2 7.5L7 7L9 2Z"/></svg>`;
+            starsHTML += `<svg viewBox="0 0 18 18" fill="#f5a524" focusable="false"><path d="${path}"/></svg>`;
         } else if (i === fullStars && hasHalfStar) {
+            const gradId = `pc-half-${uid}-${i}`;
             starsHTML += `
-                <svg viewBox="0 0 18 18">
+                <svg viewBox="0 0 18 18" focusable="false">
                     <defs>
-                        <linearGradient id="half-star-${i}">
-                            <stop offset="50%" stop-color="#ffa726"/>
-                            <stop offset="50%" stop-color="#e0e0e0"/>
+                        <linearGradient id="${esc(gradId)}">
+                            <stop offset="50%" stop-color="#f5a524"/>
+                            <stop offset="50%" stop-color="#dfe3e8"/>
                         </linearGradient>
                     </defs>
-                    <path fill="url(#half-star-${i})" d="M9 2L11 7L16 7.5L12 11.5L13 17L9 14L5 17L6 11.5L2 7.5L7 7L9 2Z"/>
+                    <path fill="url(#${esc(gradId)})" d="${path}"/>
                 </svg>
             `;
         } else {
-            starsHTML += `<svg viewBox="0 0 18 18" fill="#e0e0e0"><path d="M9 2L11 7L16 7.5L12 11.5L13 17L9 14L5 17L6 11.5L2 7.5L7 7L9 2Z"/></svg>`;
+            starsHTML += `<svg viewBox="0 0 18 18" fill="#dfe3e8" focusable="false"><path d="${path}"/></svg>`;
         }
     }
 
@@ -823,21 +844,54 @@ function focusOnSpace(space) {
 // COMPARTILHAR (nova)
 // ===================================
 
-function shareSpace(id) {
+/**
+ * Usa a gaveta nativa de compartilhamento quando disponível (celular) e
+ * cai para a área de transferência no desktop.
+ */
+async function shareSpace(id) {
     const space = allSpaces.find(s => s.id === id);
     if (!space) return;
 
-    const url = `${location.origin}${location.pathname}?place=${id}`;
+    const nome = tidyText(space.nome) || 'Local';
+    const url = `${location.origin}${location.pathname}?place=${encodeURIComponent(id)}`;
+    const shareData = {
+        title: nome,
+        text: `${nome} — descubra em Bueno Brandão`,
+        url
+    };
 
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url)
-            .then(() => showToast('Link copiado!', 'success'))
-            .catch(() => showToast('Não foi possível copiar o link', 'error'));
-    } else {
-        showToast('Copie o link: ' + url, 'info');
+    if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
+        try {
+            await navigator.share(shareData);
+            return;
+        } catch (err) {
+            // Usuário fechou a gaveta: não é erro, apenas encerra.
+            if (err && err.name === 'AbortError') return;
+            // Qualquer outra falha cai no fallback abaixo.
+        }
+    }
+
+    try {
+        await navigator.clipboard.writeText(url);
+        showToast('Link copiado!', 'success');
+    } catch (err) {
+        showToast('Não foi possível compartilhar o link', 'error');
     }
 }
-window.shareSpace = shareSpace;
+
+// Delegação: o conteúdo do popup é criado pelo Leaflet a cada abertura,
+// então um listener só no container cobre todos os cards.
+function setupShareDelegation() {
+    const mapEl = document.getElementById('map');
+    if (!mapEl) return;
+
+    mapEl.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-share-id]');
+        if (!btn) return;
+        event.preventDefault();
+        shareSpace(btn.dataset.shareId);
+    });
+}
 
 function focusMapOnPlaces(filteredPlaces) {
     if (!map || !filteredPlaces || !filteredPlaces.length) return;
@@ -983,6 +1037,9 @@ function setupEventListeners() {
 
     // Legenda
     setupLegendToggle();
+
+    // Compartilhar (delegado, cobre os cards criados sob demanda)
+    setupShareDelegation();
 
     // Ordenação
     const sortSelect = document.getElementById('sortSelect');
