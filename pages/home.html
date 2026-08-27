@@ -180,34 +180,21 @@
                     <p>De Bom Jesus da Pedra Fria a Bueno Brandão — mais de dois séculos de história</p>
                 </div>
             </div>
-            <div class="timeline" id="timelineTrack"></div>
+
+            <div class="timeline timeline-teaser" id="timelineTrack"></div>
+
+            <div class="timeline-full-wrap" id="timelineFullWrap">
+                <div class="timeline timeline-full" id="timelineFull"></div>
+            </div>
+
             <div class="timeline-cta reveal">
-                <button type="button" class="timeline-more-btn" id="btnTimelineFull" aria-haspopup="dialog" aria-controls="timelineModal">
-                    Ver linha do tempo completa
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <button type="button" class="timeline-more-btn" id="btnTimelineToggle" aria-expanded="false" aria-controls="timelineFullWrap">
+                    <span>Ver linha do tempo completa</span>
+                    <svg class="timeline-toggle-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
             </div>
         </div>
     </section>
-
-    <!-- LINHA DO TEMPO — MODAL COM TODOS OS MARCOS -->
-    <div class="timeline-modal" id="timelineModal" hidden>
-        <div class="timeline-modal-backdrop" data-close-timeline></div>
-        <div class="timeline-modal-panel" role="dialog" aria-modal="true" aria-labelledby="timelineModalTitle">
-            <div class="timeline-modal-head">
-                <div>
-                    <span class="timeline-modal-eyebrow">Nossa História</span>
-                    <h3 id="timelineModalTitle">Linha do Tempo Completa</h3>
-                </div>
-                <button type="button" class="timeline-modal-close" id="timelineModalClose" aria-label="Fechar linha do tempo">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                </button>
-            </div>
-            <div class="timeline-modal-body">
-                <div class="timeline" id="timelineModalTrack"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- EVENTOS -->
     <section class="section section-eventos" id="secEventos">
