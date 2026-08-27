@@ -847,20 +847,25 @@ body {
 }
 
 /* ================================================================
-   POPUPS PERSONALIZADOS
+   CARD DO PONTO TURÍSTICO (popup do mapa)
+   Componente próprio, prefixo .pc-*, com estética de app nativo.
    ================================================================ */
+
+/* ── Casca do Leaflet ─────────────────────────────────────────── */
 .leaflet-popup-content-wrapper {
-    border-radius: 18px !important;
-    box-shadow: var(--shadow-card) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 24px 60px rgba(12, 32, 20, .28) !important;
     padding: 0 !important;
     overflow: hidden;
+    border: 1px solid rgba(20, 45, 30, .06);
 }
 
 .leaflet-popup-content {
     margin: 0 !important;
-    min-width: 300px !important;
-    max-width: 340px !important;
     width: auto !important;
+    /* Trava para não vazar em telas estreitas, mesmo com a largura
+       inline que o Leaflet calcula. */
+    max-width: min(340px, calc(100vw - 32px)) !important;
     font-family: var(--font-body);
 }
 
@@ -868,9 +873,8 @@ body {
     box-shadow: 0 3px 8px rgba(0, 0, 0, .1) !important;
 }
 
-/* Quando o conteúdo passa do maxHeight, o Leaflet adiciona esta classe.
-   Em vez de rolar o popup inteiro (o que empurrava os botões para fora),
-   a rolagem fica só no miolo: foto no topo e botões embaixo ficam fixos. */
+/* Conteúdo mais alto que o limite: a rolagem fica só no miolo, para a
+   capa e as ações permanecerem sempre visíveis. */
 .leaflet-popup-content.leaflet-popup-scrolled {
     padding: 0 !important;
     border-bottom: none !important;
@@ -879,295 +883,437 @@ body {
     flex-direction: column;
 }
 
-.leaflet-popup-scrolled .custom-popup-content {
+.leaflet-popup-scrolled .pc-card {
     flex: 1;
     min-height: 0;
 }
 
-.leaflet-popup-scrolled .popup-body {
+.leaflet-popup-scrolled .pc-body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-bottom: 14px;
 }
 
-.leaflet-popup-scrolled .popup-body::-webkit-scrollbar {
+.leaflet-popup-scrolled .pc-body::-webkit-scrollbar {
     width: 6px;
 }
 
-.leaflet-popup-scrolled .popup-body::-webkit-scrollbar-thumb {
+.leaflet-popup-scrolled .pc-body::-webkit-scrollbar-thumb {
     background: var(--grey-300);
     border-radius: 3px;
 }
 
-/* Fica sobre a foto, então precisa de fundo próprio para continuar legível */
+/* ── Botão de fechar: translúcido, sobreposto à capa ───────────── */
 .leaflet-popup-close-button {
-    width: 30px !important;
-    height: 30px !important;
-    font-size: 20px !important;
-    line-height: 28px !important;
-    text-align: center;
-    color: var(--grey-700) !important;
-    background: rgba(255, 255, 255, .92) !important;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px !important;
+    height: 40px !important;
+    right: 10px !important;
+    top: 10px !important;
     padding: 0 !important;
-    right: 8px !important;
-    top: 8px !important;
+    font: 0/0 a;
+    border-radius: 50%;
+    background: rgba(14, 30, 20, .46) !important;
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, .3);
+    color: transparent !important;
     z-index: 20;
-    transition: background .2s ease, color .2s ease;
+    transition: background .2s ease, transform .2s ease;
 }
+
+/* Glifo desenhado em CSS: o "×" do Leaflet não centraliza de forma
+   confiável entre navegadores. */
+.leaflet-popup-close-button::before,
+.leaflet-popup-close-button::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+    background: #fff;
+}
+
+.leaflet-popup-close-button::before { transform: rotate(45deg); }
+.leaflet-popup-close-button::after { transform: rotate(-45deg); }
 
 .leaflet-popup-close-button:hover {
-    color: var(--grey-900) !important;
-    background: white !important;
+    background: rgba(14, 30, 20, .68) !important;
+    transform: scale(1.06);
 }
 
-.custom-popup-content {
+.leaflet-popup-close-button:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
+}
+
+/* Alvo de toque confortável em telas sensíveis */
+@media (pointer: coarse) {
+    .leaflet-popup-close-button {
+        width: 44px !important;
+        height: 44px !important;
+    }
+}
+
+/* ── Estrutura do card ────────────────────────────────────────── */
+.pc-card {
     display: flex;
     flex-direction: column;
+    background: #fff;
+    color: var(--grey-900);
 }
 
-.popup-photo {
-    width: 100%;
-    height: 150px;
+/* ── Capa ─────────────────────────────────────────────────────── */
+.pc-media {
+    position: relative;
+    margin: 0;
+    height: 168px;
     flex-shrink: 0;
     overflow: hidden;
     background: linear-gradient(135deg, var(--green-100), var(--green-50));
-    position: relative;
 }
 
-.popup-photo img {
+.pc-media__img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.popup-body {
-    padding: 16px 18px 0;
+/* Véu no topo: garante contraste do botão de fechar sobre fotos claras */
+.pc-media::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 76px;
+    background: linear-gradient(180deg, rgba(8, 20, 13, .34), transparent);
+    pointer-events: none;
 }
 
-.popup-header {
-    margin-bottom: 10px;
+/* ── Corpo ────────────────────────────────────────────────────── */
+.pc-body {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.popup-header h3 {
-    margin: 0 0 8px;
+.pc-title {
+    margin: 0;
     font-family: var(--font-display);
     font-size: 18px;
     font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: -.01em;
     color: var(--grey-900);
-    line-height: 1.3;
 }
 
-.popup-category {
+/* Categoria e avaliação dividem a mesma linha */
+.pc-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pc-chip {
     display: inline-flex;
     align-items: center;
-    padding: 4px 12px;
+    padding: 4px 11px;
     border-radius: 999px;
     font-size: 10.5px;
-    font-weight: 700;
-    color: white;
+    font-weight: 800;
+    letter-spacing: .6px;
     text-transform: uppercase;
-    letter-spacing: .5px;
+    color: #fff;
+    white-space: nowrap;
 }
 
-.popup-rating {
-    display: flex;
+.pc-rating {
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
+    gap: 5px;
 }
 
-.popup-stars {
-    display: flex;
-    gap: 2px;
+.pc-rating__stars {
+    display: inline-flex;
+    gap: 1px;
 }
 
-.popup-stars svg {
-    width: 15px;
-    height: 15px;
+.pc-rating__stars svg {
+    width: 14px;
+    height: 14px;
 }
 
-.popup-rating-text {
+.pc-rating__value {
+    font-size: 13px;
     font-weight: 700;
     color: var(--grey-900);
-    font-size: 14px;
 }
 
-.popup-rating-count {
+.pc-rating__count {
+    font-size: 12px;
     color: var(--grey-400);
-    font-size: 12.5px;
 }
 
-.popup-tags {
+/* ── Tags livres ──────────────────────────────────────────────── */
+.pc-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-.popup-tag {
+.pc-tag {
     padding: 4px 10px;
-    background: var(--green-50);
-    color: var(--leaf-700);
     border-radius: 999px;
+    background: var(--green-50);
+    border: 1px solid var(--green-100);
+    color: var(--leaf-700);
     font-size: 11.5px;
     font-weight: 600;
 }
 
-.popup-description {
-    margin: 0 0 12px;
+.pc-desc {
+    margin: 0;
     font-size: 13.5px;
-    color: var(--grey-500);
     line-height: 1.6;
+    color: var(--grey-500);
 }
 
-.popup-info {
-    margin-top: 4px;
+/* ── Lista de informações ─────────────────────────────────────── */
+.pc-info {
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
     border-top: 1px solid var(--grey-200);
 }
 
-/* Cada dado numa "linha" própria, separadas por um traço leve — mesma
-   leitura tranquila do layout anterior. */
-.popup-info-item {
+.pc-info__item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 11px 0;
+    gap: 11px;
+    padding: 10px 0;
     font-size: 13.5px;
-    color: var(--grey-600);
     line-height: 1.45;
+    color: var(--grey-600);
     border-bottom: 1px solid var(--grey-100);
 }
 
-.popup-info-item:last-child {
+.pc-info__item:last-child {
     border-bottom: none;
+    padding-bottom: 0;
 }
 
-.popup-info-item svg,
-.popup-info-item .entrada-icon {
+.pc-info__item .pc-icon {
     width: 17px;
     height: 17px;
-    min-width: 17px;
-    color: var(--leaf-700);
     flex-shrink: 0;
     margin-top: 1px;
-}
-
-.popup-info-item a {
     color: var(--leaf-700);
-    font-weight: 600;
 }
 
-.popup-info-item a:hover {
-    text-decoration: underline;
-}
+.pc-info__item--free { color: var(--leaf-700); font-weight: 600; }
+.pc-info__item--free .pc-icon { color: var(--leaf-700); }
+.pc-info__item--paid { color: var(--clay-800); font-weight: 600; }
+.pc-info__item--paid .pc-icon { color: var(--clay-600); }
 
-.popup-actions {
+/* ── Ações ────────────────────────────────────────────────────── */
+.pc-actions {
     flex-shrink: 0;
-    padding: 12px 16px 14px;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
+    padding: 14px 18px 16px;
     background: var(--grey-100);
     border-top: 1px solid var(--grey-200);
 }
 
-.popup-btn {
-    padding: 9px 12px;
-    border-radius: 10px;
+/* Rotas lado a lado. minmax(0,1fr) — sem o 0 as colunas herdam o
+   min-content do botão e ficam desiguais. */
+.pc-routes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+/* Apoio: ocupa a linha inteira quando é um só, divide quando são dois */
+.pc-links {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+}
+
+.pc-links:has(> :nth-child(2)) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.pc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 0;
+    min-height: 44px;          /* alvo de toque */
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid transparent;
     font: inherit;
     font-size: 13px;
     font-weight: 700;
+    line-height: 1.2;
     text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    border: 1.5px solid transparent;
     cursor: pointer;
-    transition: all .2s ease;
+    transition: transform .18s ease, background .18s ease,
+                border-color .18s ease, box-shadow .18s ease, filter .18s ease;
 }
 
-.popup-btn svg {
+/* Nunca quebra em duas linhas: encurta com reticências se faltar espaço */
+.pc-btn span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pc-btn .pc-icon {
+    width: 17px;
+    height: 17px;
     flex-shrink: 0;
 }
 
-.popup-btn-primary {
+.pc-btn--primary {
     background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
-    color: white;
     border-color: var(--leaf-900);
     box-shadow: 0 6px 16px rgba(20, 92, 48, .24);
 }
 
-.popup-btn-primary:hover {
+.pc-btn--primary:hover {
     filter: brightness(1.06);
-    color: white;
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(20, 92, 48, .3);
+    box-shadow: 0 9px 22px rgba(20, 92, 48, .3);
 }
 
-.popup-btn-secondary {
-    background: white;
-    color: var(--grey-700);
+.pc-btn--secondary {
+    background: #fff;
     border-color: var(--grey-200);
 }
 
-.popup-btn-secondary:hover {
+.pc-btn--secondary:hover {
     border-color: var(--leaf-500);
-    color: var(--leaf-900);
     background: var(--green-50);
     transform: translateY(-1px);
 }
 
-.popup-btn-secondary svg {
-    color: var(--leaf-700);
-}
-
-/* Ação leve (Compartilhar): sem moldura, para não competir com as demais */
-.popup-btn-ghost {
+/* Apoio: contorno mais leve, para não competir com as rotas */
+.pc-btn--outline {
     background: transparent;
-    border-color: transparent;
-    color: var(--grey-500);
-    font-size: 12.5px;
-    padding: 6px 12px;
+    border-color: var(--grey-300);
+    font-weight: 600;
 }
 
-.popup-btn-ghost:hover {
-    color: var(--leaf-900);
+.pc-btn--outline:hover {
+    background: #fff;
+    border-color: var(--leaf-500);
+}
+
+/* Compartilhar: texto + ícone, sem peso de botão */
+.pc-share {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 8px 12px;
+    margin-top: 2px;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease;
+}
+
+.pc-share .pc-icon {
+    width: 15px;
+    height: 15px;
+}
+
+.pc-share:hover {
     background: var(--green-50);
 }
 
-/* O Leaflet define `.leaflet-container a { color: #0078A8 }` — especificidade
-   maior que a das classes acima, o que pintava os botões-link de azul.
-   Reafirmamos a cor com o mesmo prefixo em vez de recorrer a !important. */
-.leaflet-container .popup-btn-primary,
-.leaflet-container .popup-btn-primary:hover {
-    color: #ffffff;
+/* O Leaflet define `.leaflet-container a { color: #0078A8 }`, com
+   especificidade maior que a das classes acima — daí a reafirmação com
+   o mesmo prefixo, em vez de recorrer a !important. */
+.leaflet-container .pc-btn--primary,
+.leaflet-container .pc-btn--primary:hover {
+    color: #fff;
 }
 
-.leaflet-container .popup-btn-secondary {
+.leaflet-container .pc-btn--secondary {
     color: var(--grey-700);
 }
 
-.leaflet-container .popup-btn-secondary:hover {
+.leaflet-container .pc-btn--secondary:hover {
     color: var(--leaf-900);
 }
 
-.leaflet-container .popup-btn-ghost {
+.leaflet-container .pc-btn--secondary .pc-icon {
+    color: var(--leaf-700);
+}
+
+.leaflet-container .pc-btn--outline {
+    color: var(--grey-600);
+}
+
+.leaflet-container .pc-btn--outline:hover {
+    color: var(--leaf-900);
+}
+
+.leaflet-container .pc-share {
     color: var(--grey-500);
 }
 
-.leaflet-container .popup-btn-ghost:hover {
+.leaflet-container .pc-share:hover {
     color: var(--leaf-900);
 }
 
-.leaflet-container .popup-info-item a {
+.leaflet-container .pc-info__item a {
     color: var(--leaf-700);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.leaflet-container .pc-info__item a:hover {
+    text-decoration: underline;
+}
+
+/* Foco visível e consistente em todos os controles do card */
+.leaflet-container .pc-btn:focus-visible,
+.leaflet-container .pc-share:focus-visible,
+.leaflet-container .pc-info__item a:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
+}
+
+/* O card mede min(340px, 100vw - 32px): abaixo de 372px de viewport ele
+   encolhe e os rótulos começariam a ser cortados em duas colunas, então
+   as ações passam a ocupar a linha inteira. */
+@media (max-width: 371px) {
+    .pc-routes,
+    .pc-links,
+    .pc-links:has(> :nth-child(2)) {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 /* ================================================================
@@ -1271,8 +1417,11 @@ body {
     }
 
     .leaflet-popup-content {
-        min-width: 260px !important;
-        max-width: min(320px, calc(100vw - 48px)) !important;
+        max-width: min(320px, calc(100vw - 40px)) !important;
+    }
+
+    .pc-media {
+        height: 150px;
     }
 }
 
