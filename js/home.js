@@ -93,7 +93,7 @@ function setupVisitorMode(user) {
     setupAboutCarousel();
     setupRevealAnimations();
     renderTimeline();
-    setupTimelineModal();
+    setupTimelineToggle();
     renderCulturaViva();
     renderTestimonials();
 });
@@ -786,34 +786,38 @@ function setupAboutCarousel() {
 // ══════════════════════════════════════════
 
 const TIMELINE_DATA = [
-    { date: '~1800', title: 'Ocupação bandeirante', desc: 'Colonizadores portugueses — Capitão Antônio Amaral, Antonio Nunes Brigagão e o Coronel Agostinho — se estabelecem às margens do Ribeirão das Antas.', preview: true },
-    { date: '1800', title: 'Bom Jesus da Pedra Fria', desc: 'Patrício José Joaquim de Miranda traz a imagem do Senhor Bom Jesus da Pedra Fria. O povoado recebe seu primeiro nome.' },
-    { date: '~1850', title: 'Campo Místico', desc: 'O frade italiano Eugênio Maria de Gênova sugere "Bom Jesus do Campo Místico", logo abreviado para Campo Místico.' },
-    { date: '1º de julho de 1850', title: 'Distrito de Pouso Alegre', desc: 'Pela Lei Provincial nº 471, Campo Místico se torna distrito de Pouso Alegre.' },
-    { date: '23 de julho de 1864', title: 'Subordinado a Jaguari/Camanducaia', desc: 'A Lei Provincial nº 1.190 muda a subordinação administrativa do distrito.' },
-    { date: '4 de novembro de 1880', title: 'Transferido para Ouro Fino', desc: 'A Lei Provincial nº 2.658 vincula o distrito ao município de Ouro Fino.' },
-    { date: '17 de dezembro de 1938', title: 'Emancipação: nasce Bueno Brandão', desc: 'O Decreto-Lei nº 148 cria o município, rebatizado em homenagem ao ex-governador de Minas Gerais Júlio Bueno Brandão.', featured: true, preview: true },
-    { date: '2013', title: 'Monumento a Júlio Bueno Brandão', desc: 'Inaugurado na Praça Virgílio de Melo Franco, no centro da cidade.' },
-    { date: 'Hoje', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.', preview: true }
+    { date: '~1800', tag: 'Colonização', icon: '🧭', title: 'Ocupação bandeirante', desc: 'Colonizadores portugueses — Capitão Antônio Amaral, Antonio Nunes Brigagão e o Coronel Agostinho — se estabelecem às margens do Ribeirão das Antas.', preview: true },
+    { date: '1800', tag: 'Fé', icon: '⛪', title: 'Bom Jesus da Pedra Fria', desc: 'Patrício José Joaquim de Miranda traz a imagem do Senhor Bom Jesus da Pedra Fria. O povoado recebe seu primeiro nome.' },
+    { date: '~1850', tag: 'Novo Nome', icon: '📜', title: 'Campo Místico', desc: 'O frade italiano Eugênio Maria de Gênova sugere "Bom Jesus do Campo Místico", logo abreviado para Campo Místico.' },
+    { date: '1º de julho de 1850', tag: 'Administração', icon: '🏛️', title: 'Distrito de Pouso Alegre', desc: 'Pela Lei Provincial nº 471, Campo Místico se torna distrito de Pouso Alegre.' },
+    { date: '23 de julho de 1864', tag: 'Administração', icon: '🏛️', title: 'Subordinado a Jaguari/Camanducaia', desc: 'A Lei Provincial nº 1.190 muda a subordinação administrativa do distrito.' },
+    { date: '4 de novembro de 1880', tag: 'Administração', icon: '🏛️', title: 'Transferido para Ouro Fino', desc: 'A Lei Provincial nº 2.658 vincula o distrito ao município de Ouro Fino.' },
+    { date: '17 de dezembro de 1938', tag: 'Emancipação', icon: '🎉', title: 'Emancipação: nasce Bueno Brandão', desc: 'O Decreto-Lei nº 148 cria o município, rebatizado em homenagem ao ex-governador de Minas Gerais Júlio Bueno Brandão.', fact: 'O nome homenageado no decreto é o mesmo do monumento inaugurado décadas depois, em 2013.', featured: true, preview: true },
+    { date: '2013', tag: 'Marco Histórico', icon: '📍', title: 'Monumento a Júlio Bueno Brandão', desc: 'Inaugurado na Praça Virgílio de Melo Franco, no centro da cidade.' },
+    { date: 'Hoje', tag: 'Hoje', icon: '💧', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.', fact: 'Isso dá uma densidade de só ~31 habitantes por km² — uma cidade pequena, cercada de natureza.', preview: true }
 ];
 
 function buildTimelineItem(item) {
     const el = document.createElement('div');
     el.className = 'timeline-item' + (item.featured ? ' timeline-featured' : '');
     el.innerHTML = `
-        <span class="timeline-dot" aria-hidden="true"></span>
+        <span class="timeline-dot" aria-hidden="true">${item.icon || ''}</span>
         <div class="timeline-card">
-            <span class="timeline-date">${esc(item.date)}</span>
+            <div class="timeline-card-head">
+                <span class="timeline-date">${esc(item.date)}</span>
+                ${item.tag ? `<span class="timeline-tag">${esc(item.tag)}</span>` : ''}
+            </div>
             <h3 class="timeline-title">${esc(item.title)}</h3>
             <p class="timeline-desc">${esc(item.desc)}</p>
+            ${item.fact ? `<p class="timeline-fact"><span aria-hidden="true">💡</span> ${esc(item.fact)}</p>` : ''}
         </div>
     `;
     return el;
 }
 
 // Por padrão mostramos só 3 marcos (início, emancipação, hoje) para não
-// obrigar a rolar a página inteira. "Ver linha do tempo completa" abre
-// o modal com todos os marcos — ver setupTimelineModal().
+// obrigar a rolar a página inteira. "Ver linha do tempo completa" expande
+// a lista com todos os marcos direto na página — ver setupTimelineToggle().
 function renderTimeline() {
     const track = document.getElementById('timelineTrack');
     if (track) {
@@ -823,44 +827,86 @@ function renderTimeline() {
             observeReveal(el);
             track.appendChild(el);
         });
+        observeTimelineLine(track);
     }
 
-    const fullTrack = document.getElementById('timelineModalTrack');
-    if (fullTrack) {
-        fullTrack.innerHTML = '';
+    const full = document.getElementById('timelineFull');
+    if (full) {
+        full.innerHTML = '';
         TIMELINE_DATA.forEach(item => {
-            fullTrack.appendChild(buildTimelineItem(item));
+            full.appendChild(buildTimelineItem(item));
         });
     }
 }
 
-function setupTimelineModal() {
-    const modal = document.getElementById('timelineModal');
-    const openBtn = document.getElementById('btnTimelineFull');
-    const closeBtn = document.getElementById('timelineModalClose');
-    if (!modal || !openBtn) return;
+// Anima o traço vertical "desenhando" de cima para baixo quando a
+// seção entra na tela.
+let timelineLineObserver = null;
 
-    const openTimelineModal = () => {
-        modal.hidden = false;
-        document.body.classList.add('modal-open');
-        closeBtn?.focus();
+function observeTimelineLine(el) {
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) {
+        el.classList.add('timeline-line-visible');
+        return;
+    }
+    if (!timelineLineObserver) {
+        timelineLineObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('timeline-line-visible');
+                    timelineLineObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+    }
+    timelineLineObserver.observe(el);
+}
+
+// Expande/recolhe a lista completa direto na página (sem modal): o
+// resumo de 3 marcos some, a lista com os 9 marcos cresce no lugar,
+// com um leve efeito cascata em cada cartão.
+function setupTimelineToggle() {
+    const btn = document.getElementById('btnTimelineToggle');
+    const teaser = document.getElementById('timelineTrack');
+    const wrap = document.getElementById('timelineFullWrap');
+    const full = document.getElementById('timelineFull');
+    const label = btn?.querySelector('span');
+    if (!btn || !teaser || !wrap) return;
+
+    let expanded = false;
+
+    const expand = () => {
+        expanded = true;
+        teaser.classList.add('timeline-teaser-hidden');
+        full?.classList.add('timeline-line-visible');
+        wrap.style.maxHeight = wrap.scrollHeight + 'px';
+        wrap.classList.add('is-expanded');
+        btn.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+        if (label) label.textContent = 'Recolher linha do tempo';
     };
 
-    const closeTimelineModal = () => {
-        modal.hidden = true;
-        document.body.classList.remove('modal-open');
-        openBtn.focus();
+    const collapse = () => {
+        expanded = false;
+        wrap.style.maxHeight = wrap.scrollHeight + 'px';
+        // setTimeout (não requestAnimationFrame): só precisa de um tick para o
+        // navegador aplicar a altura travada antes de animar para 0.
+        setTimeout(() => {
+            wrap.classList.remove('is-expanded');
+            wrap.style.maxHeight = '0px';
+        }, 10);
+        teaser.classList.remove('timeline-teaser-hidden');
+        btn.classList.remove('is-expanded');
+        btn.setAttribute('aria-expanded', 'false');
+        if (label) label.textContent = 'Ver linha do tempo completa';
     };
 
-    openBtn.addEventListener('click', openTimelineModal);
-    closeBtn?.addEventListener('click', closeTimelineModal);
-
-    modal.querySelectorAll('[data-close-timeline]').forEach(el => {
-        el.addEventListener('click', closeTimelineModal);
+    btn.addEventListener('click', () => {
+        if (expanded) collapse(); else expand();
     });
 
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && !modal.hidden) closeTimelineModal();
+    window.addEventListener('resize', () => {
+        if (expanded) wrap.style.maxHeight = wrap.scrollHeight + 'px';
     });
 }
 

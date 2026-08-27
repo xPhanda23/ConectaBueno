@@ -6,10 +6,18 @@
     <meta name="theme-color" content="#2d5a3d">
     <meta name="description" content="Conecta Bueno - Mapa Cultural de Bueno Brandão, MG. Descubra espaços culturais, cachoeiras e pontos turísticos da Serra da Mantiqueira.">
     <title>Conecta Bueno - Mapa Cultural de Bueno Brandão, MG</title>
+    <link rel="icon" href=".." type="image/x-icon">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Estilos -->
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/shared-components.css">
@@ -25,12 +33,10 @@
     <header class="site-header" id="siteHeader">
         <div class="hd-inner">
             <a href="pages/home.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
-                <div class="hd-brand-icon" aria-hidden="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2C8.7 2 6 4.8 6 8C6 13 12 22 12 22S18 13 18 8C18 4.8 15.3 2 12 2Z" fill="white"/>
-                        <circle cx="12" cy="8" r="2.5" fill="rgba(255,255,255,0.4)"/>
-                    </svg>
-                </div>
+                <span class="hd-brand-seals">
+                    <img src="assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                    <img src="assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                </span>
                 <span class="hd-brand-name">Conecta Bueno</span>
             </a>
 
@@ -60,13 +66,13 @@
                         </div>
                     </div>
                     <div class="hd-dd-divider"></div>
-                    <a href="pages/home.html" class="hd-dd-item">Início</a>
-                    <a href="index.html" class="hd-dd-item">Mapa</a>
-                    <a href="pages/eventos.html" class="hd-dd-item">Eventos</a>
-                    <a href="pages/observatorio.html" class="hd-dd-item">Observatório</a>
-                    <a href="pages/panel.html" class="hd-dd-item" id="menuAdminPanel" style="display:none">Painel Admin</a>
+                    <a href="./pages/home.html"        class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="index.html"    class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="./pages/eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="./pages/observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <a href="./pages/panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
                     <div class="hd-dd-divider"></div>
-                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout">Sair</a>
+                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
                 </div>
             </div>
         </div>
@@ -151,6 +157,31 @@
                     </div>
                 </div>
 
+                <!-- Lista de Resultados -->
+                <div class="results-section">
+                    <div class="results-header">
+                        <h3>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <rect x="2" y="3" width="12" height="2" rx="1"/>
+                                <rect x="2" y="7" width="12" height="2" rx="1"/>
+                                <rect x="2" y="11" width="8" height="2" rx="1"/>
+                            </svg>
+                            Lugares
+                        </h3>
+                        <div class="sort-select-wrap">
+                            <select id="sortSelect" class="sort-select" aria-label="Ordenar lugares">
+                                <option value="nome">Nome (A-Z)</option>
+                                <option value="categoria">Categoria</option>
+                                <option value="distancia">Mais perto</option>
+                            </select>
+                            <svg class="sort-select-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                    </div>
+                    <div class="results-list" id="resultsList">
+                        <!-- Cartões de lugares carregados dinamicamente aqui -->
+                    </div>
+                </div>
+
                 <!-- Contador de Resultados -->
                 <div class="results-summary">
                     <div class="results-count" id="resultsCount">
@@ -169,18 +200,47 @@
             
             <!-- Map Controls -->
             <div class="map-controls">
-                <button class="map-control-btn" id="btnMyLocation" title="Minha localização">
+                <div class="map-control-group">
+                    <button class="map-control-btn" id="btnZoomIn" title="Aproximar" aria-label="Aproximar">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    <button class="map-control-btn" id="btnZoomOut" title="Afastar" aria-label="Afastar">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <button class="map-control-btn" id="btnMyLocation" title="Minha localização" aria-label="Minha localização">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
                         <path d="M10 2V5M10 15V18M18 10H15M5 10H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
                 </button>
-                <button class="map-control-btn" id="btnRecenter" title="Recentrar mapa">
+                <button class="map-control-btn" id="btnRecenter" title="Recentrar mapa" aria-label="Recentrar mapa">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M10 3C6.1 3 3 6.1 3 10C3 13.9 6.1 17 10 17C13.9 17 17 13.9 17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         <path d="M17 6V10H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
                 </button>
+                <button class="map-control-btn" id="btnFullscreen" title="Tela cheia" aria-label="Tela cheia">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 7V3H7M13 3H17V7M17 13V17H13M7 17H3V13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Legenda de Categorias -->
+            <div class="map-legend" id="mapLegend">
+                <button class="legend-toggle" id="btnLegendToggle" type="button" aria-expanded="false" aria-controls="legendContent">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2H15L10 8V13L6 15V8L1 2Z"/></svg>
+                    <span>Legenda</span>
+                    <svg class="legend-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="legend-content" id="legendContent" hidden>
+                    <!-- Itens da legenda carregados dinamicamente aqui -->
+                </div>
             </div>
         </div>
     </div>
@@ -209,7 +269,8 @@
 
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
     <!-- Script do Mapa -->
     <script src="js/map.js"></script>
 </body>
