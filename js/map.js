@@ -17,6 +17,11 @@ let activeCategory = 'todas';
 let searchQuery = '';
 let sortMode = 'nome';
 
+// Painel de detalhes do espaço (substitui o popup do Leaflet)
+let activeMarker = null;
+let currentDetailSpaceId = null;
+let detailReturnFocusEl = null;
+
 // Centro de Bueno Brandão
 const BUENO_CENTER = {
     lat: -22.4408,
@@ -253,14 +258,6 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.p
     });
     map.addLayer(markerClusterGroup);
 
-    // O Leaflet rotula o botão de fechar em inglês; traduzimos ao abrir.
-    map.on('popupopen', (event) => {
-        const closeBtn = event.popup.getElement()?.querySelector('.leaflet-popup-close-button');
-        if (!closeBtn) return;
-        closeBtn.setAttribute('aria-label', 'Fechar');
-        closeBtn.setAttribute('title', 'Fechar');
-    });
-
     setTimeout(() => { if (map) map.invalidateSize(); }, 100);
     setTimeout(() => { if (map) map.invalidateSize(); }, 400);
 
@@ -435,6 +432,7 @@ function applyFilters({ focusMap = true } = {}) {
     const sorted = sortSpaces(filtered, sortMode);
 
     renderSpaces(sorted);
+    reconcileDetailPanelWithFilters(sorted);
     renderResultsList(sorted);
     updateResultsCount(sorted.length);
     updateSidebarStats();
@@ -573,16 +571,7 @@ function createMarker(space) {
         })
     });
 
-    marker.bindPopup(createPopupContent(space), {
-        maxWidth: 340,
-        minWidth: 260,
-        // Clamp obrigatório: sem o piso, telas baixas (ou innerHeight ainda
-        // não medido) geram altura negativa e o Leaflet marca o popup como
-        // rolável sem aplicar limite nenhum.
-        maxHeight: Math.max(300, Math.min(540, window.innerHeight - 150)),
-        autoPanPadding: [24, 24],
-        className: 'custom-popup'
-    });
+    marker.on('click', () => openSpaceDetail(space, marker));
 
     markerClusterGroup.addLayer(marker);
     return marker;
@@ -616,10 +605,6 @@ function tidyText(value) {
         .trim();
 }
 
-function formatRating(value) {
-    return value.toFixed(1).replace('.', ',');
-}
-
 /** Monta o href de discagem; assume DDI brasileiro quando só há DDD + número. */
 function toTelHref(telefone) {
     const raw = String(telefone).replace(/[^\d+]/g, '');
@@ -642,25 +627,12 @@ function createPopupContent(space) {
         </figure>
     ` : '';
 
-    // ── Categoria + avaliação na mesma linha ────────────────────────
+    // ── Categoria ─────────────────────────────────────────────────
     const metaParts = [];
 
     if (space.categoria) {
         const color = categoryColors[space.categoria] || '#2d5a3d';
         metaParts.push(`<span class="pc-chip" style="background:${color}">${esc(tidyText(space.categoria))}</span>`);
-    }
-
-    // Só exibe avaliação se houver nota real gravada — nada de valor inventado.
-    if (Number.isFinite(space.rating)) {
-        const reviews = Number.isFinite(space.reviewCount) ? space.reviewCount : 0;
-        const label = `Avaliação ${formatRating(space.rating)} de 5${reviews ? `, ${reviews} avaliações` : ''}`;
-        metaParts.push(`
-            <span class="pc-rating" role="img" aria-label="${esc(label)}">
-                <span class="pc-rating__stars" aria-hidden="true">${generateStars(space.rating, space.id)}</span>
-                <span class="pc-rating__value">${formatRating(space.rating)}</span>
-                ${reviews ? `<span class="pc-rating__count">(${reviews})</span>` : ''}
-            </span>
-        `);
     }
 
     const metaHTML = metaParts.length ? `<div class="pc-meta">${metaParts.join('')}</div>` : '';
@@ -783,38 +755,6 @@ function createPopupContent(space) {
     `;
 }
 
-// `uid` evita ids duplicados no documento quando há mais de um card com
-// meia-estrela (ids repetidos quebram a referência do gradiente).
-function generateStars(rating, uid = '') {
-    const path = 'M9 2L11 7L16 7.5L12 11.5L13 17L9 14L5 17L6 11.5L2 7.5L7 7L9 2Z';
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    let starsHTML = '';
-
-    for (let i = 0; i < 5; i++) {
-        if (i < fullStars) {
-            starsHTML += `<svg viewBox="0 0 18 18" fill="#f5a524" focusable="false"><path d="${path}"/></svg>`;
-        } else if (i === fullStars && hasHalfStar) {
-            const gradId = `pc-half-${uid}-${i}`;
-            starsHTML += `
-                <svg viewBox="0 0 18 18" focusable="false">
-                    <defs>
-                        <linearGradient id="${esc(gradId)}">
-                            <stop offset="50%" stop-color="#f5a524"/>
-                            <stop offset="50%" stop-color="#dfe3e8"/>
-                        </linearGradient>
-                    </defs>
-                    <path fill="url(#${esc(gradId)})" d="${path}"/>
-                </svg>
-            `;
-        } else {
-            starsHTML += `<svg viewBox="0 0 18 18" fill="#dfe3e8" focusable="false"><path d="${path}"/></svg>`;
-        }
-    }
-
-    return starsHTML;
-}
-
 // Acha o marcador de um lugar com tolerância (evita o antigo bug de
 // comparar floats com === exato).
 function findMarkerForSpace(space) {
@@ -833,11 +773,179 @@ function focusOnSpace(space) {
         // zoomToShowLayer cuida de expandir o cluster até o marcador ficar visível
         markerClusterGroup.zoomToShowLayer(marker, () => {
             map.setView(marker.getLatLng(), Math.max(map.getZoom(), 16), { animate: true });
-            marker.openPopup();
+            openSpaceDetail(space, marker);
         });
     } else {
         map.setView([space.lat, space.lng], 16, { animate: true, duration: 1 });
     }
+}
+
+// ===================================
+// PAINEL DE DETALHES (substitui o popup do Leaflet)
+// Desacoplado do marcador: gaveta no mobile, painel lateral no desktop.
+// ===================================
+
+function isMobileDetailLayout() {
+    return window.innerWidth <= 1024;
+}
+
+function setActiveMarker(marker) {
+    if (activeMarker) {
+        const el = activeMarker.getElement();
+        if (el) el.classList.remove('marker-selected');
+    }
+    activeMarker = marker || null;
+    if (activeMarker) {
+        const el = activeMarker.getElement();
+        if (el) el.classList.add('marker-selected');
+    }
+}
+
+function renderDetailContent(space) {
+    const body = document.getElementById('sdBody');
+    if (body) body.innerHTML = createPopupContent(space);
+}
+
+// Evita o marcador clicado ficar escondido atrás do painel lateral no
+// desktop (o painel sobrepõe o mapa em vez de redimensioná-lo).
+function panMapForDesktopPanel(latlng) {
+    if (isMobileDetailLayout()) return;
+    const panel = document.getElementById('spaceDetail');
+    const panelWidth = panel ? panel.getBoundingClientRect().width : 420;
+    const point = map.latLngToContainerPoint(latlng);
+    const shifted = L.point(point.x - panelWidth / 2, point.y);
+    map.panTo(map.containerPointToLatLng(shifted), { animate: true });
+}
+
+function openSpaceDetail(space, marker) {
+    const panel = document.getElementById('spaceDetail');
+    const backdrop = document.getElementById('spaceDetailBackdrop');
+    if (!panel) return;
+
+    const wasClosed = !panel.classList.contains('is-open');
+
+    if (currentDetailSpaceId !== space.id) {
+        renderDetailContent(space);
+    }
+
+    panel.setAttribute('aria-labelledby', `pc-title-${space.id}`);
+    panel.removeAttribute('inert');
+    panel.setAttribute('aria-hidden', 'false');
+    panel.setAttribute('aria-modal', String(isMobileDetailLayout()));
+
+    if (isMobileDetailLayout() && backdrop) {
+        backdrop.hidden = false;
+        requestAnimationFrame(() => backdrop.classList.add('is-visible'));
+    }
+
+    panel.classList.add('is-open');
+    setActiveMarker(marker);
+    currentDetailSpaceId = space.id;
+    panMapForDesktopPanel(marker.getLatLng());
+
+    if (wasClosed) {
+        detailReturnFocusEl = document.activeElement;
+        document.getElementById('sdClose')?.focus({ preventScroll: true });
+    }
+}
+
+function closeSpaceDetail() {
+    const panel = document.getElementById('spaceDetail');
+    const backdrop = document.getElementById('spaceDetailBackdrop');
+    if (!panel || !panel.classList.contains('is-open')) return;
+
+    panel.classList.remove('is-open');
+    panel.setAttribute('aria-hidden', 'true');
+    panel.removeAttribute('aria-labelledby');
+
+    if (backdrop) {
+        backdrop.classList.remove('is-visible');
+        const hideBackdrop = () => { backdrop.hidden = true; };
+        backdrop.addEventListener('transitionend', hideBackdrop, { once: true });
+        setTimeout(hideBackdrop, 350);
+    }
+
+    const finalizeClose = () => panel.setAttribute('inert', '');
+    panel.addEventListener('transitionend', finalizeClose, { once: true });
+    setTimeout(finalizeClose, 400);
+
+    setActiveMarker(null);
+    currentDetailSpaceId = null;
+
+    if (detailReturnFocusEl && document.contains(detailReturnFocusEl)) {
+        detailReturnFocusEl.focus({ preventScroll: true });
+    } else {
+        document.getElementById('map')?.focus();
+    }
+    detailReturnFocusEl = null;
+}
+
+function handleDetailPanelKeydown(event) {
+    const panel = document.getElementById('spaceDetail');
+    if (!panel || !panel.classList.contains('is-open')) return;
+
+    if (event.key === 'Escape') {
+        closeSpaceDetail();
+        return;
+    }
+
+    // Foco preso dentro do painel só faz sentido no modo modal (mobile).
+    if (event.key !== 'Tab' || !isMobileDetailLayout()) return;
+
+    const focusable = Array.from(panel.querySelectorAll('a[href], button:not([disabled])'))
+        .filter(el => el.offsetParent !== null);
+    if (!focusable.length) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
+// Se a busca/filtro reconstrói os marcadores enquanto o painel está
+// aberto, o marcador antigo (agora destruído) fica órfão sem isto.
+function reconcileDetailPanelWithFilters(sortedSpaces) {
+    if (!currentDetailSpaceId) return;
+    const space = sortedSpaces.find(s => s.id === currentDetailSpaceId);
+    if (!space) {
+        closeSpaceDetail();
+        return;
+    }
+    const marker = findMarkerForSpace(space);
+    if (marker) setActiveMarker(marker);
+}
+
+function setupSpaceDetailPanel() {
+    const panel = document.getElementById('spaceDetail');
+    const backdrop = document.getElementById('spaceDetailBackdrop');
+    if (!panel) return;
+
+    document.getElementById('sdClose')?.addEventListener('click', closeSpaceDetail);
+    backdrop?.addEventListener('click', closeSpaceDetail);
+    document.addEventListener('keydown', handleDetailPanelKeydown);
+
+    let wasMobile = isMobileDetailLayout();
+    window.addEventListener('resize', () => {
+        if (!panel.classList.contains('is-open')) return;
+        const isMobile = isMobileDetailLayout();
+        if (isMobile === wasMobile) return;
+        wasMobile = isMobile;
+
+        panel.setAttribute('aria-modal', String(isMobile));
+        if (isMobile && backdrop) {
+            backdrop.hidden = false;
+            requestAnimationFrame(() => backdrop.classList.add('is-visible'));
+        } else if (backdrop) {
+            backdrop.classList.remove('is-visible');
+            setTimeout(() => { backdrop.hidden = true; }, 350);
+        }
+    });
 }
 
 // ===================================
@@ -879,13 +987,13 @@ async function shareSpace(id) {
     }
 }
 
-// Delegação: o conteúdo do popup é criado pelo Leaflet a cada abertura,
-// então um listener só no container cobre todos os cards.
+// Delegação: o conteúdo do painel é recriado a cada abertura, então um
+// listener só no container cobre todos os cards.
 function setupShareDelegation() {
-    const mapEl = document.getElementById('map');
-    if (!mapEl) return;
+    const panelEl = document.getElementById('spaceDetail');
+    if (!panelEl) return;
 
-    mapEl.addEventListener('click', (event) => {
+    panelEl.addEventListener('click', (event) => {
         const btn = event.target.closest('[data-share-id]');
         if (!btn) return;
         event.preventDefault();
@@ -1037,6 +1145,9 @@ function setupEventListeners() {
 
     // Legenda
     setupLegendToggle();
+
+    // Painel de detalhes do espaço (substitui o popup do Leaflet)
+    setupSpaceDetailPanel();
 
     // Compartilhar (delegado, cobre os cards criados sob demanda)
     setupShareDelegation();

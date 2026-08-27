@@ -224,6 +224,18 @@
                     <!-- Itens da legenda carregados dinamicamente aqui -->
                 </div>
             </div>
+
+            <!-- Painel de detalhes do espaço (substitui o popup do Leaflet) -->
+            <div id="spaceDetailBackdrop" class="sd-backdrop" hidden></div>
+            <aside id="spaceDetail" class="sd-panel" role="dialog" aria-modal="false" aria-hidden="true" tabindex="-1">
+                <span class="sd-handle" aria-hidden="true"></span>
+                <button type="button" class="sd-close" id="sdClose" aria-label="Fechar">
+                    <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" focusable="false">
+                        <path d="M4 4L14 14M14 4L4 14" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <div class="sd-body" id="sdBody"></div>
+            </aside>
         </div>
     </div>
 
