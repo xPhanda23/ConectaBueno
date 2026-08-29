@@ -317,9 +317,17 @@ body {
     cursor: pointer;
 }
 
-.hd-dd-item:hover { 
-    background: #f4faf7; 
-    color: #2d5a3d; 
+.hd-dd-item:hover {
+    background: #f4faf7;
+    color: #2d5a3d;
+}
+
+/* Marca o item correspondente à página atual (ex.: "Configurações"
+   quando já se está em settings.html). */
+.hd-dd-current {
+    background: #f4faf7;
+    color: #1f4d31;
+    font-weight: 700;
 }
 
 .hd-dd-item svg { 

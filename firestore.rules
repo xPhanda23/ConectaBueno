@@ -60,8 +60,8 @@ service cloud.firestore {
       // Admin pode atualizar qualquer usuário (inclusive promover a admin)
       allow update: if isAdmin();
 
-      // Deleção: apenas admin
-      allow delete: if isAdmin();
+      // Deleção: o próprio usuário (LGPD — "Excluir Conta" em Configurações) ou admin
+      allow delete: if isSelf(uid) || isAdmin();
 
       // Favoritos do próprio usuário (users/{uid}/favoritos/eventos).
       // As regras NÃO cascateiam para subcoleções: sem este bloco, ler e
