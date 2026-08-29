@@ -48,3 +48,12 @@ temp/
 # Testes
 coverage/
 .nyc_output/
+
+/.agents
+/.claude
+/.github
+/.kiro
+google2c99fbbdac9ef1b3.html
+skills-lock.json
+OBSERVATORIO-CULTURAL.md
+firestore.rules

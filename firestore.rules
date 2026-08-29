@@ -62,6 +62,13 @@ service cloud.firestore {
 
       // Deleção: apenas admin
       allow delete: if isAdmin();
+
+      // Favoritos do próprio usuário (users/{uid}/favoritos/eventos).
+      // As regras NÃO cascateiam para subcoleções: sem este bloco, ler e
+      // gravar favoritos caía na regra de fallback e era negado.
+      match /favoritos/{docId} {
+        allow read, write: if isSelf(uid);
+      }
     }
 
     // ── Eventos ───────────────────────────────────────────────
@@ -74,6 +81,19 @@ service cloud.firestore {
       allow create: if isAdmin();
       allow update: if isAdmin();
       allow delete: if isAdmin();
+
+      // Qualquer autenticado pode ajustar SOMENTE o contador de presenças
+      // (o incremento vem do botão "🔥" da agenda).
+      allow update: if isAuth() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presencasCount']);
+
+      // Confirmações de presença (eventos/{id}/presencas/{uid}).
+      // Cada usuário cria e remove apenas a própria presença.
+      match /presencas/{uid} {
+        allow read: if isAuth();
+        allow create, delete: if isSelf(uid);
+        allow update: if false;
+      }
     }
 
     // Compatibilidade com nome antigo
@@ -85,6 +105,19 @@ service cloud.firestore {
       allow create: if isAdmin();
       allow update: if isAdmin();
       allow delete: if isAdmin();
+
+      // Qualquer autenticado pode ajustar SOMENTE o contador de presenças
+      // (o incremento vem do botão "🔥" da agenda).
+      allow update: if isAuth() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presencasCount']);
+
+      // Confirmações de presença (eventos/{id}/presencas/{uid}).
+      // Cada usuário cria e remove apenas a própria presença.
+      match /presencas/{uid} {
+        allow read: if isAuth();
+        allow create, delete: if isSelf(uid);
+        allow update: if false;
+      }
     }
 
     // ── Espaços / Lugares ─────────────────────────────────────

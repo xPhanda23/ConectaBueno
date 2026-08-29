@@ -535,15 +535,18 @@ body {
     .a11y-menu { animation: none; }
 }
 
-/* Layout para garantir footer sempre no fundo */
-html, body {
+/* Layout para garantir footer sempre no fundo.
+   ATENCAO: o body precisa poder crescer com o conteudo. Fixar
+   `height: 100%` aqui trava a caixa do body na altura da viewport e
+   quebra todo `position: sticky` dos filhos (barra de filtros, sidebar). */
+html {
     height: 100%;
 }
 
 body {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100%;
 }
 
 main {
