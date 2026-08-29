@@ -82,16 +82,16 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
 
-      // Qualquer autenticado pode ajustar SOMENTE o contador de presenças
-      // (o incremento vem do botão "🔥" da agenda).
-      allow update: if isAuth() &&
+      // Somente conta permanente (não anônima) pode ajustar o contador de
+      // presenças (o incremento vem do botão "🔥" da agenda).
+      allow update: if isRegistered() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presencasCount']);
 
       // Confirmações de presença (eventos/{id}/presencas/{uid}).
-      // Cada usuário cria e remove apenas a própria presença.
+      // Exige conta permanente: visitante anônimo não pode confirmar presença.
       match /presencas/{uid} {
         allow read: if isAuth();
-        allow create, delete: if isSelf(uid);
+        allow create, delete: if isSelf(uid) && isRegistered();
         allow update: if false;
       }
     }
@@ -106,16 +106,16 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
 
-      // Qualquer autenticado pode ajustar SOMENTE o contador de presenças
-      // (o incremento vem do botão "🔥" da agenda).
-      allow update: if isAuth() &&
+      // Somente conta permanente (não anônima) pode ajustar o contador de
+      // presenças (o incremento vem do botão "🔥" da agenda).
+      allow update: if isRegistered() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presencasCount']);
 
       // Confirmações de presença (eventos/{id}/presencas/{uid}).
-      // Cada usuário cria e remove apenas a própria presença.
+      // Exige conta permanente: visitante anônimo não pode confirmar presença.
       match /presencas/{uid} {
         allow read: if isAuth();
-        allow create, delete: if isSelf(uid);
+        allow create, delete: if isSelf(uid) && isRegistered();
         allow update: if false;
       }
     }

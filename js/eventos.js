@@ -857,6 +857,7 @@ function buildCard(ev, topEvent) {
         rsvpBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (!currentUser) { window.location.href = 'login.html'; return; }
+            if (!requireAccount('Confirmar presença')) return;
 
             const evtId   = rsvpBtn.dataset.evtId;
             const docRef  = db.collection('eventos').doc(evtId);

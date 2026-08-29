@@ -155,15 +155,15 @@ function updateSectionTitle(sectionName) {
     const titles = {
         'visao-geral': {
             title: 'Visão Geral',
-            subtitle: 'Estatísticas e indicadores culturais em tempo real'
+            subtitle: 'Um resumo de tudo, atualizado em tempo real'
         },
         'territorio': {
             title: 'Distribuição Territorial',
-            subtitle: 'Análise geográfica dos equipamentos culturais'
+            subtitle: 'Onde os espaços culturais estão na cidade'
         },
         'equidade': {
             title: 'Equidade e Inclusão',
-            subtitle: 'Barreiras econômicas e de acessibilidade'
+            subtitle: 'Quem consegue participar e quem fica de fora'
         },
         'consumo': {
             title: 'Perfil de Consumo',
@@ -171,7 +171,7 @@ function updateSectionTitle(sectionName) {
         },
         'metodologia': {
             title: 'Metodologia',
-            subtitle: 'Fundamentação científica e fontes de dados'
+            subtitle: 'De onde vêm os números que você vê aqui'
         },
         'ods': {
             title: 'ODS e Impacto',
