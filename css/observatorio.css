@@ -93,7 +93,7 @@ h1, h2, h3, h4, h5, h6 {
     border: none;
     border-radius: 10px;
     color: #666;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -132,7 +132,7 @@ h1, h2, h3, h4, h5, h6 {
     border: 1px solid #e0e0e0;
     border-radius: 10px;
     color: var(--verde-floresta);
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -163,14 +163,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .content-header h2 {
-    font-size: 28px;
+    font-size: calc(28px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
     margin: 0 0 6px 0;
 }
 
 .content-header p {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #666;
     margin: 0;
 }
@@ -247,20 +247,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stat-label {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #666;
     font-weight: 500;
 }
 
 .stat-value {
     font-family: var(--font-display);
-    font-size: 28px;
+    font-size: calc(28px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
 }
 
 .stat-description {
-    font-size: 12px;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
     color: #999;
 }
 
@@ -287,14 +287,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .info-card-header h3 {
-    font-size: 20px;
+    font-size: calc(20px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
     margin: 0;
 }
 
 .info-card-body p {
-    font-size: 15px;
+    font-size: calc(15px * var(--a11y-text-scale, 1));
     line-height: 1.7;
     color: #666;
     margin-bottom: 16px;
@@ -316,14 +316,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .highlight-item strong {
     display: block;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .highlight-item span {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #666;
 }
 
@@ -350,20 +350,20 @@ h1, h2, h3, h4, h5, h6 {
     background: var(--verde-suave);
     border-radius: 8px;
     color: var(--verde-floresta);
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     font-weight: 600;
     margin-bottom: 12px;
 }
 
 .analysis-header h3 {
-    font-size: 22px;
+    font-size: calc(22px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
     margin: 0 0 6px 0;
 }
 
 .analysis-header p {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #666;
     margin: 0;
 }
@@ -385,14 +385,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .doc-section h4 {
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: var(--verde-floresta);
     margin: 0 0 12px 0;
 }
 
 .doc-section p {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     line-height: 1.7;
     color: #666;
     margin: 0;
@@ -404,7 +404,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .doc-section li {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     line-height: 1.7;
     color: #666;
     margin-bottom: 8px;
@@ -415,7 +415,7 @@ h1, h2, h3, h4, h5, h6 {
     padding: 2px 6px;
     border-radius: 4px;
     font-family: 'Courier New', monospace;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
 }
 
@@ -437,14 +437,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .data-item strong {
     display: block;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
     margin-bottom: 6px;
 }
 
 .data-item p {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #666;
     margin: 0;
 }
@@ -467,7 +467,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .chart-title {
-    font-size: 15px;
+    font-size: calc(15px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: var(--verde-floresta);
     margin: 0 0 16px 0;
@@ -505,14 +505,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .empty-state p {
-    font-size: 15px;
+    font-size: calc(15px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: #666;
     margin: 0;
 }
 
 .empty-state span {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #999;
 }
 
@@ -540,14 +540,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .methodology-header h3 {
-    font-size: 24px;
+    font-size: calc(24px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
     margin: 0;
 }
 
 .methodology-header p {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #666;
     margin: 4px 0 0 0;
 }
@@ -587,7 +587,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .source-icon {
     grid-area: icon;
-    font-size: 32px;
+    font-size: calc(32px * var(--a11y-text-scale, 1));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -599,14 +599,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .source-content strong {
     display: block;
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 700;
     margin-bottom: 4px;
 }
 
 .source-content p {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #666;
     margin: 0 0 8px 0;
 }
@@ -616,14 +616,14 @@ h1, h2, h3, h4, h5, h6 {
     padding: 4px 10px;
     background: white;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: calc(11px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: var(--verde-floresta);
 }
 
 .source-description {
     grid-area: desc;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     line-height: 1.6;
     color: #666;
 }
@@ -634,7 +634,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     padding: 16px;
     font-family: 'Courier New', monospace;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #333;
     margin-top: 12px;
 }
@@ -656,14 +656,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .alert-box strong {
     display: block;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #856404;
     font-weight: 600;
     margin-bottom: 6px;
 }
 
 .alert-box p {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     line-height: 1.6;
     color: #856404;
     margin: 0;
@@ -691,13 +691,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ods-intro-header h3 {
-    font-size: 24px;
+    font-size: calc(24px * var(--a11y-text-scale, 1));
     font-weight: 700;
     margin: 0 0 6px 0;
 }
 
 .ods-intro-header p {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     opacity: 0.95;
     margin: 0;
 }
@@ -733,20 +733,20 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 28px;
+    font-size: calc(28px * var(--a11y-text-scale, 1));
     font-weight: 700;
     flex-shrink: 0;
 }
 
 .ods-info h4 {
-    font-size: 20px;
+    font-size: calc(20px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
     margin: 0 0 4px 0;
 }
 
 .ods-subtitle {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #666;
     font-style: italic;
     margin: 0;
@@ -757,7 +757,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ods-card-body h5 {
-    font-size: 15px;
+    font-size: calc(15px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: var(--verde-floresta);
     margin: 0 0 12px 0;
@@ -769,7 +769,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ods-card-body li {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     line-height: 1.7;
     color: #666;
     margin-bottom: 8px;
@@ -784,13 +784,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ods-meta strong {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
 }
 
 .ods-meta {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     line-height: 1.6;
     color: #666;
 }
@@ -803,14 +803,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .impact-summary h4 {
-    font-size: 18px;
+    font-size: calc(18px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--verde-floresta);
     margin: 0 0 12px 0;
 }
 
 .impact-summary > p {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     line-height: 1.7;
     color: #666;
     margin-bottom: 20px;
@@ -831,14 +831,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .impact-item strong {
     display: block;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
     margin-bottom: 6px;
 }
 
 .impact-item span {
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #666;
 }
 
@@ -935,7 +935,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .toast-message {
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 500;
     color: #333;
 }
@@ -987,7 +987,7 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .content-header h2 {
-        font-size: 24px;
+        font-size: calc(24px * var(--a11y-text-scale, 1));
     }
     
     .stats-overview {
@@ -1000,7 +1000,7 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .stat-value {
-        font-size: 24px;
+        font-size: calc(24px * var(--a11y-text-scale, 1));
     }
     
     .info-card,
@@ -1038,14 +1038,14 @@ h1, h2, h3, h4, h5, h6 {
     .ods-number-large {
         width: 56px;
         height: 56px;
-        font-size: 24px;
+        font-size: calc(24px * var(--a11y-text-scale, 1));
     }
 }
 
 @media (max-width: 480px) {
     .nav-item {
         padding: 10px 14px;
-        font-size: 13px;
+        font-size: calc(13px * var(--a11y-text-scale, 1));
     }
     
     .admin-main {
@@ -1053,11 +1053,11 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .content-header h2 {
-        font-size: 20px;
+        font-size: calc(20px * var(--a11y-text-scale, 1));
     }
     
     .content-header p {
-        font-size: 13px;
+        font-size: calc(13px * var(--a11y-text-scale, 1));
     }
     
     .stat-card {
@@ -1071,15 +1071,15 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .stat-label {
-        font-size: 12px;
+        font-size: calc(12px * var(--a11y-text-scale, 1));
     }
     
     .stat-value {
-        font-size: 20px;
+        font-size: calc(20px * var(--a11y-text-scale, 1));
     }
     
     .stat-description {
-        font-size: 11px;
+        font-size: calc(11px * var(--a11y-text-scale, 1));
     }
     
     .info-card,
@@ -1090,7 +1090,7 @@ h1, h2, h3, h4, h5, h6 {
     
     .info-card-header h3,
     .analysis-header h3 {
-        font-size: 18px;
+        font-size: calc(18px * var(--a11y-text-scale, 1));
     }
     
     .doc-section {
@@ -1098,12 +1098,12 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .doc-section h4 {
-        font-size: 15px;
+        font-size: calc(15px * var(--a11y-text-scale, 1));
     }
     
     .doc-section p,
     .doc-section li {
-        font-size: 13px;
+        font-size: calc(13px * var(--a11y-text-scale, 1));
     }
     
     .chart-wrapper {
@@ -1117,7 +1117,7 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .source-icon {
-        font-size: 24px;
+        font-size: calc(24px * var(--a11y-text-scale, 1));
     }
     
     .ods-intro-card {
@@ -1131,7 +1131,7 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .ods-intro-header h3 {
-        font-size: 20px;
+        font-size: calc(20px * var(--a11y-text-scale, 1));
     }
     
     .ods-card-header {
@@ -1145,11 +1145,11 @@ h1, h2, h3, h4, h5, h6 {
     .ods-number-large {
         width: 48px;
         height: 48px;
-        font-size: 20px;
+        font-size: calc(20px * var(--a11y-text-scale, 1));
     }
     
     .ods-info h4 {
-        font-size: 18px;
+        font-size: calc(18px * var(--a11y-text-scale, 1));
     }
 }
 
@@ -1182,7 +1182,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Responsive */
 @media (max-width: 768px) {
     .nav-item-home {
-        font-size: 13px;
+        font-size: calc(13px * var(--a11y-text-scale, 1));
         padding: 10px 14px;
     }
 

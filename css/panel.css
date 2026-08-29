@@ -54,7 +54,7 @@ body {
 
 .loading-overlay p {
     margin-top: 20px;
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
     opacity: 0.9;
 }
 
@@ -103,14 +103,14 @@ body {
 
 .brand-logo h1 {
     margin: 0;
-    font-size: 18px;
+    font-size: calc(18px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .brand-logo span {
     display: block;
-    font-size: 12px;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
     color: #888;
     font-weight: 500;
 }
@@ -131,7 +131,7 @@ body {
     border: none;
     border-radius: 10px;
     color: #555;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -179,7 +179,7 @@ body {
     gap: 8px;
     padding: 10px 16px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -267,7 +267,7 @@ body {
 
 .admin-header h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: calc(24px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
@@ -297,7 +297,7 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     position: relative;
     overflow: hidden;
 }
@@ -314,14 +314,14 @@ body {
 
 .user-info-small strong {
     display: block;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #1a1a1a;
     font-weight: 600;
 }
 
 .user-info-small span {
     display: block;
-    font-size: 12px;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
@@ -359,14 +359,14 @@ body {
 
 .section-header h3 {
     margin: 0 0 4px 0;
-    font-size: 20px;
+    font-size: calc(20px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .section-header p {
     margin: 0;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
@@ -428,14 +428,14 @@ body {
 
 .stat-info h3 {
     margin: 0 0 4px 0;
-    font-size: 28px;
+    font-size: calc(28px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .stat-info p {
     margin: 0;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
@@ -457,13 +457,13 @@ body {
 
 .welcome-card h3 {
     margin: 0 0 12px 0;
-    font-size: 24px;
+    font-size: calc(24px * var(--a11y-text-scale, 1));
     font-weight: 700;
 }
 
 .welcome-card p {
     margin: 0 0 24px 0;
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
     opacity: 0.9;
 }
 
@@ -481,7 +481,7 @@ body {
 .btn {
     padding: 10px 20px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 600;
     border: none;
     cursor: pointer;
@@ -524,7 +524,7 @@ body {
 
 .btn-sm {
     padding: 6px 12px;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
 }
 
 /* ===================================
@@ -550,7 +550,7 @@ body {
 .data-table th {
     padding: 16px;
     text-align: left;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #555;
     text-transform: uppercase;
@@ -560,7 +560,7 @@ body {
 .data-table td {
     padding: 16px;
     border-top: 1px solid #e0e4e9;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #333;
 }
 
@@ -587,7 +587,7 @@ body {
     display: inline-block;
     padding: 4px 12px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -658,14 +658,14 @@ body {
 
 .setting-header h4 {
     margin: 0 0 4px 0;
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .setting-header p {
     margin: 0;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
@@ -684,7 +684,7 @@ body {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: #333;
 }
@@ -694,7 +694,7 @@ body {
     padding: 10px 14px;
     border: 2px solid #e0e4e9;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #333;
     transition: all 0.2s ease;
     font-family: inherit;
@@ -797,19 +797,19 @@ select.form-control {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: calc(32px * var(--a11y-text-scale, 1));
 }
 
 .category-card h4 {
     margin: 0 0 8px 0;
-    font-size: 16px;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
 
 .category-card p {
     margin: 0;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
@@ -862,7 +862,7 @@ select.form-control {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: calc(18px * var(--a11y-text-scale, 1));
     flex-shrink: 0;
 }
 
@@ -888,7 +888,7 @@ select.form-control {
 
 .log-content strong {
     display: block;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 4px;
@@ -896,12 +896,12 @@ select.form-control {
 
 .log-content p {
     margin: 0;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
 .log-time {
-    font-size: 12px;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
     color: #aaa;
     flex-shrink: 0;
 }
@@ -985,7 +985,7 @@ select.form-control {
 
 .modal-header h3 {
     margin: 0;
-    font-size: 20px;
+    font-size: calc(20px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: #1a1a1a;
 }
@@ -993,7 +993,7 @@ select.form-control {
 .btn-close {
     background: none;
     border: none;
-    font-size: 28px;
+    font-size: calc(28px * var(--a11y-text-scale, 1));
     color: #888;
     cursor: pointer;
     padding: 0;
@@ -1029,7 +1029,7 @@ select.form-control {
 .map-picker label {
     display: block;
     margin-bottom: 12px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     font-weight: 600;
     color: #333;
 }
@@ -1048,7 +1048,7 @@ select.form-control {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
 }
 
 .coord-item strong {
@@ -1064,7 +1064,7 @@ select.form-control {
 
 .help-text {
     margin-top: 8px;
-    font-size: 13px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
     color: #888;
 }
 
@@ -1072,7 +1072,7 @@ select.form-control {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #333;
     cursor: pointer;
 }
@@ -1133,12 +1133,12 @@ select.form-control {
 }
 
 .toast-icon {
-    font-size: 20px;
+    font-size: calc(20px * var(--a11y-text-scale, 1));
 }
 
 .toast-message {
     flex: 1;
-    font-size: 14px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
     color: #333;
 }
 
@@ -1178,7 +1178,7 @@ select.form-control {
     }
     
     .admin-header h2 {
-        font-size: 20px;
+        font-size: calc(20px * var(--a11y-text-scale, 1));
     }
     
     .stats-grid {
@@ -1232,7 +1232,7 @@ select.form-control {
 /* Responsive */
 @media (max-width: 768px) {
     .nav-item-home {
-        font-size: 13px;
+        font-size: calc(13px * var(--a11y-text-scale, 1));
         padding: 10px 14px;
     }
 

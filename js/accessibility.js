@@ -110,8 +110,16 @@
         return false;
     }
 
+    // A escala é aplicada via variável CSS (--a11y-text-scale), multiplicada
+    // dentro de cada `font-size: calc(...)` do site (ver css/*.css). Mudar
+    // diretamente o font-size do <html> só afeta unidades rem/em — e quase
+    // todo o CSS do site usa px, então o texto das páginas mal mudava de
+    // tamanho enquanto o próprio menu de acessibilidade (que usa rem)
+    // disparava junto. A variável CSS resolve isso sem depender da unidade
+    // usada em cada regra, e o menu (accessibility.css) fica de fora de
+    // propósito, com tamanho fixo e estável.
     function applyTextSize() {
-        document.documentElement.style.fontSize = `${state.textSize}px`;
+        document.documentElement.style.setProperty('--a11y-text-scale', state.textSize / DEFAULT_TEXT_SIZE);
     }
 
     function updateVideoPlayback() {
