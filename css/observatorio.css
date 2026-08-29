@@ -628,6 +628,33 @@ h1, h2, h3, h4, h5, h6 {
     color: #666;
 }
 
+.source-description .source-stat {
+    display: block;
+    margin-top: 10px;
+    color: var(--verde-floresta);
+    font-weight: 600;
+}
+
+.source-link {
+    display: block;
+    margin-top: 10px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    font-weight: 600;
+    color: var(--verde-folha);
+    text-decoration: none;
+}
+
+.source-link:hover {
+    color: var(--verde-floresta);
+    text-decoration: underline;
+}
+
+.source-link:focus-visible {
+    outline: 2px solid var(--verde-floresta);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
 .code-block {
     background: #fff;
     border: 1px solid #e0e0e0;
@@ -702,6 +729,42 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0;
 }
 
+.ods-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.ods-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px 6px 8px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 100px;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    font-weight: 600;
+    color: white;
+}
+
+.ods-badge b {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    font-size: calc(11px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+}
+
+.ods-badge--4 b  { color: #C5192D; }
+.ods-badge--10 b { color: #DD1367; }
+.ods-badge--11 b { color: #FD9D24; }
+
 .ods-grid {
     display: grid;
     gap: 24px;
@@ -713,6 +776,19 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid var(--ods-accent, var(--verde-folha));
+}
+
+/* Cores oficiais da ONU para cada ODS — usadas como destaque pontual,
+   sem abrir mão da identidade verde do restante do site */
+.ods-card--4  { --ods-accent: #C5192D; }
+.ods-card--10 { --ods-accent: #DD1367; }
+.ods-card--11 { --ods-accent: #FD9D24; }
+
+.ods-card--4  .ods-number-large,
+.ods-card--10 .ods-number-large,
+.ods-card--11 .ods-number-large {
+    background: var(--ods-accent);
 }
 
 .ods-card-header {
@@ -793,6 +869,72 @@ h1, h2, h3, h4, h5, h6 {
     font-size: calc(13px * var(--a11y-text-scale, 1));
     line-height: 1.6;
     color: #666;
+}
+
+/* ===================================
+   ODS — DADOS DE REFERÊNCIA EXTERNOS
+   (IBGE, DataViva etc. — contexto nacional,
+   não dados de Bueno Brandão)
+=================================== */
+.ods-databox {
+    margin-top: 16px;
+    padding: 16px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-left: 3px solid var(--ods-accent, var(--verde-folha));
+    border-radius: 8px;
+}
+
+.ods-databox-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ods-accent, var(--verde-folha));
+    margin-bottom: 8px;
+}
+
+.ods-databox-header svg {
+    flex-shrink: 0;
+}
+
+.ods-databox-header span {
+    font-size: calc(11px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.ods-databox-stat {
+    font-size: calc(16px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--verde-floresta);
+    line-height: 1.4;
+    margin: 0 0 6px 0;
+}
+
+.ods-databox-text {
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    line-height: 1.6;
+    color: #666;
+    margin: 0 0 10px 0;
+}
+
+.ods-databox-source {
+    display: inline-block;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    font-weight: 600;
+    color: var(--ods-accent, var(--verde-folha));
+    text-decoration: none;
+}
+
+.ods-databox-source:hover {
+    text-decoration: underline;
+}
+
+.ods-databox-source:focus-visible {
+    outline: 2px solid var(--verde-floresta);
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 .impact-summary {
