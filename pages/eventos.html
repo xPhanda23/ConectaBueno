@@ -6,11 +6,19 @@
     <meta name="theme-color" content="#2d5a3d">
     <meta name="description" content="Agenda Cultural de Bueno Brandão — Eventos, festas e festividades da Serra da Mantiqueira.">
     <title>Agenda Cultural — Conecta Bueno</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/eventos.css">
 </head>
 <body>
+
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner"></div>
+        <span>Carregando…</span>
+    </div>
 
     <!-- ═══════════════════════════
          HEADER
@@ -19,12 +27,10 @@
         <div class="hd-inner">
 
             <a href="home.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
-                <div class="hd-brand-icon" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <path d="M11 2C8.2 2 5.5 4.5 5.5 7.5C5.5 12 11 20 11 20S16.5 12 16.5 7.5C16.5 4.5 13.8 2 11 2Z" fill="white"/>
-                        <circle cx="11" cy="7.5" r="2" fill="rgba(255,255,255,0.4)"/>
-                    </svg>
-                </div>
+                <span class="hd-brand-seals">
+                    <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                    <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                </span>
                 <span class="hd-brand-name">Conecta Bueno</span>
             </a>
 
@@ -71,34 +77,52 @@
          HERO
          ═══════════════════════════ -->
     <section class="ev-hero">
-        <div class="ev-hero-inner">
+        <video class="ev-hero-video" autoplay muted loop playsinline>
+            <source src="../assets/home.mp4" type="video/mp4">
+        </video>
+        <div class="ev-hero-overlay"></div>
+
+        <div class="ev-hero-content">
             <span class="ev-eyebrow">Bueno Brandão · Serra da Mantiqueira</span>
 
-            <h1>Agenda Cultural</h1>
+            <h1 class="ev-hero-title">Agenda Cultural</h1>
 
-            <p>Festas, shows, feiras e festividades que movimentam a cidade</p>
+            <p class="ev-hero-subtitle">Festas, shows, feiras e festividades que movimentam a cidade</p>
 
-            <div class="ev-hero-summary" aria-live="polite">
-                <div class="ev-summary-header">
-                    <span class="ev-summary-kicker">Agenda em destaque</span>
-                    <span class="ev-summary-pill" id="heroAgendaPill">Neste mês</span>
-                </div>
-
-                <div class="ev-summary-grid">
-                    <div class="ev-summary-metric">
-                        <strong id="heroAgendaValue">—</strong>
-                        <span id="heroAgendaLabel">eventos em agenda</span>
-                    </div>
-                    <div class="ev-summary-metric ev-summary-metric-alt">
-                        <strong id="heroAgendaCountdown">—</strong>
-                        <span>próximo evento</span>
-                    </div>
-                </div>
-
-                <div class="ev-summary-meta" id="heroAgendaMeta">Próximo destaque em preparação</div>
+            <div class="ev-hero-actions">
+                <button type="button" class="ev-hero-btn ev-hero-btn-primary" id="heroSearchBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M11 11l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <span>Buscar evento</span>
+                </button>
+                <button type="button" class="ev-hero-btn ev-hero-btn-secondary" id="heroSeeAgendaBtn">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <rect x="2" y="3" width="12" height="11" rx="1.8" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M5 1.5v3M11 1.5v3M2 6.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                    <span>Ver agenda completa</span>
+                </button>
             </div>
         </div>
     </section>
+
+    <!-- Faixa discreta com os números da agenda, logo abaixo do hero -->
+    <div class="ev-agenda-strip" aria-live="polite">
+        <div class="ev-agenda-strip-inner">
+            <div class="ev-agenda-stat">
+                <strong id="heroAgendaValue">—</strong>
+                <span id="heroAgendaLabel">eventos em agenda</span>
+            </div>
+            <div class="ev-agenda-stat">
+                <strong id="heroAgendaCountdown">—</strong>
+                <span>próximo evento</span>
+            </div>
+            <span class="ev-summary-pill" id="heroAgendaPill">Neste mês</span>
+        </div>
+        <div class="ev-agenda-strip-meta" id="heroAgendaMeta">Próximo destaque em preparação</div>
+    </div>
 
     <!-- ═══════════════════════════
          FILTROS — sticky
@@ -106,68 +130,73 @@
     <div class="ev-filters-bar" id="filtersBar">
         <div class="ev-filters-inner">
 
-            <div class="ev-search-bar" role="search" aria-label="Buscar eventos">
-                <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-                    <circle cx="7.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.8"/>
-                    <path d="M11 11l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-                <input
-                    type="search"
-                    id="searchInput"
-                    class="ev-search-input"
-                    placeholder="Buscar evento pelo nome…"
-                    autocomplete="off"
-                    aria-label="Buscar eventos"
-                >
-                <button class="ev-search-clear" id="searchClear" hidden aria-label="Limpar busca">
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                        <path d="M2.5 2.5l8 8M10.5 2.5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <div class="ev-filters-row ev-filters-row-primary">
+                <div class="ev-search-bar" role="search" aria-label="Buscar eventos">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M11 11l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                     </svg>
-                </button>
+                    <input
+                        type="search"
+                        id="searchInput"
+                        class="ev-search-input"
+                        placeholder="Buscar evento pelo nome…"
+                        autocomplete="off"
+                        aria-label="Buscar eventos"
+                    >
+                    <button class="ev-search-clear" id="searchClear" hidden aria-label="Limpar busca">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                            <path d="M2.5 2.5l8 8M10.5 2.5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="ev-filter-sep" aria-hidden="true"></div>
+
+                <!-- Período -->
+                <div class="ev-tabs" role="tablist" aria-label="Filtrar por período">
+                    <button class="ev-tab ev-tab-active" data-period="todos"   role="tab" aria-selected="true">Todos</button>
+                    <button class="ev-tab"               data-period="hoje"    role="tab" aria-selected="false">Hoje</button>
+                    <button class="ev-tab"               data-period="semana"  role="tab" aria-selected="false">Esta semana</button>
+                    <button class="ev-tab"               data-period="mes"     role="tab" aria-selected="false">Este mês</button>
+                    <button class="ev-tab"               data-period="proximos" role="tab" aria-selected="false">Próximos</button>
+                    <button class="ev-tab"               data-period="favoritos" role="tab" aria-selected="false">Favoritos</button>
+                </div>
             </div>
 
-            <div class="ev-filter-sep" aria-hidden="true"></div>
+            <div class="ev-filters-row ev-filters-row-secondary">
+                <!-- Categorias — populadas pelo JS -->
+                <div class="ev-cats" id="evCats" role="group" aria-label="Filtrar por categoria">
+                    <button class="ev-cat ev-cat-active" data-cat="todos">Todas</button>
+                </div>
 
-            <!-- Período -->
-            <div class="ev-tabs" role="tablist" aria-label="Filtrar por período">
-                <button class="ev-tab ev-tab-active" data-period="todos"   role="tab" aria-selected="true">Todos</button>
-                <button class="ev-tab"               data-period="hoje"    role="tab" aria-selected="false">Hoje</button>
-                <button class="ev-tab"               data-period="semana"  role="tab" aria-selected="false">Esta semana</button>
-                <button class="ev-tab"               data-period="mes"     role="tab" aria-selected="false">Este mês</button>
-                <button class="ev-tab"               data-period="proximos" role="tab" aria-selected="false">Próximos</button>
+                <div class="ev-filters-row-end">
+                    <!-- Toggle de visualização -->
+                    <div class="ev-view-toggle" role="group" aria-label="Modo de visualização">
+                        <button class="ev-view-btn ev-view-active" data-view="grid" aria-label="Grade" title="Grade">
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <rect x="1" y="1" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="8.5" y="1" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="1" y="8.5" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                        <button class="ev-view-btn" data-view="timeline" aria-label="Lista" title="Lista">
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <rect x="4.5" y="2" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                                <rect x="4.5" y="6.5" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                                <rect x="4.5" y="11" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                                <circle cx="1.5" cy="3.25" r="1.25" fill="currentColor"/>
+                                <circle cx="1.5" cy="7.75" r="1.25" fill="currentColor"/>
+                                <circle cx="1.5" cy="12.25" r="1.25" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Contador -->
+                    <span class="ev-count" id="evCount" aria-live="polite" aria-atomic="true"></span>
+                </div>
             </div>
-
-            <div class="ev-filter-sep" aria-hidden="true"></div>
-
-            <!-- Categorias — populadas pelo JS -->
-            <div class="ev-cats" id="evCats" role="group" aria-label="Filtrar por categoria">
-                <button class="ev-cat ev-cat-active" data-cat="todos">Todas</button>
-            </div>
-
-            <!-- Toggle de visualização -->
-            <div class="ev-view-toggle" role="group" aria-label="Modo de visualização">
-                <button class="ev-view-btn ev-view-active" data-view="grid" aria-label="Grade" title="Grade">
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                        <rect x="1" y="1" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="8.5" y="1" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="1" y="8.5" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                </button>
-                <button class="ev-view-btn" data-view="timeline" aria-label="Lista" title="Lista">
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                        <rect x="4.5" y="2" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
-                        <rect x="4.5" y="6.5" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
-                        <rect x="4.5" y="11" width="9.5" height="2.5" rx="1" stroke="currentColor" stroke-width="1.4"/>
-                        <circle cx="1.5" cy="3.25" r="1.25" fill="currentColor"/>
-                        <circle cx="1.5" cy="7.75" r="1.25" fill="currentColor"/>
-                        <circle cx="1.5" cy="12.25" r="1.25" fill="currentColor"/>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Contador -->
-            <span class="ev-count" id="evCount" aria-live="polite" aria-atomic="true"></span>
 
         </div>
     </div>
@@ -325,6 +354,35 @@
             </div>
         </div>
     </footer>
+
+    <aside class="a11y-tools" aria-label="Opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
+            <span aria-hidden="true">Aa</span>
+        </button>
+        <div class="a11y-menu" id="a11yMenu" hidden>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+            <div class="a11y-menu__group" role="group" aria-label="Modos de leitura">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="color" aria-pressed="false">Contraste de cores <small>Leitura facilitada</small></button>
+            </div>
+            <div class="a11y-size" role="group" aria-label="Tamanho do texto">
+                <span>Tamanho do texto</span>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
+            </div>
+        </div>
+    </aside>
+
+    <div id="toastContainer" class="toast-container"></div>
 
     <div vw class="enabled">
     <div vw-access-button class="active"></div>

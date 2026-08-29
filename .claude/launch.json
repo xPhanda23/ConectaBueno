@@ -1,11 +1,11 @@
 {
-    "version": "0.0.1",
-    "configurations": [
-        {
-            "name": "static-server",
-            "runtimeExecutable": "python",
-            "runtimeArgs": ["-m", "http.server", "8723"],
-            "port": 8723
-        }
-    ]
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5501"],
+      "port": 5501
+    }
+  ]
 }

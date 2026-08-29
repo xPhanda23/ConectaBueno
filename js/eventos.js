@@ -42,12 +42,21 @@ window.addEventListener('load', async () => {
         if (user) {
             await loadUserProfile(user);
             setupListeners();
+            hideLoading();
             await Promise.all([loadEventos(), loadNoticias()]);
+            openEventFromQuery();
         } else {
             window.location.href = 'login.html';
         }
     });
 });
+
+function hideLoading() {
+    const el = document.getElementById('loadingOverlay');
+    if (!el) return;
+    el.style.opacity = '0';
+    setTimeout(() => { el.style.display = 'none'; el.setAttribute('aria-hidden', 'true'); }, 350);
+}
 
 function waitForFirebase(ms = 6000) {
     return new Promise(resolve => {
@@ -70,7 +79,7 @@ async function loadUserProfile(user) {
         currentUser = {
             uid:     user.uid,
             email:   user.email,
-            nome:    user.displayName || user.email.split('@')[0],
+            nome:    user.displayName || (user.isAnonymous ? 'Visitante' : user.email?.split('@')[0] || 'Usuário'),
             isAdmin: false,
             ...(doc.exists ? doc.data() : {})
         };
@@ -78,7 +87,7 @@ async function loadUserProfile(user) {
         await loadUserFavorites(user.uid);
     } catch (err) {
         console.error('❌ Perfil:', err);
-        currentUser = { uid: user.uid, email: user.email, nome: user.email.split('@')[0], isAdmin: false };
+        currentUser = { uid: user.uid, email: user.email, nome: user.displayName || (user.isAnonymous ? 'Visitante' : user.email?.split('@')[0] || 'Usuário'), isAdmin: false };
         window.sharedComponents?.renderUserInfo(currentUser);
     }
 }
@@ -99,29 +108,45 @@ async function loadUserFavorites(uid) {
     }
 }
 
+/** Reflete o estado de um favorito nos botões já renderizados. */
+function paintFavButtons(eventoId, isFav) {
+    document.querySelectorAll(`[data-fav-id="${eventoId}"]`).forEach(btn => {
+        btn.classList.toggle('is-fav', isFav);
+        btn.setAttribute('aria-label', isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+        const path = btn.querySelector('svg path, svg polygon');
+        if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
+    });
+}
+
 async function toggleFavorite(eventoId, e) {
     e?.stopPropagation();
     if (!currentUser) return;
 
     const wasFav = userFavorites.has(eventoId);
-    wasFav ? userFavorites.delete(eventoId) : userFavorites.add(eventoId);
+    const isFav  = !wasFav;
 
-    // Atualiza o(s) botão(ões) de favorito na tela sem re-renderizar tudo
-    document.querySelectorAll(`[data-fav-id="${eventoId}"]`).forEach(btn => {
-        btn.classList.toggle('is-fav', !wasFav);
-        btn.setAttribute('aria-label', !wasFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
-        const path = btn.querySelector('svg path, svg polygon');
-        if (path) path.setAttribute('fill', !wasFav ? 'currentColor' : 'none');
-    });
+    // Atualiza otimisticamente sem re-renderizar tudo
+    wasFav ? userFavorites.delete(eventoId) : userFavorites.add(eventoId);
+    paintFavButtons(eventoId, isFav);
 
     try {
         await db.collection('users').doc(currentUser.uid)
                 .collection('favoritos').doc('eventos')
                 .set({ ids: Array.from(userFavorites), updatedAt: new Date() });
+
+        // Se a lista exibida é a de favoritos, ela precisa refletir a mudança
+        if (activePeriod === 'favoritos') applyFilters();
     } catch (err) {
-        // Reverte em caso de falha
+        // Reverte estado E interface — antes a interface ficava mentindo
         wasFav ? userFavorites.add(eventoId) : userFavorites.delete(eventoId);
+        paintFavButtons(eventoId, wasFav);
         console.error('❌ Favorito:', err);
+        showToast(
+            err?.code === 'permission-denied'
+                ? 'Sem permissão para salvar favoritos.'
+                : 'Não foi possível salvar o favorito.',
+            'error'
+        );
     }
 }
 
@@ -165,8 +190,10 @@ async function loadEventos() {
     buildMiniCalendar();
     buildUpcomingList();
     updateHeroStats();
-    renderPage();
+    // showLoading() mexe no `hidden` da grade e da timeline, então precisa vir
+    // antes do renderPage() — caso contrário desfaz o que o render decidiu.
     showLoading(false);
+    renderPage();
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -221,8 +248,9 @@ async function updateHeroStats() {
 async function getWeatherForDateSummary(date) {
     if (!date || Number.isNaN(date.getTime())) return '';
 
-    const lat = -21.9722;
-    const lon = -43.2814;
+    // Bueno Brandão/MG — mesmas coordenadas usadas na home
+    const lat = -22.4408;
+    const lon = -46.3508;
     const dateStr = date.toISOString().slice(0, 10);
 
     try {
@@ -290,7 +318,11 @@ function getWeatherIcon(code) {
 function populateCategoryFilter() {
     const cats = [...new Set(allEventos.map(e => e.categoria).filter(Boolean))].sort();
     const wrap = document.getElementById('evCats');
-    if (!wrap || !cats.length) return;
+    if (!wrap) return;
+
+    // Remove as categorias geradas antes (mantém o botão fixo "Todas")
+    wrap.querySelectorAll('.ev-cat:not([data-cat="todos"])').forEach(b => b.remove());
+    if (!cats.length) return;
 
     cats.forEach(cat => {
         const btn = document.createElement('button');
@@ -515,7 +547,10 @@ function applyFilters() {
         const dFim    = toDate(ev.dataFim);
 
         // ── Filtro de período ────────────────────────────────────
-        if (activePeriod !== 'todos') {
+        if (activePeriod === 'favoritos') {
+            if (!userFavorites.has(ev.id)) return false;
+        }
+        else if (activePeriod !== 'todos') {
             if (!dInicio) return false;
 
             // Um evento "cobre" um intervalo se: dInicio <= fimIntervalo E eventoFim >= inicioIntervalo
@@ -626,13 +661,17 @@ function renderPage() {
         grid.hidden = timeline.hidden = more.hidden = true;
         empty.hidden = false;
 
-        const title = searchQuery
+        const title = activePeriod === 'favoritos'
+            ? 'Você ainda não tem favoritos'
+            : searchQuery
             ? `Nenhum evento encontrado para "${searchQuery}"`
             : activeCat !== 'todos' || activePeriod !== 'todos'
             ? 'Nenhum evento nesse filtro'
             : 'Nenhum evento encontrado';
 
-        const desc = (searchQuery || activeCat !== 'todos' || activePeriod !== 'todos')
+        const desc = activePeriod === 'favoritos'
+            ? 'Toque na estrela em qualquer evento para salvá-lo aqui.'
+            : (searchQuery || activeCat !== 'todos' || activePeriod !== 'todos')
             ? 'Tente ajustar os filtros ou a busca.'
             : 'Ainda não há eventos cadastrados. Volte em breve!';
 
@@ -644,20 +683,21 @@ function renderPage() {
 
     empty.hidden = true;
 
-    const slice   = filteredEventos.slice(0, (currentPage + 1) * PAGE_SIZE);
-    const hasMore = slice.length < filteredEventos.length;
-    more.hidden   = !hasMore;
+    const slice    = filteredEventos.slice(0, (currentPage + 1) * PAGE_SIZE);
+    const hasMore  = slice.length < filteredEventos.length;
+    more.hidden    = !hasMore;
+    const topEvent = getTopPresenceEvent();
 
     if (currentView === 'grid') {
         timeline.hidden = true;
         grid.hidden     = false;
         grid.innerHTML  = '';
-        slice.forEach(ev => grid.appendChild(buildCard(ev)));
+        slice.forEach(ev => grid.appendChild(buildCard(ev, topEvent)));
     } else {
         grid.hidden        = true;
         timeline.hidden    = false;
         timeline.innerHTML = '';
-        slice.forEach(ev => timeline.appendChild(buildTimelineItem(ev)));
+        slice.forEach(ev => timeline.appendChild(buildTimelineItem(ev, topEvent)));
     }
 
     updateCount();
@@ -672,11 +712,10 @@ function getTopPresenceEvent() {
     return [...allEventos].sort((a, b) => (Number(b.presencasCount || 0) - Number(a.presencasCount || 0)))[0];
 }
 
-function buildCard(ev) {
+function buildCard(ev, topEvent) {
     const d      = toDate(ev.dataInicio);
     const hoje   = new Date();
     const days   = d ? Math.ceil((d - hoje) / 86_400_000) : null;
-    const topEvent = getTopPresenceEvent();
     const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
@@ -693,7 +732,7 @@ function buildCard(ev) {
     }
 
     const imgUrl = ev.imagem || ev.image || '../assets/images/placeholder-city.svg';
-    const imgStyle = `background-image:url('${esc(imgUrl)}'); background-size:cover; background-position:center;`;
+    const imgStyle = `background-image:url('${escUrl(imgUrl)}'); background-size:cover; background-position:center;`;
 
     const isFav = userFavorites.has(ev.id);
 
@@ -756,7 +795,17 @@ function buildCard(ev) {
             </div>
         </div>
         <div class="ev-card-footer">
-            <button class="ev-rsvp-btn" data-evt-id="${ev.id}" aria-pressed="false" title="Confirmar presença">🔥 <span class="rsvp-count">${ev.presencasCount || 0}</span></button>
+            <div class="ev-card-footer-actions">
+                <button class="ev-rsvp-btn" data-evt-id="${ev.id}" aria-pressed="false" title="Confirmar presença">🔥 <span class="rsvp-count">${ev.presencasCount || 0}</span></button>
+                <button type="button" class="ev-card-share" data-share-id="${ev.id}" aria-label="Compartilhar ${esc(ev.titulo || 'evento')}" title="Compartilhar">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <circle cx="11" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="3"  cy="7"   r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="11" cy="11.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4.5 6.2l5-2.4M4.5 8l5 2.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
             <span class="ev-card-link">
                 Ver detalhes
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -766,9 +815,9 @@ function buildCard(ev) {
         </div>
     `;
 
-    // Clique no card (exceto no botão favorito)
+    // Clique no card (exceto nos botões de favorito/compartilhar)
     const openHandler = (e) => {
-        if (!e.target.closest('.ev-card-fav')) openModal(ev);
+        if (!e.target.closest('.ev-card-fav') && !e.target.closest('.ev-card-share')) openModal(ev);
     };
     art.addEventListener('click', openHandler);
     art.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHandler(e); } });
@@ -784,50 +833,61 @@ function buildCard(ev) {
             rsvpBtn.classList.toggle('is-going', !!going);
         };
 
+        // Só descobre se o usuário já confirmou (1 leitura). A contagem já veio
+        // no documento do evento — não vale um segundo get() por card.
         const syncPresenceState = async () => {
             if (!currentUser || !db) return;
-            const ref = db.collection('eventos').doc(ev.id).collection('presencas').doc(currentUser.uid);
-            const snap = await ref.get();
-            const going = !!snap.exists;
-            const newCount = Number((await db.collection('eventos').doc(ev.id).get()).data()?.presencasCount || 0);
-            ev.presencasCount = newCount;
-            updateUI(newCount, going);
+            try {
+                const snap = await db.collection('eventos').doc(ev.id)
+                                     .collection('presencas').doc(currentUser.uid).get();
+                updateUI(Number(ev.presencasCount || 0), snap.exists);
+            } catch (err) {
+                // Sem permissão de leitura: mantém o botão neutro, sem quebrar a página
+                console.warn('⚠️ Presença indisponível:', err?.code || err);
+            }
         };
 
         rsvpBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (!currentUser) { window.location.href = 'login.html'; return; }
-            const evtId = rsvpBtn.dataset.evtId;
-            const userRef = db.collection('eventos').doc(evtId).collection('presencas').doc(currentUser.uid);
+
+            const evtId   = rsvpBtn.dataset.evtId;
+            const docRef  = db.collection('eventos').doc(evtId);
+            const userRef = docRef.collection('presencas').doc(currentUser.uid);
+
+            rsvpBtn.disabled = true;
             try {
-                const exists = (await userRef.get()).exists;
-                const docRef = db.collection('eventos').doc(evtId);
-                if (exists) {
+                const going = (await userRef.get()).exists;
+
+                if (going) {
                     await userRef.delete();
                     await docRef.update({ presencasCount: firebase.firestore.FieldValue.increment(-1) });
                 } else {
-                    await userRef.set({ uid: currentUser.uid, nome: currentUser.nome || currentUser.email, createdAt: new Date() });
+                    await userRef.set({ uid: currentUser.uid, nome: currentUser.nome || currentUser.email || 'Visitante', createdAt: new Date() });
                     await docRef.update({ presencasCount: firebase.firestore.FieldValue.increment(1) });
                 }
 
-                const updated = await docRef.get();
-                const nextCount = Number(updated.data()?.presencasCount || 0);
+                const nextCount = Number((await docRef.get()).data()?.presencasCount || 0);
                 ev.presencasCount = nextCount;
-                const currentGoing = !(await userRef.get()).exists;
-                updateUI(nextCount, !currentGoing);
+                updateUI(nextCount, !going);
 
                 const idx = allEventos.findIndex(item => item.id === ev.id);
                 if (idx >= 0) allEventos[idx].presencasCount = nextCount;
                 const filtIdx = filteredEventos.findIndex(item => item.id === ev.id);
                 if (filtIdx >= 0) filteredEventos[filtIdx].presencasCount = nextCount;
 
-                const topEvent = getTopPresenceEvent();
-                if (topEvent && topEvent.id === ev.id) {
-                    renderPage();
-                }
-                await syncPresenceState();
+                const latestTopEvent = getTopPresenceEvent();
+                if (latestTopEvent && latestTopEvent.id === ev.id) renderPage();
             } catch (err) {
                 console.error('RSVP erro:', err);
+                showToast(
+                    err?.code === 'permission-denied'
+                        ? 'Sem permissão para confirmar presença.'
+                        : 'Não foi possível confirmar presença.',
+                    'error'
+                );
+            } finally {
+                rsvpBtn.disabled = false;
             }
         });
 
@@ -841,12 +901,11 @@ function buildCard(ev) {
 // ITEM DE TIMELINE
 // ─────────────────────────────────────────────────────────────────
 
-function buildTimelineItem(ev) {
+function buildTimelineItem(ev, topEvent) {
     const d     = toDate(ev.dataInicio);
     const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
     const month = d ? d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
     const isFav = userFavorites.has(ev.id);
-    const topEvent = getTopPresenceEvent();
     const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     const item = document.createElement('div');
@@ -889,6 +948,14 @@ function buildTimelineItem(ev) {
         </div>
         <div class="ev-tl-aside">
             <span class="ev-tl-cat">${esc(ev.categoria || 'Evento')}</span>
+            <button type="button" class="ev-tl-share" data-share-id="${ev.id}" aria-label="Compartilhar ${esc(ev.titulo || 'evento')}" title="Compartilhar">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <circle cx="11" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="3"  cy="7"   r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="11" cy="11.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M4.5 6.2l5-2.4M4.5 8l5 2.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                </svg>
+            </button>
             <button class="ev-tl-fav ${isFav ? 'is-fav' : ''}"
                 data-fav-id="${ev.id}"
                 aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
@@ -901,7 +968,7 @@ function buildTimelineItem(ev) {
     `;
 
     const openHandler = (e) => {
-        if (!e.target.closest('.ev-tl-fav')) openModal(ev);
+        if (!e.target.closest('.ev-tl-fav') && !e.target.closest('.ev-tl-share')) openModal(ev);
     };
     item.addEventListener('click', openHandler);
     item.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHandler(e); } });
@@ -931,7 +998,7 @@ function openModal(ev) {
         : null;
 
     const imgStyle = ev.imagem
-        ? `background-image:url('${esc(ev.imagem)}'); background-size:cover; background-position:center;`
+        ? `background-image:url('${escUrl(ev.imagem)}'); background-size:cover; background-position:center;`
         : '';
     const topEvent = getTopPresenceEvent();
     const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
@@ -1054,17 +1121,10 @@ function openModal(ev) {
         });
     });
 
-    document.getElementById('modalShareBtn')?.addEventListener('click', () => {
-        const url = `${location.origin}${location.pathname}?evento=${ev.id}`;
-        if (navigator.share) {
-            navigator.share({ title: ev.titulo, url }).catch(() => {});
-        } else {
-            navigator.clipboard?.writeText(url).then(() => {
-                const btn = document.getElementById('modalShareBtn');
-                if (btn) { btn.textContent = 'Link copiado!'; setTimeout(() => location.reload(), 1500); }
-            });
-        }
-    });
+    // Fecha o menu de calendário ao clicar em qualquer outro lugar do modal
+    content.addEventListener('click', () => modalCalendarMenu?.classList.remove('show'));
+
+    document.getElementById('modalShareBtn')?.addEventListener('click', () => shareEvento(ev.id));
 
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -1077,6 +1137,74 @@ function closeModal() {
     document.body.style.overflow = '';
 }
 
+// Abre direto o evento vindo de um link "Compartilhar" (?evento=<id>)
+function openEventFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const eventoId = params.get('evento');
+    if (!eventoId) return;
+
+    const ev = allEventos.find(e => e.id === eventoId);
+    if (!ev) {
+        showToast('Evento não encontrado ou indisponível no momento', 'error');
+        return;
+    }
+    openModal(ev);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// COMPARTILHAR
+// ─────────────────────────────────────────────────────────────────
+
+/** Usa a gaveta nativa de compartilhamento quando disponível, senão copia o link. */
+function shareEvento(id) {
+    const ev = allEventos.find(e => e.id === id);
+    if (!ev) return;
+
+    const url = `${location.origin}${location.pathname}?evento=${id}`;
+    if (navigator.share) {
+        navigator.share({ title: ev.titulo, url }).catch(() => {});
+        return;
+    }
+    navigator.clipboard?.writeText(url)
+        .then(() => showToast('Link copiado!', 'success'))
+        .catch(() => showToast('Não foi possível compartilhar o link', 'error'));
+}
+
+// Delegação: os cards são recriados a cada render, então um listener só
+// nos containers cobre todos eles sem precisar religar a cada renderPage().
+function setupShareDelegation() {
+    const handler = (event) => {
+        const btn = event.target.closest('[data-share-id]');
+        if (!btn) return;
+        event.preventDefault();
+        shareEvento(btn.dataset.shareId);
+    };
+    document.getElementById('evGrid')?.addEventListener('click', handler);
+    document.getElementById('evTimeline')?.addEventListener('click', handler);
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icons = { success: '✓', error: '✕', info: 'ℹ' };
+
+    toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <div class="toast-message">${esc(message)}</div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideInRight 0.2s reverse';
+        setTimeout(() => toast.remove(), 200);
+    }, 4000);
+}
+
 // ─────────────────────────────────────────────────────────────────
 // NOTÍCIAS
 // ─────────────────────────────────────────────────────────────────
@@ -1085,6 +1213,8 @@ async function loadNoticias() {
     const grid = document.getElementById('newsGrid');
     if (!grid) return;
 
+    let noticias = [];
+
     try {
         const snap = await db.collection('noticias')
             .where('status', '==', 'publicado')
@@ -1092,27 +1222,45 @@ async function loadNoticias() {
             .limit(6)
             .get();
 
-        if (snap.empty) {
+        noticias = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    } catch (err) {
+        // Mesmo tratamento de loadEventos(): a consulta com orderBy exige um
+        // índice composto. Sem ele a seção inteira sumia da página.
+        console.warn('⚠️ noticias (fallback sem orderBy):', err?.code || err);
+        try {
+            const snap2 = await db.collection('noticias')
+                .where('status', '==', 'publicado')
+                .get();
+
+            noticias = snap2.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => (toDate(b.createdAt) ?? 0) - (toDate(a.createdAt) ?? 0))
+                .slice(0, 6);
+
+        } catch (err2) {
+            console.warn('⚠️ noticias indisponiveis:', err2?.code || err2);
             document.getElementById('secNoticias')?.style.setProperty('display', 'none');
             return;
         }
-
-        grid.innerHTML = '';
-        snap.forEach(doc => grid.appendChild(buildNewsCard({ id: doc.id, ...doc.data() })));
-
-    } catch (err) {
-        console.warn('⚠️ noticias:', err);
-        document.getElementById('secNoticias')?.style.setProperty('display', 'none');
     }
+
+    if (!noticias.length) {
+        document.getElementById('secNoticias')?.style.setProperty('display', 'none');
+        return;
+    }
+
+    grid.innerHTML = '';
+    noticias.forEach(n => grid.appendChild(buildNewsCard(n)));
 }
 
 function buildNewsCard(n) {
-    const createdAt = n.createdAt?.toDate?.() ?? null;
+    const createdAt = toDate(n.createdAt);
     const dateStr   = createdAt
         ? createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
         : '';
     const imgStyle = n.imagem
-        ? `background-image:url('${esc(n.imagem)}'); background-size:cover; background-position:center;`
+        ? `background-image:url('${escUrl(n.imagem)}'); background-size:cover; background-position:center;`
         : '';
 
     const card = document.createElement('article');
@@ -1150,12 +1298,12 @@ function openNewsModal(n) {
     const content = document.getElementById('modalContent');
     if (!modal || !content) return;
 
-    const createdAt = n.createdAt?.toDate?.() ?? null;
+    const createdAt = toDate(n.createdAt);
     const dateStr   = createdAt
         ? createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
         : '';
     const imgStyle = n.imagem
-        ? `background-image:url('${esc(n.imagem)}'); background-size:cover; background-position:center;`
+        ? `background-image:url('${escUrl(n.imagem)}'); background-size:cover; background-position:center;`
         : '';
 
     content.innerHTML = `
@@ -1240,9 +1388,16 @@ function setupListeners() {
     document.getElementById('modalOverlay')?.addEventListener('click', closeModal);
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-    // Fecha dropdowns de calendário ao clicar fora
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest || !e.target.closest('.ev-cal-wrap')) closeAllCalDropdowns();
+    // Compartilhar (delegado, cobre os cards recriados a cada renderPage())
+    setupShareDelegation();
+
+    // Botões do hero
+    document.getElementById('heroSearchBtn')?.addEventListener('click', () => {
+        document.getElementById('filtersBar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => document.getElementById('searchInput')?.focus({ preventScroll: true }), 400);
+    });
+    document.getElementById('heroSeeAgendaBtn')?.addEventListener('click', () => {
+        document.querySelector('.ev-main-inner')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 }
 
@@ -1279,6 +1434,14 @@ function toDate(val) {
     if (!val) return null;
     if (val?.toDate)   return val.toDate();              // Firestore Timestamp
     if (val?.seconds)  return new Date(val.seconds * 1000);
+    if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+        // Strings vindas de <input type="date"> (painel admin) são gravadas
+        // como "AAAA-MM-DD" puro. new Date("AAAA-MM-DD") é interpretado como
+        // UTC meia-noite pela spec; lido com getters locais em UTC-3 isso
+        // "volta" um dia. Construímos a data localmente para evitar isso.
+        const [y, m, d] = val.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    }
     const d = new Date(val);
     return isNaN(d.getTime()) ? null : d;
 }
@@ -1300,12 +1463,6 @@ function endOfDay(date) {
 function setTxt(id, txt) {
     const el = document.getElementById(id);
     if (el) el.textContent = txt;
-}
-
-/* Fecha todos os dropdowns de calendário abertos na página */
-function closeAllCalDropdowns() {
-    document.querySelectorAll('.ev-cal-dropdown.show').forEach(d => d.classList.remove('show'));
-    document.querySelectorAll('.ev-action-btn-cal[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
 }
 
 /* Abre o Google Calendar com os parâmetros do evento */
@@ -1353,6 +1510,13 @@ function downloadICS(ev) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+/** Escapa uma URL para uso dentro de url('...') num atributo style.
+ *  esc() transforma ' em &#39;, que o navegador decodifica de volta para '
+ *  e encerra a string CSS antes da hora. */
+function escUrl(url) {
+    return esc(String(url ?? '').replace(/["'()\\]/g, encodeURIComponent));
 }
 
 /** Escapa caracteres HTML para evitar XSS */
