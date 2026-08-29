@@ -18,6 +18,33 @@
     --verde-suave: #d0e8da;
     --off-white: #fafaf8;
     --creme: #f5f3ed;
+    --header-h: 66px;
+
+    /* Tipografia padronizada com o resto do site (home/mapa/eventos) */
+    --font-display: 'Poppins', 'Segoe UI', sans-serif;
+    --font-body: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* ===================================
+   TIPOGRAFIA
+=================================== */
+body {
+    font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+}
+
+/* ===================================
+   HEADER (sem hero escuro atrás — usa sempre o fundo opaco
+   do estado "scrolled" em vez do gradiente translúcido)
+=================================== */
+.site-header {
+    background: rgba(15, 36, 25, .92);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
 }
 
 /* ===================================
@@ -25,7 +52,8 @@
 =================================== */
 .admin-layout {
     display: flex;
-    min-height: 100vh;
+    min-height: calc(100vh - var(--header-h));
+    margin-top: var(--header-h);
     background: var(--off-white);
 }
 
@@ -36,7 +64,8 @@
     display: flex;
     flex-direction: column;
     position: fixed;
-    height: 100vh;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
     overflow-y: auto;
 }
 
@@ -45,61 +74,6 @@
     margin-left: 280px;
     padding: 32px;
     max-width: calc(100% - 280px);
-}
-
-/* ===================================
-   SIDEBAR HEADER
-=================================== */
-.sidebar-header {
-    padding: 24px 20px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.btn-back-inline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: transparent;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    color: #666;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: 100%;
-    margin-bottom: 16px;
-}
-
-.btn-back-inline:hover {
-    background: var(--creme);
-    color: var(--verde-floresta);
-    border-color: var(--verde-floresta);
-}
-
-.sidebar-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.sidebar-title svg {
-    color: var(--verde-floresta);
-    flex-shrink: 0;
-}
-
-.sidebar-title h1 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--verde-floresta);
-    margin: 0;
-}
-
-.sidebar-title p {
-    font-size: 12px;
-    color: #999;
-    margin: 0;
 }
 
 /* ===================================
@@ -144,38 +118,41 @@
 }
 
 /* ===================================
-   SIDEBAR FOOTER
+   ABRIR SEÇÕES NO MOBILE
+   (sidebar vira gaveta off-canvas abaixo de 1024px —
+   este botão e o backdrop só aparecem nesse breakpoint)
 =================================== */
-.sidebar-footer {
-    padding: 20px;
-    border-top: 1px solid #e0e0e0;
-}
-
-.btn-back-sidebar {
-    display: flex;
+.section-menu-toggle {
+    display: none;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: var(--verde-floresta);
-    border: none;
+    gap: 8px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
     border-radius: 10px;
-    color: white;
+    color: var(--verde-floresta);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    width: 100%;
 }
 
-.btn-back-sidebar:hover {
-    background: var(--verde-folha);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.2);
+.section-menu-toggle:hover {
+    background: var(--creme);
+    border-color: var(--verde-floresta);
 }
 
-.btn-back-sidebar svg {
-    flex-shrink: 0;
+.admin-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    background: rgba(15, 36, 25, .45);
+    z-index: 999;
+}
+
+.admin-sidebar-backdrop.active {
+    display: block;
 }
 
 /* ===================================
@@ -276,6 +253,7 @@
 }
 
 .stat-value {
+    font-family: var(--font-display);
     font-size: 28px;
     font-weight: 700;
     color: var(--verde-floresta);
@@ -750,6 +728,7 @@
     height: 64px;
     background: linear-gradient(135deg, var(--verde-floresta), var(--verde-folha));
     border-radius: 12px;
+    font-family: var(--font-display);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -990,11 +969,15 @@
     .admin-sidebar.active {
         left: 0;
     }
-    
+
     .admin-main {
         margin-left: 0;
         padding: 24px;
         max-width: 100%;
+    }
+
+    .section-menu-toggle {
+        display: flex;
     }
 }
 
@@ -1060,10 +1043,6 @@
 }
 
 @media (max-width: 480px) {
-    .sidebar-title h1 {
-        font-size: 16px;
-    }
-    
     .nav-item {
         padding: 10px 14px;
         font-size: 13px;
@@ -1206,9 +1185,45 @@
         font-size: 13px;
         padding: 10px 14px;
     }
-    
+
     .nav-item-home svg {
         width: 18px;
         height: 18px;
     }
+}
+
+/* ================================================================
+   ACESSIBILIDADE — ajustes específicos do observatório
+   ================================================================ */
+.a11y-focus .stat-card,
+.a11y-focus .info-card { box-shadow: none; }
+
+.a11y-high-contrast { background: #fff; }
+/* Cartões escuros/coloridos com texto claro viram invisíveis se só o
+   fundo ou só o texto for forçado. Zera os dois em cascata para todo
+   mundo dentro dos contêineres principais — não uma lista fixa de
+   seletores, que sempre fica incompleta. */
+.a11y-high-contrast .stat-card,
+.a11y-high-contrast .info-card,
+.a11y-high-contrast .analysis-card,
+.a11y-high-contrast .methodology-card,
+.a11y-high-contrast .source-card,
+.a11y-high-contrast .ods-card,
+.a11y-high-contrast .ods-intro-card {
+    background: #fff !important;
+    background-image: none !important;
+    color: #111827 !important;
+    border-color: #000 !important;
+}
+.a11y-high-contrast .stat-card *,
+.a11y-high-contrast .info-card *,
+.a11y-high-contrast .analysis-card *,
+.a11y-high-contrast .methodology-card *,
+.a11y-high-contrast .source-card *,
+.a11y-high-contrast .ods-card *,
+.a11y-high-contrast .ods-intro-card * {
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+    text-shadow: none !important;
 }

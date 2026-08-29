@@ -8,9 +8,10 @@
     <title>Agenda Cultural — Conecta Bueno</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/shared-components.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/eventos.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
     <header class="site-header" id="siteHeader">
         <div class="hd-inner">
 
-            <a href="home.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
+            <a href="../index.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
                 <span class="hd-brand-seals">
                     <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
                     <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
@@ -35,8 +36,8 @@
             </a>
 
             <nav class="hd-nav" aria-label="Navegação principal">
-                <a href="home.html"        class="hd-nav-link">Início</a>
-                <a href="../index.html"    class="hd-nav-link">Mapa</a>
+                <a href="../index.html"    class="hd-nav-link">Início</a>
+                <a href="mapa.html"        class="hd-nav-link">Mapa</a>
                 <a href="eventos.html"     class="hd-nav-link hd-nav-active">Eventos</a>
                 <a href="observatorio.html" class="hd-nav-link">Observatório</a>
             </nav>
@@ -47,7 +48,7 @@
                 </svg>
             </button>
 
-            <div class="hd-user-wrap" id="hdUserWrap">
+            <div class="hd-user-wrap" id="hdUserWrap" data-login-href="login.html">
                 <button class="hd-avatar" id="btnUserMenu" aria-label="Menu do usuário" aria-expanded="false">
                     <span id="userInitials">CB</span>
                 </button>
@@ -60,8 +61,8 @@
                         </div>
                     </div>
                     <div class="hd-dd-divider"></div>
-                    <a href="home.html"        class="hd-dd-item" role="menuitem">Início</a>
-                    <a href="../index.html"    class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="../index.html"    class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="mapa.html"        class="hd-dd-item" role="menuitem">Mapa Interativo</a>
                     <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
                     <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
                     <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
@@ -338,8 +339,8 @@
                 </div>
                 <div class="ft-col">
                     <strong>Explorar</strong>
-                    <a href="home.html">Início</a>
-                    <a href="../index.html">Mapa Interativo</a>
+                    <a href="../index.html">Início</a>
+                    <a href="mapa.html">Mapa Interativo</a>
                     <a href="eventos.html">Agenda Cultural</a>
                     <a href="observatorio.html">Observatório</a>
                 </div>
@@ -368,17 +369,42 @@
                 <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
             </div>
             <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
-            <div class="a11y-menu__group" role="group" aria-label="Modos de leitura">
+
+            <p class="a11y-menu__subtitle">Leitura e navegação</p>
+            <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
                 <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
                 <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
-                <button type="button" data-a11y="color" aria-pressed="false">Contraste de cores <small>Leitura facilitada</small></button>
+                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
+                <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
+                <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
             </div>
+
+            <p class="a11y-menu__subtitle">Daltonismo</p>
+            <div class="a11y-menu__group a11y-menu__group--select" role="group" aria-label="Modo para daltonismo">
+                <label class="a11y-select-label" for="a11yColorblind">Ajuste de cores</label>
+                <select id="a11yColorblind" class="a11y-select">
+                    <option value="none">Desativado</option>
+                    <option value="protanopia">Protanopia (vermelho-verde)</option>
+                    <option value="deuteranopia">Deuteranopia (vermelho-verde)</option>
+                    <option value="tritanopia">Tritanopia (azul-amarelo)</option>
+                    <option value="achromatopsia">Monocromacia (sem cor)</option>
+                </select>
+            </div>
+
+            <p class="a11y-menu__subtitle">Movimento e cursor</p>
+            <div class="a11y-menu__group" role="group" aria-label="Movimento e cursor">
+                <button type="button" data-a11y="motion" aria-pressed="false">Reduzir movimento <small>Pausa vídeos e animações</small></button>
+                <button type="button" data-a11y="cursor" aria-pressed="false">Cursor ampliado <small>Mais fácil de seguir</small></button>
+            </div>
+
             <div class="a11y-size" role="group" aria-label="Tamanho do texto">
                 <span>Tamanho do texto</span>
                 <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
                 <output id="a11yTextSize" aria-live="polite">100%</output>
                 <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
             </div>
+
+            <button type="button" class="a11y-reset" data-a11y="reset">Redefinir tudo</button>
         </div>
     </aside>
 
@@ -401,6 +427,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="../js/firebase-config.js"></script>
     <script src="../js/shared-components.js"></script>
+    <script src="../js/accessibility.js"></script>
+    <script src="../js/visitor-access.js"></script>
     <script src="../js/eventos.js"></script>
 
 </body>

@@ -28,22 +28,30 @@ window.addEventListener('load', async () => {
 
     if (!db || !auth) return;
 
+    // Nenhuma tela de login na entrada: garante uma sessão (anônima, se
+    // preciso) apenas para satisfazer as regras do Firestore, sem nunca
+    // navegar para login.html. Se já existir conta real logada, a função
+    // detecta isso e não mexe na sessão.
+    if (typeof garantirSessaoVisitante === 'function') {
+        await garantirSessaoVisitante();
+    }
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             await loadUserProfile(user);
             setupVisitorMode(user);
-            hideLoading();
-            await Promise.all([
-                loadStatistics(),
-                loadEventos(),
-                loadLugares(),
-                loadWeather(),
-                loadPopulation(),
-                loadHospedagens()
-            ]);
         } else {
-            window.location.href = 'login.html';
+            document.body.classList.add('visitor-mode');
         }
+        hideLoading();
+        await Promise.all([
+            loadStatistics(),
+            loadEventos(),
+            loadLugares(),
+            loadWeather(),
+            loadPopulation(),
+            loadHospedagens()
+        ]);
     });
 
 
@@ -297,7 +305,7 @@ async function loadEventos() {
                     <path d="M15 6v6M33 6v6M8 18h32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                 </svg>
                 <p>Nenhum evento programado no momento</p>
-                <a href="eventos.html" class="link-primary">Ver histórico</a>
+                <a href="pages/eventos.html" class="link-primary">Ver histórico</a>
             </div>`;
             return;
         }
@@ -375,7 +383,7 @@ function buildEventCard(ev) {
                     </span>
                 ` : ''}
             </div>
-            <a href="eventos.html" class="ev-link">
+            <a href="pages/eventos.html" class="ev-link">
                 Ver detalhes
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -508,7 +516,7 @@ function buildPlaceCard(place) {
             <div class="place-category">${getCatIcon(cat)} ${esc(cat)}</div>
             <h3 class="place-name">${esc(nome)}</h3>
             ${desc ? `<p class="place-desc">${esc(desc)}</p>` : ''}
-            <a href="../index.html?place=${place.id}" class="place-link">
+            <a href="pages/mapa.html?place=${place.id}" class="place-link">
                 Ver no mapa
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                     <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -519,7 +527,7 @@ function buildPlaceCard(place) {
 
     card.addEventListener('click', (e) => {
         if (!e.target.closest('a')) {
-            window.location.href = `../index.html?place=${place.id}`;
+            window.location.href = `pages/mapa.html?place=${place.id}`;
         }
     });
 
@@ -712,11 +720,11 @@ function setupListeners() {
         stat.addEventListener('click', () => {
             const target = stat.dataset.target;
             if (target === 'map') {
-                window.location.href = '../index.html';
+                window.location.href = 'pages/mapa.html';
                 return;
             }
             if (target === 'eventos') {
-                window.location.href = 'eventos.html';
+                window.location.href = 'pages/eventos.html';
             }
         });
     });

@@ -5,6 +5,9 @@
  *
  * Funções exportadas para o window:
  *  - isVisitor()
+ *  - garantirSessaoVisitante()
+ *  - requireAccount(actionLabel)
+ *  - showAuthRequiredModal(actionLabel) / closeAuthRequiredModal()
  *  - trackVisitorAction()
  *  - showConvertAccountBanner()
  *  - showConvertModal() / closeConvertModal()
@@ -25,6 +28,150 @@ function isVisitor() {
     if (typeof firebase === 'undefined') return false;
     const user = firebase.auth().currentUser;
     return user ? user.isAnonymous : false;
+}
+
+/* ============================================================
+   SESSÃO SILENCIOSA DE VISITANTE
+   ============================================================
+   Garante que exista uma sessão do Firebase Auth (anônima, se
+   necessário) SEM navegar para login.html e SEM exibir qualquer
+   tela de autenticação. Isso permite que visitantes sem conta
+   satisfaçam as regras do Firestore (que exigem "isAuth()" para
+   ler "espacos"/"places"/"hospedagens") enquanto navegam livremente
+   pela home, mapa, eventos e observatório — sem qualquer obrigação
+   de login visível.
+   Usa window.db / window.auth diretamente (não os módulos internos
+   de firebase-auth.js) para evitar corridas de inicialização.
+
+   IMPORTANTE: logo após o carregamento da página, auth.currentUser pode
+   estar momentaneamente null mesmo quando existe uma conta REAL logada —
+   o Firebase ainda está restaurando a sessão persistida de forma
+   assíncrona. Checar auth.currentUser de forma síncrona aqui criaria uma
+   sessão anônima nova por cima da conta real (e o usuário "perderia" o
+   login). Por isso aguardamos o primeiro onAuthStateChanged, que reflete
+   o estado já restaurado, antes de decidir se precisamos criar uma
+   sessão anônima. */
+async function garantirSessaoVisitante() {
+    const auth = window.auth;
+    const db = window.db;
+    if (!auth) return null;
+
+    const usuarioRestaurado = await new Promise(resolve => {
+        if (auth.currentUser) { resolve(auth.currentUser); return; }
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            unsubscribe();
+            resolve(user);
+        });
+        setTimeout(() => resolve(auth.currentUser), 5000);
+    });
+
+    if (usuarioRestaurado) return usuarioRestaurado;
+
+    try {
+        const result = await auth.signInAnonymously();
+        const user = result.user;
+
+        if (db && user) {
+            const ref = db.collection('users').doc(user.uid);
+            const snap = await ref.get();
+            if (!snap.exists) {
+                await ref.set({
+                    uid: user.uid,
+                    nome: 'Visitante',
+                    email: null,
+                    tipoUsuario: 'anonimo',
+                    isAdmin: false,
+                    dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
+                    ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
+                    favoritosIds: [],
+                    roteirosIds: [],
+                    limitado: true
+                });
+            }
+        }
+
+        return user;
+    } catch (error) {
+        console.warn('⚠️ Não foi possível iniciar a sessão de visitante:', error);
+        return null;
+    }
+}
+
+/* ============================================================
+   GUARDA DE PERMISSÃO — REGRAS DO VISITANTE
+   ============================================================
+   Ações bloqueadas para quem não tem conta permanente (favoritar
+   locais/eventos, criar avaliações/comentários, acessar áreas
+   restritas): chame requireAccount() antes de executar a ação.
+   Retorna true e libera a ação se houver conta permanente (não
+   anônima); caso contrário exibe o modal de login/cadastro e
+   retorna false. */
+function requireAccount(actionLabel) {
+    const user = (typeof firebase !== 'undefined') ? firebase.auth().currentUser : null;
+    if (user && !user.isAnonymous) return true;
+    showAuthRequiredModal(actionLabel);
+    return false;
+}
+
+/** Resolve o caminho relativo correto até login.html a partir da página atual. */
+function _resolveLoginHref() {
+    const wrap = document.getElementById('hdUserWrap');
+    if (wrap?.dataset?.loginHref) return wrap.dataset.loginHref;
+    return location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html';
+}
+
+function showAuthRequiredModal(actionLabel) {
+    closeAuthRequiredModal();
+
+    const modal = document.createElement('div');
+    modal.id = 'modalAuthRequired';
+    modal.className = 'modal active';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'authRequiredTitle');
+
+    const copy = actionLabel
+        ? `${_escHtml(actionLabel)} é exclusivo para quem tem conta no Conecta Bueno.`
+        : 'Esta ação é exclusiva para quem tem conta no Conecta Bueno.';
+
+    modal.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="authRequiredTitle">Entre para continuar</h3>
+                <button class="btn-close-modal" type="button" aria-label="Fechar">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:14px;color:#666;margin-bottom:20px;">${copy} Entre com sua conta ou crie uma nova gratuitamente — leva menos de um minuto.</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button type="button" class="auth-cta-btn auth-cta-btn--primary" id="authRequiredCreate">Criar Conta</button>
+                    <a href="${_escHtml(_resolveLoginHref())}" class="auth-cta-btn auth-cta-btn--outline" id="authRequiredLogin">Já tenho conta — Entrar</a>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', e => {
+        if (e.target === modal) closeAuthRequiredModal();
+    });
+    modal.querySelector('.btn-close-modal').addEventListener('click', closeAuthRequiredModal);
+    modal.querySelector('#authRequiredCreate').addEventListener('click', () => {
+        closeAuthRequiredModal();
+        showConvertModal();
+    });
+}
+
+function closeAuthRequiredModal() {
+    document.getElementById('modalAuthRequired')?.remove();
+}
+
+function _escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 
 /* ============================================================
@@ -168,7 +315,7 @@ function showConvertModal() {
                         <label for="cvSenha">Senha</label>
                         <input type="password" id="cvSenha" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" required>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Criar Conta</button>
+                    <button type="submit" class="auth-cta-btn auth-cta-btn--primary">Criar Conta</button>
                 </form>
             </div>
         </div>
@@ -233,6 +380,10 @@ function _toast(msg, type = 'info') {
    EXPOSIÇÃO GLOBAL
    ============================================================ */
 window.isVisitor               = isVisitor;
+window.garantirSessaoVisitante = garantirSessaoVisitante;
+window.requireAccount          = requireAccount;
+window.showAuthRequiredModal   = showAuthRequiredModal;
+window.closeAuthRequiredModal  = closeAuthRequiredModal;
 window.trackVisitorAction      = trackVisitorAction;
 window.showConvertAccountBanner = showConvertAccountBanner;
 window.showConvertModal        = showConvertModal;

@@ -38,16 +38,22 @@ window.addEventListener('load', async () => {
         return;
     }
 
+    // Nenhuma tela de login na entrada: garante uma sessão (anônima, se
+    // preciso) apenas para satisfazer as regras do Firestore, sem nunca
+    // navegar para login.html. Se já existir conta real logada, a função
+    // detecta isso e não mexe na sessão.
+    if (typeof garantirSessaoVisitante === 'function') {
+        await garantirSessaoVisitante();
+    }
+
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             await loadUserProfile(user);
-            setupListeners();
-            hideLoading();
-            await Promise.all([loadEventos(), loadNoticias()]);
-            openEventFromQuery();
-        } else {
-            window.location.href = 'login.html';
         }
+        setupListeners();
+        hideLoading();
+        await Promise.all([loadEventos(), loadNoticias()]);
+        openEventFromQuery();
     });
 });
 
@@ -120,6 +126,7 @@ function paintFavButtons(eventoId, isFav) {
 
 async function toggleFavorite(eventoId, e) {
     e?.stopPropagation();
+    if (!requireAccount('Favoritar eventos')) return;
     if (!currentUser) return;
 
     const wasFav = userFavorites.has(eventoId);

@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Observatório Cultural e de Impacto | Conecta Bueno</title>
-    
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+
     <!-- CSS -->
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/shared-components.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/observatorio.css">
     
     <!-- Firebase -->
@@ -24,34 +30,64 @@
         <p>Carregando dados culturais...</p>
     </div>
 
-    <!-- Admin Layout Style -->
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                        <rect x="3" y="10" width="4" height="11" rx="1" fill="currentColor"/>
-                        <rect x="10" y="6" width="4" height="15" rx="1" fill="currentColor"/>
-                        <rect x="17" y="8" width="4" height="13" rx="1" fill="currentColor"/>
-                    </svg>
-                    <div>
-                        <h1>Observatório Cultural</h1>
-                        <p>Análise e Impacto</p>
+    <!-- ═══════════════════════════
+         HEADER
+         ═══════════════════════════ -->
+    <header class="site-header" id="siteHeader">
+        <div class="hd-inner">
+
+            <a href="../index.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
+                <span class="hd-brand-seals">
+                    <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                    <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                </span>
+                <span class="hd-brand-name">Conecta Bueno</span>
+            </a>
+
+            <nav class="hd-nav" aria-label="Navegação principal">
+                <a href="../index.html"    class="hd-nav-link">Início</a>
+                <a href="mapa.html"        class="hd-nav-link">Mapa</a>
+                <a href="eventos.html"     class="hd-nav-link">Eventos</a>
+                <a href="observatorio.html" class="hd-nav-link hd-nav-active">Observatório</a>
+            </nav>
+
+            <button class="hd-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <div class="hd-user-wrap" id="hdUserWrap" data-login-href="login.html">
+                <button class="hd-avatar" id="btnUserMenu" aria-label="Menu do usuário" aria-expanded="false">
+                    <span id="userInitials">CB</span>
+                </button>
+                <div class="hd-dropdown" id="userDropdown" role="menu">
+                    <div class="hd-dd-profile">
+                        <div class="hd-dd-avatar"><span id="userInitialsLarge">CB</span></div>
+                        <div class="hd-dd-info">
+                            <strong id="userName">…</strong>
+                            <span id="userEmail">…</span>
+                        </div>
                     </div>
+                    <div class="hd-dd-divider"></div>
+                    <a href="../index.html"    class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="mapa.html"        class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
+                    <div class="hd-dd-divider"></div>
+                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
                 </div>
             </div>
 
-            <nav class="sidebar-nav">
-                <a href="home.html" class="nav-item nav-item-home">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 3L3 9H6V16H9V12H11V16H14V9H17L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Voltar para Home</span>
-                </a>
-                
-                <div class="nav-divider"></div>
-                
+        </div>
+    </header>
+
+    <!-- Admin Layout Style -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <nav class="sidebar-nav" id="sidebarNav">
                 <button class="nav-item active" data-section="visao-geral">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -102,19 +138,19 @@
                     <span>ODS e Impacto</span>
                 </button>
             </nav>
-
-            <div class="sidebar-footer">
-                <button class="btn-back-sidebar" id="btnBackSidebar">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Voltar ao Mapa</span>
-                </button>
-            </div>
         </aside>
+
+        <div class="admin-sidebar-backdrop" id="adminSidebarBackdrop"></div>
 
         <!-- Main Content -->
         <main class="admin-main">
+            <button class="section-menu-toggle" id="btnSectionMenuToggle" aria-expanded="false" aria-controls="sidebarNav">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <span>Seções</span>
+            </button>
+
             <div class="content-header">
                 <h2 id="sectionTitle">Visão Geral</h2>
                 <p id="sectionSubtitle">Estatísticas e indicadores culturais em tempo real</p>
@@ -669,6 +705,58 @@
         </main>
     </div>
 
+    <aside class="a11y-tools" aria-label="Opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
+            <span aria-hidden="true">Aa</span>
+        </button>
+        <div class="a11y-menu" id="a11yMenu" hidden>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+
+            <p class="a11y-menu__subtitle">Leitura e navegação</p>
+            <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
+                <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
+                <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
+            </div>
+
+            <p class="a11y-menu__subtitle">Daltonismo</p>
+            <div class="a11y-menu__group a11y-menu__group--select" role="group" aria-label="Modo para daltonismo">
+                <label class="a11y-select-label" for="a11yColorblind">Ajuste de cores</label>
+                <select id="a11yColorblind" class="a11y-select">
+                    <option value="none">Desativado</option>
+                    <option value="protanopia">Protanopia (vermelho-verde)</option>
+                    <option value="deuteranopia">Deuteranopia (vermelho-verde)</option>
+                    <option value="tritanopia">Tritanopia (azul-amarelo)</option>
+                    <option value="achromatopsia">Monocromacia (sem cor)</option>
+                </select>
+            </div>
+
+            <p class="a11y-menu__subtitle">Movimento e cursor</p>
+            <div class="a11y-menu__group" role="group" aria-label="Movimento e cursor">
+                <button type="button" data-a11y="motion" aria-pressed="false">Reduzir movimento <small>Pausa vídeos e animações</small></button>
+                <button type="button" data-a11y="cursor" aria-pressed="false">Cursor ampliado <small>Mais fácil de seguir</small></button>
+            </div>
+
+            <div class="a11y-size" role="group" aria-label="Tamanho do texto">
+                <span>Tamanho do texto</span>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
+            </div>
+
+            <button type="button" class="a11y-reset" data-a11y="reset">Redefinir tudo</button>
+        </div>
+    </aside>
+
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
@@ -685,6 +773,9 @@
 
     <!-- Scripts -->
     <script src="../js/firebase-config.js"></script>
+    <script src="../js/shared-components.js"></script>
+    <script src="../js/accessibility.js"></script>
+    <script src="../js/visitor-access.js"></script>
     <script src="../js/observatorio.js"></script>
 </body>
 </html>
