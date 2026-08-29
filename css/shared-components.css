@@ -474,11 +474,21 @@ body {
     .hd-inner { padding: 0 16px; }
     .hd-brand-icon { width: 32px; height: 32px; }
     .hd-brand-name { font-size: calc(14px * var(--a11y-text-scale, 1)); }
-    
-    .ft-grid { 
-        grid-template-columns: 1fr; 
-        gap: 24px; 
+
+    .ft-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
     }
+}
+
+/* Telas bem estreitas (ex.: iPhone SE, 375px): marca + hambúrguer + botão
+   "Entrar / Criar Conta" não cabem numa única linha de 66px e o botão
+   saía cortado pela borda da tela. Reduz os espaçamentos e esconde o
+   nome por extenso, mantendo só os selos (marca ainda reconhecível). */
+@media (max-width: 420px) {
+    .hd-inner { gap: 10px; }
+    .hd-brand-name { display: none; }
+    .hd-auth-cta { padding: 8px 13px; font-size: calc(12.5px * var(--a11y-text-scale, 1)); }
 }
 
 @keyframes slideDown {

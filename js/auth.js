@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     _setupForms();
     _setupPasswordStrength();
     _initVitrine();   // aguarda Firebase internamente
+
+    // Permite abrir direto na aba de cadastro via login.html?tab=register
+    // (usado pelo modal "Entre para continuar" de outras páginas).
+    if (new URLSearchParams(window.location.search).get('tab') === 'register') {
+        switchTab('register');
+    }
 });
 
 /* ============================================================

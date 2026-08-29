@@ -212,43 +212,67 @@ async function updateHeroStats() {
     const mes  = hoje.getMonth();
     const ano  = hoje.getFullYear();
 
+    const strip   = document.getElementById('heroAgendaStrip');
+    const liveDot = document.getElementById('heroLiveDot');
+    const cta     = document.getElementById('heroAgendaCTA');
+
+    // Antes, um evento de vários dias já em andamento (ex.: começou ontem,
+    // termina amanhã) ficava de fora daqui porque só a dataInicio era
+    // comparada com hoje — a agenda mostrava "0 eventos"/"—" mesmo com uma
+    // festa acontecendo agora. getEffectiveEnd() corrige isso.
     const eventosMes = allEventos.filter(ev => {
         const d = toDate(ev.dataInicio);
-        return d && d.getMonth() === mes && d.getFullYear() === ano && d >= hoje;
+        return d && d.getMonth() === mes && d.getFullYear() === ano && getEffectiveEnd(ev) >= hoje;
     });
 
     const proximo = allEventos
-        .map(ev => ({ ...ev, _d: toDate(ev.dataInicio) }))
-        .filter(ev => ev._d && ev._d >= hoje)
+        .map(ev => ({ ...ev, _d: toDate(ev.dataInicio), _fim: getEffectiveEnd(ev) }))
+        .filter(ev => ev._d && ev._fim >= hoje)
         .sort((a, b) => a._d - b._d)[0];
 
     const safeValue = eventosMes.length || 0;
-    const nextLabel = proximo ? (proximo.titulo || 'Evento em destaque') : 'Agenda em atualização';
-    const countdownText = proximo
-        ? (() => {
-            const dias = Math.ceil((proximo._d - hoje) / 86_400_000);
-            if (dias === 0) return 'Hoje';
-            if (dias === 1) return 'Em 1 dia';
-            return `Em ${dias} dias`;
-        })()
-        : '—';
-
     setTxt('heroAgendaValue', String(safeValue));
     setTxt('heroAgendaLabel', safeValue === 1 ? 'evento em agenda' : 'eventos em agenda');
-    setTxt('heroAgendaCountdown', countdownText);
-    setTxt('heroAgendaPill', 'Neste mês');
 
-    if (proximo) {
-        const dias = Math.ceil((proximo._d - hoje) / 86_400_000);
-        const weatherText = await getWeatherForDateSummary(proximo._d);
-        const metaText = weatherText
-            ? `${weatherText} · ${dias === 0 ? 'Hoje: ' : dias === 1 ? 'Amanhã: ' : `No dia do evento: `}${nextLabel}`
-            : `${dias === 0 ? 'Hoje: ' : dias === 1 ? 'Amanhã: ' : 'Próximo destaque: '}${nextLabel}`;
+    const live = !!proximo && proximo._d <= hoje; // já começou e ainda não terminou
 
-        setTxt('heroAgendaMeta', metaText);
+    if (liveDot) liveDot.hidden = !live;
+    strip?.classList.toggle('ev-agenda-strip-live', live);
+
+    if (live) {
+        const diasFim  = Math.ceil((proximo._fim - hoje) / 86_400_000);
+        const fimText  = diasFim <= 0 ? 'Termina hoje' : diasFim === 1 ? 'Termina amanhã' : `Termina em ${diasFim} dias`;
+
+        setTxt('heroAgendaCountdownLabel', 'acontecendo agora');
+        setTxt('heroAgendaCountdown', 'Ao vivo');
+        setTxt('heroAgendaPillText', 'Acontecendo agora');
+        setTxt('heroAgendaMeta', `${fimText} · ${proximo.titulo || 'Evento em destaque'}`);
     } else {
-        setTxt('heroAgendaMeta', 'A agenda segue em atualização para o próximo período.');
-        setTxt('heroAgendaPill', 'Em breve');
+        setTxt('heroAgendaCountdownLabel', 'próximo evento');
+
+        if (proximo) {
+            // Chegando aqui, proximo._d é sempre > hoje — o caso "já começou"
+            // foi tratado no branch `live` acima —, então não há "Hoje" a cobrir.
+            const dias     = Math.ceil((proximo._d - hoje) / 86_400_000);
+            const mesmoMes = proximo._d.getMonth() === mes && proximo._d.getFullYear() === ano;
+
+            setTxt('heroAgendaCountdown', dias === 1 ? 'Em 1 dia' : `Em ${dias} dias`);
+            setTxt('heroAgendaPillText', mesmoMes ? 'Neste mês' : 'Próximo evento');
+
+            const weatherText = await getWeatherForDateSummary(proximo._d);
+            const prefix = dias === 1 ? 'Amanhã: ' : 'Próximo destaque: ';
+            const nextLabel = proximo.titulo || 'Evento em destaque';
+            setTxt('heroAgendaMeta', weatherText ? `${weatherText} · ${prefix}${nextLabel}` : `${prefix}${nextLabel}`);
+        } else {
+            setTxt('heroAgendaCountdown', '—');
+            setTxt('heroAgendaPillText', 'Em breve');
+            setTxt('heroAgendaMeta', 'A agenda segue em atualização para o próximo período.');
+        }
+    }
+
+    if (cta) {
+        cta.hidden = !proximo;
+        cta.onclick = proximo ? () => openModal(allEventos.find(e => e.id === proximo.id) || proximo) : null;
     }
 }
 
@@ -493,9 +517,11 @@ function buildUpcomingList() {
 
     const hoje = startOfDay(new Date());
 
+    // getEffectiveEnd() garante que um evento de vários dias continue
+    // aparecendo aqui enquanto ainda estiver rolando, não só até a véspera.
     const coming = allEventos
-        .map(ev => ({ ...ev, _d: toDate(ev.dataInicio) }))
-        .filter(ev => ev._d && ev._d >= hoje)
+        .map(ev => ({ ...ev, _d: toDate(ev.dataInicio), _live: isLiveNow(ev, hoje) }))
+        .filter(ev => ev._d && getEffectiveEnd(ev) >= hoje)
         .sort((a, b) => a._d - b._d)
         .slice(0, 5);
 
@@ -509,12 +535,12 @@ function buildUpcomingList() {
 
     const items = coming.map(ev => {
         const d   = ev._d;
-        const day = d.getDate().toString().padStart(2, '0');
-        const mon = d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
+        const day = ev._live ? 'HOJE' : d.getDate().toString().padStart(2, '0');
+        const mon = ev._live ? '' : d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
         return `
             <div class="ev-upcoming-item" data-id="${ev.id}" role="button" tabindex="0"
-                 aria-label="${esc(ev.titulo)} em ${day} de ${mon}">
-                <div class="ev-upcoming-date">
+                 aria-label="${esc(ev.titulo)}${ev._live ? ' — acontecendo hoje' : ` em ${day} de ${mon}`}">
+                <div class="ev-upcoming-date${ev._live ? ' ev-upcoming-date-live' : ''}">
                     <span class="ud-day">${day}</span>
                     <span class="ud-mon">${mon}</span>
                 </div>
@@ -721,8 +747,9 @@ function getTopPresenceEvent() {
 
 function buildCard(ev, topEvent) {
     const d      = toDate(ev.dataInicio);
-    const hoje   = new Date();
+    const hoje   = startOfDay(new Date());
     const days   = d ? Math.ceil((d - hoje) / 86_400_000) : null;
+    const live   = isLiveNow(ev, hoje);
     const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
@@ -732,9 +759,13 @@ function buildCard(ev, topEvent) {
     if (isTopPresence) {
         badgeHTML += '<span class="ev-badge ev-badge-em-alta">🔥 Em Alta</span>';
     }
-    if (days !== null && days >= 0) {
-        if      (days === 0) badgeHTML += '<span class="ev-badge ev-badge-hoje">Hoje</span>';
-        else if (days === 1) badgeHTML += '<span class="ev-badge ev-badge-amanha">Amanhã</span>';
+    // Um evento que já começou (ex.: dura vários dias e hoje está no meio)
+    // tinha "days" negativo e não ganhava nenhum aviso — parecia um evento
+    // qualquer, mesmo estando em andamento agora. isLiveNow() cobre isso.
+    if (live) {
+        badgeHTML += '<span class="ev-badge ev-badge-live"><span class="ev-live-dot" aria-hidden="true"></span>Ao Vivo</span>';
+    } else if (days !== null && days >= 0) {
+        if      (days === 1) badgeHTML += '<span class="ev-badge ev-badge-amanha">Amanhã</span>';
         else if (days <= 7)  badgeHTML += `<span class="ev-badge ev-badge-breve">Em ${days} dias</span>`;
     }
 
@@ -803,7 +834,7 @@ function buildCard(ev, topEvent) {
         </div>
         <div class="ev-card-footer">
             <div class="ev-card-footer-actions">
-                <button class="ev-rsvp-btn" data-evt-id="${ev.id}" aria-pressed="false" title="Confirmar presença">🔥 <span class="rsvp-count">${ev.presencasCount || 0}</span></button>
+                <button class="ev-rsvp-btn" data-evt-id="${ev.id}" aria-pressed="false" data-tooltip="Confirmar presença" aria-label="Confirmar presença">🔥 <span class="rsvp-count">${ev.presencasCount || 0}</span></button>
                 <button type="button" class="ev-card-share" data-share-id="${ev.id}" aria-label="Compartilhar ${esc(ev.titulo || 'evento')}" title="Compartilhar">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                         <circle cx="11" cy="2.5" r="1.5" stroke="currentColor" stroke-width="1.5"/>
@@ -838,6 +869,9 @@ function buildCard(ev, topEvent) {
             if (countEl) countEl.textContent = String(count);
             rsvpBtn.setAttribute('aria-pressed', going ? 'true' : 'false');
             rsvpBtn.classList.toggle('is-going', !!going);
+            const label = going ? 'Cancelar presença' : 'Confirmar presença';
+            rsvpBtn.setAttribute('data-tooltip', label);
+            rsvpBtn.setAttribute('aria-label', label);
         };
 
         // Só descobre se o usuário já confirmou (1 leitura). A contagem já veio
@@ -914,6 +948,7 @@ function buildTimelineItem(ev, topEvent) {
     const day   = d ? d.getDate().toString().padStart(2, '0') : '—';
     const month = d ? d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase() : '';
     const isFav = userFavorites.has(ev.id);
+    const live  = isLiveNow(ev, startOfDay(new Date()));
     const isTopPresence = !!topEvent && topEvent.id === ev.id && Number(ev.presencasCount || 0) > 0;
 
     const item = document.createElement('div');
@@ -955,6 +990,7 @@ function buildTimelineItem(ev, topEvent) {
             </div>
         </div>
         <div class="ev-tl-aside">
+            ${live ? '<span class="ev-badge ev-badge-live"><span class="ev-live-dot" aria-hidden="true"></span>Ao Vivo</span>' : ''}
             <span class="ev-tl-cat">${esc(ev.categoria || 'Evento')}</span>
             <button type="button" class="ev-tl-share" data-share-id="${ev.id}" aria-label="Compartilhar ${esc(ev.titulo || 'evento')}" title="Compartilhar">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -1077,6 +1113,8 @@ function openModal(ev) {
             <p class="ev-modal-desc">${esc(ev.descricao)}</p>
             ` : ''}
 
+            <div class="ev-modal-attendees" id="modalAttendees" hidden></div>
+
             <div class="ev-modal-footer">
                 <div class="ev-modal-calendar-wrap">
                     <button class="ev-modal-btn-primary" id="modalCalendarBtn" type="button">
@@ -1137,6 +1175,47 @@ function openModal(ev) {
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
     document.getElementById('modalClose')?.focus();
+
+    loadAttendeesPreview(ev);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PROVA SOCIAL — quem já confirmou presença
+// ─────────────────────────────────────────────────────────────────
+
+/** Busca sob demanda (só ao abrir o modal) os primeiros nomes que confirmaram
+ *  presença e monta uma linha tipo "Maria, João e mais 3 confirmaram presença".
+ *  As regras do Firestore liberam a leitura para qualquer sessão autenticada,
+ *  inclusive visitante anônimo — garantida em toda a página por
+ *  garantirSessaoVisitante() no boot. */
+async function loadAttendeesPreview(ev) {
+    const box = document.getElementById('modalAttendees');
+    if (!box || !db || !Number(ev.presencasCount || 0)) return;
+
+    try {
+        const snap = await db.collection('eventos').doc(ev.id)
+                             .collection('presencas').limit(6).get();
+        const nomes = snap.docs
+            .map(d => (d.data().nome || '').trim().split(' ')[0])
+            .filter(Boolean);
+        if (!nomes.length) return;
+
+        const extra = Number(ev.presencasCount || 0) - nomes.length;
+        let text;
+        if (extra > 0) {
+            text = `${nomes.join(', ')} e mais ${extra} confirmaram presença`;
+        } else if (nomes.length === 1) {
+            text = `${nomes[0]} confirmou presença`;
+        } else {
+            text = `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]} confirmaram presença`;
+        }
+
+        box.textContent = `🎉 ${text}`;
+        box.hidden = false;
+    } catch (err) {
+        // Sem permissão ou offline: a página segue normalmente sem essa linha.
+        console.warn('⚠️ Lista de presenças indisponível:', err?.code || err);
+    }
 }
 
 function closeModal() {
@@ -1466,6 +1545,19 @@ function endOfDay(date) {
     const d = new Date(date);
     d.setHours(23, 59, 59, 999);
     return d;
+}
+
+/** Data de término efetiva do evento: dataFim, ou dataInicio se for de um dia só */
+function getEffectiveEnd(ev) {
+    return toDate(ev.dataFim) || toDate(ev.dataInicio);
+}
+
+/** Um evento está "ao vivo" quando hoje cai dentro de [dataInicio, dataFim].
+ *  `hoje` deve ser startOfDay() — a comparação é por dia, não por horário. */
+function isLiveNow(ev, hoje) {
+    const inicio = toDate(ev.dataInicio);
+    const fim = getEffectiveEnd(ev);
+    return !!inicio && !!fim && inicio <= hoje && fim >= hoje;
 }
 
 function setTxt(id, txt) {

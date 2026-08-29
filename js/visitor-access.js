@@ -158,7 +158,7 @@ function showAuthRequiredModal(actionLabel) {
     modal.querySelector('.btn-close-modal').addEventListener('click', closeAuthRequiredModal);
     modal.querySelector('#authRequiredCreate').addEventListener('click', () => {
         closeAuthRequiredModal();
-        showConvertModal();
+        window.location.href = `${_resolveLoginHref()}?tab=register`;
     });
 }
 
