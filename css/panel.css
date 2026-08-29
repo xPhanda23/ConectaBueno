@@ -1235,9 +1235,40 @@ select.form-control {
         font-size: 13px;
         padding: 10px 14px;
     }
-    
+
     .nav-item-home svg {
         width: 18px;
         height: 18px;
     }
 }
+
+/* ================================================================
+   ACESSIBILIDADE — ajustes específicos do painel administrativo
+   ================================================================ */
+.a11y-high-contrast { background: #fff; }
+/* Cartões escuros/coloridos com texto claro (sidebar admin, cards de
+   destaque...) viram invisíveis se só o fundo ou só o texto for forçado.
+   Zera os dois em cascata para todo mundo dentro dos contêineres
+   principais — não uma lista fixa de seletores, que sempre fica
+   incompleta. */
+.a11y-high-contrast .admin-sidebar,
+.a11y-high-contrast .stat-card,
+.a11y-high-contrast .welcome-card,
+.a11y-high-contrast .setting-card,
+.a11y-high-contrast .category-card {
+    background: #fff !important;
+    background-image: none !important;
+    color: #111827 !important;
+    border-color: #000 !important;
+}
+.a11y-high-contrast .admin-sidebar *,
+.a11y-high-contrast .stat-card *,
+.a11y-high-contrast .welcome-card *,
+.a11y-high-contrast .setting-card *,
+.a11y-high-contrast .category-card * {
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+.a11y-high-contrast .nav-item.active { outline: 2px solid #000 !important; }

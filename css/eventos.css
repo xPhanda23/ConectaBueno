@@ -1509,3 +1509,43 @@ main { flex: 1; }
         transition-duration: .01ms !important;
     }
 }
+
+/* ================================================================
+   ACESSIBILIDADE — ajustes específicos da agenda de eventos
+   ================================================================ */
+.a11y-focus .ev-hero-video { animation-play-state: paused; }
+.a11y-focus .ev-agenda-strip { opacity: .7; }
+
+.a11y-high-contrast { background: #fff; }
+/* Cartões escuros/coloridos com texto claro (destaques, tabs ativas...)
+   viram invisíveis se só o fundo ou só o texto for forçado. Zera os dois
+   em cascata para todo mundo dentro dos contêineres principais — não uma
+   lista fixa de seletores, que sempre fica incompleta. */
+.a11y-high-contrast .ev-card,
+.a11y-high-contrast .news-card,
+.a11y-high-contrast .ev-sidebar,
+.a11y-high-contrast .ev-mini-cal,
+.a11y-high-contrast .ev-filters-bar,
+.a11y-high-contrast .ev-modal-box,
+.a11y-high-contrast .ev-timeline {
+    background: #fff !important;
+    background-image: none !important;
+    color: #111827 !important;
+    border-color: #000 !important;
+}
+.a11y-high-contrast .ev-card *,
+.a11y-high-contrast .news-card *,
+.a11y-high-contrast .ev-sidebar *,
+.a11y-high-contrast .ev-mini-cal *,
+.a11y-high-contrast .ev-filters-bar *,
+.a11y-high-contrast .ev-modal-box *,
+.a11y-high-contrast .ev-timeline * {
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+.a11y-high-contrast .ev-tab-active,
+.a11y-high-contrast .ev-cat-active,
+.a11y-high-contrast .ev-view-active { outline: 2px solid #000 !important; }
+

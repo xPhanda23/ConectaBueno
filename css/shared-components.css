@@ -199,6 +199,31 @@ body {
     object-fit: cover; border-radius: 50%;
 }
 
+/* Botão "Entrar / Criar Conta" — substitui o avatar quando não há
+   conta permanente logada (visitante ou sem sessão). */
+.hd-auth-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #1f4d31;
+    font-size: 13.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+    transition: all 0.2s;
+}
+
+.hd-auth-cta:hover,
+.hd-auth-cta:focus-visible {
+    background: #eafaf0;
+    color: #1f4d31;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0,0,0,.2);
+}
+
 .hd-dropdown {
     position: absolute;
     top: calc(100% + 12px);
@@ -467,73 +492,8 @@ body {
     }
 }
 
-/* ================================================================
-   FERRAMENTAS DE ACESSIBILIDADE (mesmo sistema da tela de login)
-   ================================================================ */
-.a11y-tools { position: fixed; right: 18px; bottom: 18px; z-index: 11000; }
-
-.a11y-fab {
-    width: 50px; height: 50px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4a9060, #1a3a2e);
-    color: #fff;
-    box-shadow: 0 12px 28px rgba(15, 36, 25, 0.35);
-    cursor: pointer;
-    font-weight: 800;
-    font-size: 15px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.a11y-fab:hover, .a11y-fab:focus-visible { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(15, 36, 25, 0.42); }
-
-.a11y-menu {
-    position: absolute;
-    right: 0;
-    bottom: 60px;
-    width: min(280px, calc(100vw - 28px));
-    padding: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.86);
-    box-shadow: 0 24px 60px rgba(15, 36, 25, 0.22);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    animation: a11yMenuIn 0.2s cubic-bezier(.22,1,.36,1) both;
-}
-.a11y-menu[hidden] { display: none; }
-.a11y-menu__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.a11y-menu__eyebrow { margin-bottom: 3px; color: #c2703c; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-.a11y-menu__title { color: #111827; font-size: 0.95rem; font-weight: 800; }
-.a11y-menu__hint { margin: 6px 0 14px; color: #6b7280; font-size: 0.74rem; line-height: 1.4; }
-.a11y-menu__close { width: 28px; height: 28px; border: 1px solid rgba(17, 24, 39, 0.14); border-radius: 50%; background: #fff; color: #374151; cursor: pointer; font-size: 1.05rem; line-height: 1; }
-.a11y-menu__group { display: grid; gap: 8px; }
-.a11y-menu > button, .a11y-menu__group button, .a11y-size button {
-    border: 1px solid rgba(17, 24, 39, 0.12);
-    border-radius: 10px;
-    background: #fff;
-    color: #111827;
-    cursor: pointer;
-}
-.a11y-menu__group button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; text-align: left; font-size: 0.8rem; font-weight: 600; }
-.a11y-menu__group small { color: #9ca3af; font-size: 0.66rem; font-weight: 400; }
-.a11y-menu button:hover, .a11y-menu button.is-active { background: #e8f5ee; border-color: #9dcfb0; }
-.a11y-menu button.is-active { color: #1a3a2e; }
-.a11y-size { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(17, 24, 39, 0.1); color: #374151; font-size: 0.78rem; font-weight: 600; }
-.a11y-size span { flex: 1; }
-.a11y-size button { width: 32px; height: 32px; font-size: 1rem; }
-.a11y-size output { min-width: 40px; color: #1a3a2e; font-size: 0.7rem; font-weight: 800; text-align: center; }
-.a11y-menu button:focus-visible { outline: 2px solid #4a9060; outline-offset: 2px; }
-
-@keyframes a11yMenuIn { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-@media (max-width: 540px) {
-    .a11y-tools { right: 12px; bottom: 12px; }
-    .a11y-menu { bottom: 58px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .a11y-menu { animation: none; }
-}
+/* Ferramentas de acessibilidade (.a11y-tools/.a11y-fab/.a11y-menu):
+   ver css/accessibility.css, incluído em todas as páginas. */
 
 /* Layout para garantir footer sempre no fundo.
    ATENCAO: o body precisa poder crescer com o conteudo. Fixar

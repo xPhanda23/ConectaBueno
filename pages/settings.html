@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2d5a3d">
     <title>Configurações - Conecta Bueno</title>
-    
+
+    <!-- Fonte legível (acessibilidade) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+
     <!-- Estilos -->
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/settings.css">
 </head>
 <body>
@@ -36,7 +42,7 @@
             </div>
 
             <nav class="sidebar-nav">
-                <a href="home.html" class="nav-item nav-item-home">
+                <a href="../index.html" class="nav-item nav-item-home">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M10 3L3 9H6V16H9V12H11V16H14V9H17L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
                     </svg>
@@ -86,7 +92,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <a href="../index.html" class="btn-back-map">
+                <a href="mapa.html" class="btn-back-map">
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                         <path d="M7 4L2 9L7 14M2 9H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
@@ -455,6 +461,58 @@
         </div>
     </div>
 
+    <aside class="a11y-tools" aria-label="Opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
+            <span aria-hidden="true">Aa</span>
+        </button>
+        <div class="a11y-menu" id="a11yMenu" hidden>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+
+            <p class="a11y-menu__subtitle">Leitura e navegação</p>
+            <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
+                <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
+                <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
+            </div>
+
+            <p class="a11y-menu__subtitle">Daltonismo</p>
+            <div class="a11y-menu__group a11y-menu__group--select" role="group" aria-label="Modo para daltonismo">
+                <label class="a11y-select-label" for="a11yColorblind">Ajuste de cores</label>
+                <select id="a11yColorblind" class="a11y-select">
+                    <option value="none">Desativado</option>
+                    <option value="protanopia">Protanopia (vermelho-verde)</option>
+                    <option value="deuteranopia">Deuteranopia (vermelho-verde)</option>
+                    <option value="tritanopia">Tritanopia (azul-amarelo)</option>
+                    <option value="achromatopsia">Monocromacia (sem cor)</option>
+                </select>
+            </div>
+
+            <p class="a11y-menu__subtitle">Movimento e cursor</p>
+            <div class="a11y-menu__group" role="group" aria-label="Movimento e cursor">
+                <button type="button" data-a11y="motion" aria-pressed="false">Reduzir movimento <small>Pausa vídeos e animações</small></button>
+                <button type="button" data-a11y="cursor" aria-pressed="false">Cursor ampliado <small>Mais fácil de seguir</small></button>
+            </div>
+
+            <div class="a11y-size" role="group" aria-label="Tamanho do texto">
+                <span>Tamanho do texto</span>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
+            </div>
+
+            <button type="button" class="a11y-reset" data-a11y="reset">Redefinir tudo</button>
+        </div>
+    </aside>
+
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
@@ -472,6 +530,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <script src="../js/firebase-config.js"></script>
+    <script src="../js/accessibility.js"></script>
     <script src="../js/settings.js"></script>
 </body>
 </html>

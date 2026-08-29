@@ -4,34 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2d5a3d">
-    <meta name="description" content="Conecta Bueno - Mapa Cultural de Bueno Brandão, MG. Descubra espaços culturais, cachoeiras e pontos turísticos da Serra da Mantiqueira.">
-    <title>Conecta Bueno - Mapa Cultural de Bueno Brandão, MG</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-
-    <!-- Fontes -->
+    <meta name="description" content="Conecta Bueno — Explore a cultura, natureza e história de Bueno Brandão, Serra da Mantiqueira, MG.">
+    <title>Conecta Bueno — Bueno Brandão, MG</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Estilos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/shared-components.css">
-    <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link rel="stylesheet" href="css/home.css">
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
+
+    <!-- Loading -->
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
         <div class="loading-spinner"></div>
-        <p>Carregando mapa...</p>
+        <span>Carregando…</span>
     </div>
 
+    <!-- HEADER -->
     <header class="site-header" id="siteHeader">
         <div class="hd-inner">
-            <a href="pages/home.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
+            <a href="index.html" class="hd-brand">
                 <span class="hd-brand-seals">
                     <img src="assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
                     <img src="assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
@@ -39,21 +33,21 @@
                 <span class="hd-brand-name">Conecta Bueno</span>
             </a>
 
-            <nav class="hd-nav" aria-label="Navegação principal">
-                <a href="pages/home.html" class="hd-nav-link">Início</a>
-                <a href="index.html" class="hd-nav-link hd-nav-active">Mapa</a>
+            <nav class="hd-nav">
+                <a href="index.html" class="hd-nav-link hd-nav-active">Início</a>
+                <a href="pages/mapa.html" class="hd-nav-link">Mapa</a>
                 <a href="pages/eventos.html" class="hd-nav-link">Eventos</a>
                 <a href="pages/observatorio.html" class="hd-nav-link">Observatório</a>
             </nav>
 
-            <button class="hd-menu-toggle" aria-label="Abrir menu mobile">
+            <button class="hd-menu-toggle">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                     <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </button>
 
-            <div class="hd-user-wrap" id="hdUserWrap">
-                <button class="hd-avatar" id="btnUserMenu" aria-label="Menu do usuário" aria-expanded="false">
+            <div class="hd-user-wrap" id="hdUserWrap" data-login-href="pages/login.html">
+                <button class="hd-avatar" id="btnUserMenu">
                     <span id="userInitials">CB</span>
                 </button>
                 <div class="hd-dropdown" id="userDropdown" role="menu">
@@ -65,11 +59,11 @@
                         </div>
                     </div>
                     <div class="hd-dd-divider"></div>
-                    <a href="./pages/home.html"        class="hd-dd-item" role="menuitem">Início</a>
-                    <a href="index.html"    class="hd-dd-item" role="menuitem">Mapa Interativo</a>
-                    <a href="./pages/eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
-                    <a href="./pages/observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
-                    <a href="./pages/panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
+                    <a href="index.html"        class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="pages/mapa.html"    class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="pages/eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="pages/observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <a href="pages/panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
                     <div class="hd-dd-divider"></div>
                     <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
                 </div>
@@ -77,167 +71,317 @@
         </div>
     </header>
 
-    <!-- Container Principal -->
-    <div class="map-wrapper">
-        <!-- Sidebar -->
-        <aside class="map-sidebar active" id="sidebar">
-            <button class="sidebar-toggle-btn" id="btnToggleMenu" type="button" aria-label="Recolher painel lateral">
-                <span>‹</span>
-            </button>
-            <div class="sidebar-content">
-                <!-- Estatísticas Rápidas -->
-                <div class="quick-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10 0C7.2 0 5 2.2 5 5c0 3.9 5 15 5 15s5-11.1 5-15c0-2.8-2.2-5-5-5zm0 7.5c-1.4 0-2.5-1.1-2.5-2.5S8.6 2.5 10 2.5s2.5 1.1 2.5 2.5S11.4 7.5 10 7.5z"/>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="totalPlaces">0</span>
-                            <span class="stat-label">Lugares</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <rect x="3" y="3" width="5" height="5" rx="1"/>
-                                <rect x="3" y="12" width="5" height="5" rx="1"/>
-                                <rect x="12" y="3" width="5" height="5" rx="1"/>
-                                <rect x="12" y="12" width="5" height="5" rx="1"/>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-value" id="totalCategories">0</span>
-                            <span class="stat-label">Categorias</span>
-                        </div>
-                    </div>
-                </div>
+    <!-- HERO — tela cheia, adapta ao dispositivo -->
+    <section class="hero">
+        <video class="hero-video" autoplay muted loop playsinline>
+            <source src="assets/home.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
 
-                <!-- Busca -->
-                <div class="search-section">
-                    <div class="search-box">
-                        <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                        <input 
-                            type="text" 
-                            id="searchInput" 
-                            class="search-input" 
-                            placeholder="Buscar lugares..."
-                            autocomplete="off"
-                        >
-                        <button class="search-clear" id="btnClearSearch" style="display: none;">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Filtros de Categorias -->
-                <div class="filters-section">
-                    <div class="filters-header">
-                        <h3>
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M1 2H15L10 8V13L6 15V8L1 2Z"/>
-                            </svg>
-                            Categorias
-                        </h3>
-                        <button class="btn-clear-filters" id="btnClearFilters">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M11 3L3 11M3 3L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="filter-buttons" id="filterButtons">
-                        <!-- Categorias serão carregadas dinamicamente aqui -->
-                    </div>
-                </div>
-
-                <!-- Lista de Resultados -->
-                <div class="results-section">
-                    <div class="results-header">
-                        <h3>
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <rect x="2" y="3" width="12" height="2" rx="1"/>
-                                <rect x="2" y="7" width="12" height="2" rx="1"/>
-                                <rect x="2" y="11" width="8" height="2" rx="1"/>
-                            </svg>
-                            Lugares
-                        </h3>
-                        <div class="sort-select-wrap">
-                            <select id="sortSelect" class="sort-select" aria-label="Ordenar lugares">
-                                <option value="nome">Nome (A-Z)</option>
-                                <option value="categoria">Categoria</option>
-                                <option value="distancia">Mais perto</option>
-                            </select>
-                            <svg class="sort-select-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </div>
-                    </div>
-                    <div class="results-list" id="resultsList">
-                        <!-- Cartões de lugares carregados dinamicamente aqui -->
-                    </div>
-                </div>
-
-                <!-- Contador de Resultados -->
-                <div class="results-summary">
-                    <div class="results-count" id="resultsCount">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 0C5.2 0 3 2.2 3 5c0 3.9 5 11 5 11s5-7.1 5-11c0-2.8-2.2-5-5-5zm0 7.5c-1.4 0-2.5-1.1-2.5-2.5S6.6 2.5 8 2.5s2.5 1.1 2.5 2.5S9.4 7.5 8 7.5z"/>
-                        </svg>
-                        <span>Carregando...</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Mapa -->
-        <div class="map-container">
-            <div id="map"></div>
-            
-            <!-- Map Controls -->
-            <div class="map-controls">
-                <button class="map-control-btn" id="btnMyLocation" title="Minha localização">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
-                        <path d="M10 2V5M10 15V18M18 10H15M5 10H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                </button>
-                <button class="map-control-btn" id="btnRecenter" title="Recentrar mapa">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 3C6.1 3 3 6.1 3 10C3 13.9 6.1 17 10 17C13.9 17 17 13.9 17 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        <path d="M17 6V10H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Legenda de Categorias -->
-            <div class="map-legend" id="mapLegend">
-                <button class="legend-toggle" id="btnLegendToggle" type="button" aria-expanded="false" aria-controls="legendContent">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2H15L10 8V13L6 15V8L1 2Z"/></svg>
-                    <span>Legenda</span>
-                    <svg class="legend-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
-                <div class="legend-content" id="legendContent" hidden>
-                    <!-- Itens da legenda carregados dinamicamente aqui -->
-                </div>
-            </div>
-
-            <!-- Painel de detalhes do espaço (substitui o popup do Leaflet) -->
-            <div id="spaceDetailBackdrop" class="sd-backdrop" hidden></div>
-            <aside id="spaceDetail" class="sd-panel" role="dialog" aria-modal="false" aria-hidden="true" tabindex="-1">
-                <span class="sd-handle" aria-hidden="true"></span>
-                <button type="button" class="sd-close" id="sdClose" aria-label="Fechar">
-                    <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true" focusable="false">
-                        <path d="M4 4L14 14M14 4L4 14" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-                    </svg>
-                </button>
-                <div class="sd-body" id="sdBody"></div>
-            </aside>
+        <div class="hero-weather-corner" id="weatherWidget" aria-live="polite">
+            <span class="hero-weather-icon" id="weatherIcon" aria-hidden="true">☀️</span>
+            <span class="hero-weather-temp" id="weatherTemp">--°C</span>
         </div>
-    </div>
+
+        <div class="hero-content">
+
+            <div class="hero-textblock">
+                <h1 class="hero-title">Bem-vindo a <strong>Bueno Brandão</strong></h1>
+                <p class="hero-subtitle">Num cantinho de Minas Gerais, nas cristas da Mantiqueira, encontra-se um pedaço do paraíso. Explore cultura, natureza e história.</p>
+            </div>
+
+            <div class="hero-actions">
+                <a href="pages/mapa.html" class="hero-btn hero-btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2C6.5 2 4 4 4 7C4 11 9 17 9 17S14 11 14 7C14 4 11.5 2 9 2Z" stroke="currentColor" stroke-width="1.8"/></svg>
+                    Explorar Mapa
+                </a>
+                <a href="pages/eventos.html" class="hero-btn hero-btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 1v3M13 1v3M2 7h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    Ver Eventos
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-scroll-indicator">
+            <span>Deslize para explorar</span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M5 8l5 5 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- SOBRE — traz junto o resumo de estatísticas ao vivo -->
+    <section class="section section-about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-text reveal">
+                    <span class="section-tag">Nossa Cidade</span>
+                    <h2>Bem-vindo!</h2>
+                    <p>Num cantinho de Minas Gerais, nas cristas da Mantiqueira, encontra-se um pedaço do paraíso. Com clima ameno na maior parte do ano, fontes de águas cristalinas e cachoeiras inesquecíveis, a cidade encanta também por sua gente.</p>
+                    <p><strong>Esta é Bueno Brandão.</strong> Terra de natureza exuberante, cultura rica e tradições preservadas.</p>
+                    <div class="about-highlights">
+                        <button class="highlight-item highlight-item-link hero-stat-link" type="button" data-target="map" aria-label="Ver lugares em mapa">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.5 3 6 5.8 6 9c0 5 6 12 6 12s6-7 6-12c0-3.2-2.5-6-6-6z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.3" stroke="currentColor" stroke-width="2"/></svg>
+                            <div><strong id="statPlaces">—</strong><span>Lugares</span></div>
+                        </button>
+                        <button class="highlight-item highlight-item-link hero-stat-link" type="button" data-target="eventos" aria-label="Ver eventos ativos">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <div><strong id="statEvents">—</strong><span>Eventos Ativos</span></div>
+                        </button>
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3c0 0 7 8 7 13a7 7 0 0 1-14 0c0-5 7-13 7-13z" stroke="currentColor" stroke-width="2"/></svg>
+                            <div><strong id="statWaterfalls">~30</strong><span>Cachoeiras</span></div>
+                        </div>
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <div><strong>~356 km²</strong><span>de área territorial</span></div>
+                        </div>
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="8" r="5" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-4 3-7 7-7h4c4 0 7 3 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            <div><strong id="aboutPopulation">~10 mil</strong><span>habitantes (IBGE)</span></div>
+                        </div>
+                        <div class="highlight-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 9v6c0 5.55 3.84 10.74 10 12 6.16-1.26 10-6.45 10-12V9l-10-7z" stroke="currentColor" stroke-width="2"/></svg>
+                            <div><strong>~97%</strong><span>área preservada</span></div>
+                        </div>
+                    </div>
+                    <a href="pages/mapa.html" class="btn-primary">
+                        Explorar o Mapa
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </a>
+                </div>
+                <div class="about-visual reveal" aria-label="Galeria de paisagens de Bueno Brandão">
+                    <!-- ATENÇÃO: imagens de terceiros hotlinked (sem licença própria) — risco de
+                         disponibilidade e legal. onerror remove a slide graciosamente se cair. -->
+                    <div class="about-slider" id="aboutSlider">
+                        <img class="about-slide active" alt="Vista de Bueno Brandão" src="https://terradascachoeiras.com.br/wp-content/uploads/2020/08/foto-secretaria-de-turismo.jpg" onerror="this.remove()">
+                        <img class="about-slide" alt="Paisagem de Bueno Brandão" src="https://i0.wp.com/arotaalternativaviagens.com/wp-content/uploads/2025/01/img_3791.jpeg?fit=1170%2C1458&ssl=1" onerror="this.remove()">
+                        <img class="about-slide" alt="Entardecer em Bueno Brandão" src="https://terradascachoeiras.com.br/wp-content/uploads/2020/08/bueno-ao-entardecer.jpg" onerror="this.remove()">
+                        <img class="about-slide" alt="Cachoeira do Félix" src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/55/70/f1/venha-ser-felix-venha.jpg?w=1400&h=-1&s=1" onerror="this.remove()">
+                    </div>
+                    <div class="about-map-badge" aria-label="Localização de Bueno Brandão">
+                        <span class="about-map-pin">📍</span>
+                        <div>
+                            <strong>Bueno Brandão</strong>
+                            <small>Serra da Mantiqueira</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LINHA DO TEMPO -->
+    <section class="section section-timeline bg-off" id="secTimeline">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Nossa História</span>
+                    <h2>Linha do Tempo</h2>
+                    <p>De Bom Jesus da Pedra Fria a Bueno Brandão — mais de dois séculos de história</p>
+                </div>
+            </div>
+
+            <div class="timeline timeline-teaser" id="timelineTrack"></div>
+
+            <div class="timeline-full-wrap" id="timelineFullWrap">
+                <div class="timeline timeline-full" id="timelineFull"></div>
+            </div>
+
+            <div class="timeline-cta reveal">
+                <button type="button" class="timeline-more-btn" id="btnTimelineToggle" aria-expanded="false" aria-controls="timelineFullWrap">
+                    <span>Ver linha do tempo completa</span>
+                    <svg class="timeline-toggle-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- EVENTOS -->
+    <section class="section section-eventos" id="secEventos">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Agenda Cultural</span>
+                    <h2>Próximos Eventos</h2>
+                    <p>O que está acontecendo em Bueno Brandão</p>
+                </div>
+                <a href="pages/eventos.html" class="section-link">
+                    Ver toda agenda
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </a>
+            </div>
+            <div class="eventos-grid" id="eventosGrid">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <span>Carregando eventos…</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LUGARES -->
+    <section class="section section-explore bg-off">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Descubra</span>
+                    <h2>Explore Bueno Brandão</h2>
+                    <p>Cachoeiras, trilhas, gastronomia e muito mais</p>
+                </div>
+                <a href="pages/mapa.html" class="section-link">
+                    Ver mapa completo
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </a>
+            </div>
+            <div class="category-filters" id="categoryFilters">
+                <button class="cat-filter cat-filter-active" data-category="all">Todos</button>
+            </div>
+            <div class="places-grid" id="placesGrid">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <span>Carregando lugares…</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CULTURA VIVA -->
+    <section class="section section-cultura-viva" id="secCulturaViva">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Identidade</span>
+                    <h2>Cultura Viva</h2>
+                    <p>Natureza, fé e tradição — o que faz de Bueno Brandão um lugar único</p>
+                </div>
+            </div>
+            <div class="cv-facts-grid" id="cvFactsGrid"></div>
+            <h3 class="cv-subheading reveal">Vozes da Nossa Cultura</h3>
+            <div class="cv-profiles-grid" id="cvProfilesGrid"></div>
+        </div>
+    </section>
+
+    <!-- DEPOIMENTOS -->
+    <section class="section section-depoimentos bg-off" id="secDepoimentos">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Quem Vive Aqui</span>
+                    <h2>Depoimentos</h2>
+                    <p>O que os moradores dizem sobre viver em Bueno Brandão</p>
+                </div>
+            </div>
+            <div class="testimonials-grid" id="testimonialsGrid"></div>
+        </div>
+    </section>
+
+    <!-- HOSPEDAGENS -->
+    <section class="section section-hospedagens" id="secHospedagens">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-header-text">
+                    <span class="section-tag">Onde Ficar</span>
+                    <h2>Hospedagens</h2>
+                    <p>Hotéis, pousadas e chalés para sua estadia em Bueno Brandão</p>
+                </div>
+            </div>
+            <div class="hospedagens-grid" id="hospedagensGrid">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <span>Carregando hospedagens…</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="ft-grid">
+                <div class="ft-brand-col">
+                    <div class="ft-brand">
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <path d="M14 2C10.5 2 7.5 5 7.5 8.5C7.5 14 14 24 14 24S20.5 14 20.5 8.5C20.5 5 17.5 2 14 2Z" fill="white"/>
+                            <circle cx="14" cy="8.5" r="2.5" fill="rgba(255,255,255,0.4)"/>
+                        </svg>
+                        <div>
+                            <strong>Conecta Bueno</strong>
+                            <span>Plataforma Cultural Oficial</span>
+                        </div>
+                    </div>
+                    <p class="ft-desc">Democratizando o acesso à cultura e ao turismo de Bueno Brandão, Serra da Mantiqueira, MG.</p>
+                </div>
+                <div class="ft-col">
+                    <strong>Explorar</strong>
+                    <a href="index.html">Início</a>
+                    <a href="pages/mapa.html">Mapa Interativo</a>
+                    <a href="pages/eventos.html">Agenda Cultural</a>
+                    <a href="pages/observatorio.html">Observatório</a>
+                </div>
+                <div class="ft-col">
+                    <strong>Legal</strong>
+                    <a href="pages/termos-de-uso.html">Termos de Uso</a>
+                    <a href="pages/politica-de-privacidade.html">Privacidade</a>
+                </div>
+            </div>
+            <div class="ft-bottom">
+                <span>© 2026 Conecta Bueno</span>
+            </div>
+        </div>
+    </footer>
+
+    <aside class="a11y-tools" aria-label="Opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
+            <span aria-hidden="true">Aa</span>
+        </button>
+        <div class="a11y-menu" id="a11yMenu" hidden>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+
+            <p class="a11y-menu__subtitle">Leitura e navegação</p>
+            <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
+                <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
+                <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
+            </div>
+
+            <p class="a11y-menu__subtitle">Daltonismo</p>
+            <div class="a11y-menu__group a11y-menu__group--select" role="group" aria-label="Modo para daltonismo">
+                <label class="a11y-select-label" for="a11yColorblind">Ajuste de cores</label>
+                <select id="a11yColorblind" class="a11y-select">
+                    <option value="none">Desativado</option>
+                    <option value="protanopia">Protanopia (vermelho-verde)</option>
+                    <option value="deuteranopia">Deuteranopia (vermelho-verde)</option>
+                    <option value="tritanopia">Tritanopia (azul-amarelo)</option>
+                    <option value="achromatopsia">Monocromacia (sem cor)</option>
+                </select>
+            </div>
+
+            <p class="a11y-menu__subtitle">Movimento e cursor</p>
+            <div class="a11y-menu__group" role="group" aria-label="Movimento e cursor">
+                <button type="button" data-a11y="motion" aria-pressed="false">Reduzir movimento <small>Pausa vídeos e animações</small></button>
+                <button type="button" data-a11y="cursor" aria-pressed="false">Cursor ampliado <small>Mais fácil de seguir</small></button>
+            </div>
+
+            <div class="a11y-size" role="group" aria-label="Tamanho do texto">
+                <span>Tamanho do texto</span>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
+            </div>
+
+            <button type="button" class="a11y-reset" data-a11y="reset">Redefinir tudo</button>
+        </div>
+    </aside>
 
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
@@ -250,22 +394,13 @@
     new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container"></div>
-
-    <!-- Firebase SDK (Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Config Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="js/firebase-config.js"></script>
-
-    <!-- Leaflet -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
-    <!-- Script do Mapa -->
-    <script src="js/map.js"></script>
+    <script src="js/shared-components.js"></script>
+    <script src="js/accessibility.js"></script>
+    <script src="js/visitor-access.js"></script>
+    <script src="js/home.js"></script>
 </body>
 </html>

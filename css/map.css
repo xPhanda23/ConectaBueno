@@ -922,6 +922,50 @@ body {
     color: var(--grey-900);
 }
 
+/* Favoritar + compartilhar dividem a mesma linha, no rodapé de ações */
+.pc-secondary-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.pc-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--grey-500);
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease;
+}
+
+.pc-fav .pc-icon {
+    width: 15px;
+    height: 15px;
+}
+
+.pc-fav:hover {
+    background: var(--green-50);
+    color: var(--leaf-900);
+}
+
+.pc-fav.is-fav {
+    color: var(--leaf-700);
+}
+
+.pc-fav:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
+}
+
 /* Categoria e avaliação dividem a mesma linha */
 .pc-meta {
     display: flex;
@@ -1495,3 +1539,50 @@ body {
         transition-duration: .01ms !important;
     }
 }
+
+/* ================================================================
+   ACESSIBILIDADE — ajustes específicos do mapa
+   ================================================================ */
+
+/* O botão de acessibilidade fica no canto inferior direito, mas o
+   mapa já usa esse canto para os controles de zoom/localização —
+   sobe o widget para não sobrepor. */
+.a11y-tools { bottom: 132px; }
+@media (max-width: 540px) {
+    .a11y-tools { bottom: 128px; }
+}
+
+.a11y-focus .map-legend { opacity: .5; }
+.a11y-focus .sd-panel { border-color: var(--leaf-400, #4caf50); }
+
+.a11y-high-contrast { background: #fff; }
+/* Cartões escuros/coloridos com texto claro viram invisíveis se só o
+   fundo ou só o texto for forçado. Zera os dois em cascata para todo
+   mundo dentro dos contêineres principais — não uma lista fixa de
+   seletores, que sempre fica incompleta. */
+.a11y-high-contrast .map-sidebar,
+.a11y-high-contrast .stat-card,
+.a11y-high-contrast .space-card,
+.a11y-high-contrast .map-legend,
+.a11y-high-contrast .sd-panel,
+.a11y-high-contrast .pc-card {
+    background: #fff !important;
+    background-image: none !important;
+    color: #111827 !important;
+    border-color: #000 !important;
+}
+.a11y-high-contrast .map-sidebar *,
+.a11y-high-contrast .stat-card *,
+.a11y-high-contrast .space-card *,
+.a11y-high-contrast .map-legend *,
+.a11y-high-contrast .sd-panel *,
+.a11y-high-contrast .pc-card * {
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+.a11y-high-contrast .search-input,
+.a11y-high-contrast .map-control-btn { border-color: #000 !important; }
+
+.a11y-large-cursor .marker-pin { cursor: inherit; }

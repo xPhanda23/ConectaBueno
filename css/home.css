@@ -1924,19 +1924,50 @@ body.visitor-mode #menuAdminPanel {
 }
 
 .a11y-high-contrast { background: #fff; }
-.a11y-high-contrast .section { background: #fff; }
-.a11y-high-contrast .bg-off { background: #fff; }
+/* Várias seções (Sobre, Cultura Viva, Hospedagens, o card "em destaque" da
+   linha do tempo, badges de preço, botões ativos de filtro...) usam fundo
+   escuro/colorido com texto branco por padrão. Forçar só o fundo da seção
+   para branco sem tratar o resto deixa esse texto branco-sobre-branco
+   (invisível). E forçar só a cor do texto sem também neutralizar os fundos
+   próprios desses cartões cria o problema oposto: texto escuro herdado
+   sobre um fundo que continua escuro. A única forma de garantir que nunca
+   sobre nem uma coisa nem outra é zerar os dois em cascata para TODOS os
+   descendentes — sem lista de seletores, que sempre fica incompleta
+   conforme a página cresce. */
+.a11y-high-contrast .section,
+.a11y-high-contrast .bg-off {
+    background: #fff !important;
+    background-image: none !important;
+    color: #111827 !important;
+}
+.a11y-high-contrast .section *,
+.a11y-high-contrast .bg-off * {
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
 .a11y-high-contrast .event-card,
 .a11y-high-contrast .place-card,
-.a11y-high-contrast .cat-filter { border-color: #000; }
-.a11y-high-contrast .section-header-text h2,
-.a11y-high-contrast .ev-title,
-.a11y-high-contrast .place-name { color: #000; }
+.a11y-high-contrast .cat-filter,
+.a11y-high-contrast .highlight-item,
+.a11y-high-contrast .about-map-badge,
+.a11y-high-contrast .timeline-card,
+.a11y-high-contrast .timeline-dot,
+.a11y-high-contrast .news-card,
+.a11y-high-contrast .hosp-price-badge,
+.a11y-high-contrast .hosp-action-btn { border: 1px solid #000 !important; }
 .a11y-high-contrast .section-header-text p,
 .a11y-high-contrast .ev-desc,
-.a11y-high-contrast .place-desc { color: #1f2937; }
+.a11y-high-contrast .place-desc { color: #374151 !important; }
+.a11y-high-contrast .about-map-badge,
+.a11y-high-contrast .hero-stat-link,
+.a11y-high-contrast .highlight-item { background: #f3f4f6 !important; }
 
-.a11y-color-filter .hero-overlay,
-.a11y-color-filter .about-slider::after {
-    filter: contrast(1.2) saturate(.6);
-}
+.a11y-reduce-motion .hero-scroll-indicator,
+.a11y-reduce-motion .about-slider { animation: none !important; }
+.a11y-reduce-motion .about-slide { transition: none !important; }
+
+.a11y-underline-links .hero-btn,
+.a11y-underline-links .section-link { text-decoration: none !important; }

@@ -57,7 +57,12 @@ python -m http.server 8000
 
 ### 4. Crie sua Conta
 
-1. Vá para: `http://localhost:8000/pages/login.html`
+A aplicação abre direto em `http://localhost:8000` (home), sem exigir login —
+visitantes navegam livremente pelo mapa, eventos e observatório. Para
+favoritar locais/eventos ou acessar o painel admin:
+
+1. Clique em "Entrar / Criar Conta" na barra superior (ou vá direto para
+   `http://localhost:8000/pages/login.html`)
 2. Cadastre-se
 3. Faça login
 
@@ -82,10 +87,11 @@ No [Firestore Console](https://console.firebase.google.com/):
 
 ```
 ConectaBueno/
-├── index.html              # Mapa público
+├── index.html              # Home pública (entrada padrão, sem login)
 ├── pages/
+│   ├── mapa.html            # Mapa interativo (público)
 │   ├── login.html          # Login/Cadastro
-│   └── panel.html          # Painel administrativo
+│   └── panel.html          # Painel administrativo (restrito a admins)
 ├── css/
 │   ├── global.css          # Estilos globais
 │   ├── map.css             # Estilos do mapa

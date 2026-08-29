@@ -38,7 +38,7 @@ function initAuth() {
                     if (!currentUser || !currentUser.isAdmin) {
                         showToast('Acesso negado. Você não é administrador.', 'error');
                         setTimeout(() => {
-                            window.location.href = '../index.html';
+                            window.location.href = 'mapa.html';
                         }, 2000);
                         return;
                     }

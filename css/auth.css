@@ -541,80 +541,45 @@ body {
 }
 
 /* =====================================================
-   FERRAMENTAS DE ACESSIBILIDADE
+   ACESSIBILIDADE — ajustes específicos desta página
+   Widget (.a11y-tools/.a11y-fab/.a11y-menu) e classes globais
+   (.a11y-reduce-motion, .a11y-readable-font etc.) vêm de
+   css/accessibility.css, incluído por esta página.
    ===================================================== */
-
-.a11y-tools { position: fixed; right: 18px; bottom: 18px; z-index: 11000; }
-
-.a11y-fab {
-    width: 50px; height: 50px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
-    color: #fff;
-    box-shadow: 0 12px 28px rgba(20, 45, 30, 0.32);
-    cursor: pointer;
-    font-weight: 800;
-    transition: transform var(--transition), box-shadow var(--transition);
-}
-.a11y-fab:hover, .a11y-fab:focus-visible { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(20, 45, 30, 0.4); }
-
-.a11y-menu {
-    position: absolute;
-    right: 0;
-    bottom: 60px;
-    width: min(280px, calc(100vw - 28px));
-    padding: 18px;
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    background: var(--glass-bg-strong);
-    box-shadow: var(--shadow-card);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    animation: a11yMenuIn .2s var(--ease) both;
-}
-.a11y-menu[hidden] { display: none; }
-.a11y-menu__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.a11y-menu__eyebrow { margin-bottom: 3px; color: var(--clay-600); font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-.a11y-menu__title { color: var(--ink-900); font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; }
-.a11y-menu__hint { margin: 6px 0 14px; color: var(--ink-500); font-size: 0.74rem; line-height: 1.4; }
-.a11y-menu__close { width: 28px; height: 28px; border: 1px solid rgba(20, 45, 30, 0.16); border-radius: 50%; background: var(--white); color: var(--ink-700); cursor: pointer; font-size: 1.05rem; line-height: 1; }
-.a11y-menu__group { display: grid; gap: 8px; }
-.a11y-menu > button, .a11y-menu__group button, .a11y-size button {
-    border: 1px solid rgba(20, 45, 30, 0.14);
-    border-radius: 10px;
-    background: var(--white);
-    color: var(--ink-900);
-    cursor: pointer;
-}
-.a11y-menu__group button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; text-align: left; font-size: 0.8rem; font-weight: 600; }
-.a11y-menu__group small { color: var(--ink-400); font-size: 0.66rem; font-weight: 400; }
-.a11y-menu button:hover, .a11y-menu button.is-active { background: var(--leaf-100); border-color: var(--leaf-200); }
-.a11y-menu button.is-active { color: var(--leaf-900); }
-.a11y-size { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(20, 45, 30, 0.1); color: var(--ink-700); font-size: 0.78rem; font-weight: 600; }
-.a11y-size span { flex: 1; }
-.a11y-size button { width: 32px; height: 32px; font-size: 1rem; }
-.a11y-size output { min-width: 40px; color: var(--leaf-900); font-size: 0.7rem; font-weight: 800; text-align: center; }
-.a11y-menu button:focus-visible { outline: 2px solid var(--leaf-500); outline-offset: 2px; }
 
 /* Modo foco — reduz distrações e escurece a imagem só nesse modo */
 .a11y-focus::before { filter: brightness(.55) saturate(.7); animation-play-state: paused; }
 .a11y-focus::after { opacity: .2; animation-play-state: paused; }
 .a11y-focus .auth-card { border-color: var(--leaf-400); box-shadow: 0 0 0 3px rgba(76, 193, 119, 0.28), var(--shadow-card); }
 
-/* Alto contraste */
-.a11y-high-contrast .auth-card { background: #ffffff; border-color: #000; }
-.a11y-high-contrast .form-input { background: #ffffff; border-color: #000; color: #000; }
-.a11y-high-contrast .form-field > label:not(.cb-label),
-.a11y-high-contrast .cb-label,
-.a11y-high-contrast .auth-card__intro h1,
-.a11y-high-contrast .form-head h3 { color: #000; }
-.a11y-high-contrast .btn-submit { background: #0d3d20; box-shadow: none; }
+/* Alto contraste — o cartão usa efeito "glass" translúcido sobre uma foto
+   de fundo, com textos claros em vários pontos. Forçar só o fundo do
+   cartão para branco sem também tratar o texto deixa parte dele
+   branco-sobre-branco. Zera fundo e cor em cascata para todo mundo dentro
+   do cartão, e trata os controles (input/botão) à parte pois precisam
+   continuar com aparência de campo/botão, não texto solto. */
+.a11y-high-contrast .auth-card {
+    background: #ffffff !important;
+    border-color: #000 !important;
+    color: #000 !important;
+}
+.a11y-high-contrast .auth-card * {
+    color: inherit !important;
+    background: transparent !important;
+    background-image: none !important;
+    text-shadow: none !important;
+}
+.a11y-high-contrast .form-input { background: #ffffff !important; border: 1.5px solid #000 !important; color: #000 !important; }
+.a11y-high-contrast .btn-submit { background: #0d3d20 !important; color: #fff !important; box-shadow: none !important; }
+.a11y-high-contrast .btn-social,
+.a11y-high-contrast .btn-back,
+.a11y-high-contrast .card-tab.active { border: 1.5px solid #000 !important; }
+.a11y-high-contrast .card-tabs__ink { background: #0d3d20 !important; }
 
-/* Contraste de cores (apoio a daltonismo) */
-.a11y-color-filter::before { filter: contrast(1.25) saturate(.55); }
-
-@keyframes a11yMenuIn { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+/* Cursor ampliado — o cartão de login usa cursores customizados em
+   vários controles; garante que o cursor grande vença nesses pontos */
+.a11y-large-cursor .toggle-password,
+.a11y-large-cursor .card-tab { cursor: inherit; }
 
 /* =====================================================
    MODAIS

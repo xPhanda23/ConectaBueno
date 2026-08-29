@@ -8,7 +8,6 @@
  * #3  handleForgotPassword() implementado
  * #4  IDs modalTermos / modalPrivacidade (não modalTerms / modalPrivacy)
  * #5  openModal() / closeModal() centralizados
- * #6  handleVisitorLogin() chama loginComoVisitante() do firebase-auth.js
  * #7  vitrine iniciada só após Firebase pronto (via waitForFirebase)
  * #8  fazerLogin/cadastrarUsuario não lançam exceção — resultado verificado por .success
  * #9  campo registerPasswordConfirm removido do HTML e do JS
@@ -96,9 +95,6 @@ function _setupForms() {
     if (formLogin)    formLogin.addEventListener('submit',    _handleLoginSubmit);
     if (formRegister) formRegister.addEventListener('submit', _handleRegisterSubmit);
     if (formForgot)   formForgot.addEventListener('submit',   _handleForgotSubmit);  // FIX #3
-
-    const visitorButton = document.getElementById('btnVisitor');
-    if (visitorButton) visitorButton.addEventListener('click', handleVisitorLogin);
 }
 
 /* ============================================================
@@ -141,7 +137,7 @@ async function _handleLoginSubmit(e) {
 
     if (resultado.success) {
         showToast('Login realizado! Redirecionando…', 'success');
-        setTimeout(() => { window.location.href = 'home.html'; }, 900);
+        setTimeout(() => { window.location.href = '../index.html'; }, 900);
     } else {
         showToast(resultado.error || 'Erro ao fazer login.', 'error');
     }
@@ -169,39 +165,11 @@ async function handleGoogleLogin(evt) {
 
     if (resultado.success) {
         showToast('Login realizado! Redirecionando…', 'success');
-        setTimeout(() => { window.location.href = 'home.html'; }, 900);
+        setTimeout(() => { window.location.href = '../index.html'; }, 900);
     } else {
         if (resultado.error !== 'Login cancelado.') {
             showToast(resultado.error || 'Erro ao entrar com Google.', 'error');
         }
-    }
-}
-
-/* ============================================================
-   VISITANTE — FIX #6 (chama loginComoVisitante, não loginAsVisitor)
-   ============================================================ */
-async function handleVisitorLogin() {
-    const btn = document.getElementById('btnVisitor');
-    _setLoading(btn, true);
-
-    try {
-        await _waitForFirebase();
-    } catch (error) {
-        _setLoading(btn, false);
-        console.error('Inicialização do Firebase:', error);
-        showToast('O serviço está indisponível. Tente novamente.', 'error');
-        return;
-    }
-
-    const resultado = await loginComoVisitante(); // firebase-auth.js
-
-    _setLoading(btn, false);
-
-    if (resultado.success) {
-        showToast('Entrando como visitante…', 'info');
-        setTimeout(() => { window.location.href = 'home.html'; }, 900);
-    } else {
-        showToast(resultado.error || 'Erro ao entrar como visitante.', 'error');
     }
 }
 
@@ -234,7 +202,7 @@ async function _handleRegisterSubmit(e) {
 
     if (resultado.success) {
         showToast('Conta criada! Redirecionando…', 'success');
-        setTimeout(() => { window.location.href = 'home.html'; }, 900);
+        setTimeout(() => { window.location.href = '../index.html'; }, 900);
     } else {
         showToast(resultado.error || 'Erro ao criar conta.', 'error');
     }
@@ -655,7 +623,6 @@ function _waitForFirebase(timeoutMs = 8000) {
    ============================================================ */
 window.switchTab        = switchTab;
 window.handleGoogleLogin  = handleGoogleLogin;
-window.handleVisitorLogin = handleVisitorLogin;
 window.togglePassword   = togglePassword;
 window.openModal        = openModal;
 window.closeModal       = closeModal;

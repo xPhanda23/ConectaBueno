@@ -59,13 +59,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Aguardar Firebase estar disponível
     await waitForFirebase();
-    
+
+    // Nenhuma tela de login na entrada: garante uma sessão (anônima, se
+    // preciso) apenas para satisfazer as regras do Firestore, sem nunca
+    // navegar para login.html. O Observatório é 100% público. Se já
+    // existir conta real logada, a função detecta isso e não mexe na sessão.
+    if (window.auth && typeof garantirSessaoVisitante === 'function') {
+        await garantirSessaoVisitante();
+    }
+
+    // Preenche nome/e-mail/avatar no dropdown do header quando há conta real logada
+    if (window.auth) {
+        window.auth.onAuthStateChanged(user => {
+            if (user && !user.isAnonymous) loadUserProfile(user);
+        });
+    }
+
     // Configurar navegação
     setupNavigation();
-    
+
     // Configurar event listeners
     setupEventListeners();
-    
+
     // Carregar dados
     await loadObservatorioData();
 });
@@ -108,24 +123,27 @@ function waitForFirebase() {
 function setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.section-content');
-    
+
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const targetSection = item.dataset.section;
-            
+
             // Atualizar nav ativo
             navItems.forEach(nav => nav.classList.remove('active'));
             item.classList.add('active');
-            
+
             // Atualizar seção ativa
             sections.forEach(section => section.classList.remove('active'));
             const activeSection = document.getElementById(`section-${targetSection}`);
             if (activeSection) {
                 activeSection.classList.add('active');
             }
-            
+
             // Atualizar título
             updateSectionTitle(targetSection);
+
+            // No mobile a sidebar é uma gaveta sobreposta: fecha após escolher a seção
+            closeSectionMenu();
         });
     });
 }
@@ -170,11 +188,58 @@ function updateSectionTitle(sectionName) {
  * Configurar event listeners
  */
 function setupEventListeners() {
-    // Botão voltar na sidebar
-    const btnBackSidebar = document.getElementById('btnBackSidebar');
-    if (btnBackSidebar) {
-        btnBackSidebar.addEventListener('click', () => {
-            window.location.href = '../index.html';
+    // No mobile a sidebar de seções vira uma gaveta off-canvas:
+    // botão abre, clique no backdrop ou ESC fecha
+    const btnToggle = document.getElementById('btnSectionMenuToggle');
+    const backdrop = document.getElementById('adminSidebarBackdrop');
+
+    if (btnToggle) {
+        btnToggle.addEventListener('click', () => {
+            const isOpen = document.getElementById('adminSidebar').classList.toggle('active');
+            backdrop?.classList.toggle('active', isOpen);
+            btnToggle.setAttribute('aria-expanded', String(isOpen));
+        });
+    }
+
+    if (backdrop) {
+        backdrop.addEventListener('click', closeSectionMenu);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeSectionMenu();
+    });
+}
+
+/**
+ * Fecha a gaveta de seções (mobile/tablet)
+ */
+function closeSectionMenu() {
+    document.getElementById('adminSidebar')?.classList.remove('active');
+    document.getElementById('adminSidebarBackdrop')?.classList.remove('active');
+    document.getElementById('btnSectionMenuToggle')?.setAttribute('aria-expanded', 'false');
+}
+
+/**
+ * Busca o perfil do usuário logado e preenche o dropdown do header
+ * (nome, e-mail, avatar e link do Painel Admin quando aplicável)
+ */
+async function loadUserProfile(user) {
+    try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        const perfil = {
+            uid: user.uid,
+            email: user.email,
+            nome: user.displayName || user.email?.split('@')[0] || 'Usuário',
+            isAdmin: false,
+            ...(doc.exists ? doc.data() : {})
+        };
+        window.sharedComponents?.renderUserInfo(perfil);
+    } catch (err) {
+        console.error('❌ Perfil:', err);
+        window.sharedComponents?.renderUserInfo({
+            uid: user.uid,
+            email: user.email,
+            nome: user.displayName || user.email?.split('@')[0] || 'Usuário'
         });
     }
 }

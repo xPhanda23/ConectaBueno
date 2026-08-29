@@ -304,6 +304,119 @@ img {
     to { transform: translateY(0); opacity: 1; }
 }
 
+/* Conteúdo interno de modais simples (convite de login/cadastro, conversão
+   de visitante). Usa os mesmos nomes de classe do painel admin para que
+   qualquer JS que monte um modal nas páginas públicas já saia estilizado. */
+.modal-dialog {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    max-width: 420px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp var(--transition-base);
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg) var(--spacing-lg) 0;
+}
+
+.modal-header h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color var(--transition-fast), background var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.btn-close-modal:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Botões de call-to-action de autenticação (modal de login/cadastro e
+   conversão de visitante) — cor verde da marca, independente do tema
+   genérico azul de .btn-primary/.btn-secondary usado noutras telas. */
+.auth-cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.auth-cta-btn--primary {
+    background: #2d5a3d;
+    color: #fff;
+}
+
+.auth-cta-btn--primary:hover {
+    background: #24492f;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.auth-cta-btn--outline {
+    background: transparent;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.auth-cta-btn--outline:hover,
+.auth-cta-btn--outline:focus-visible {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
 /* ===================================
    FOOTER
    =================================== */

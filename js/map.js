@@ -17,6 +17,10 @@ let activeCategory = 'todas';
 let searchQuery = '';
 let sortMode = 'nome';
 
+// Favoritos de locais (IDs salvos no Firestore por usuário — só para
+// contas permanentes; visitantes veem o convite de login ao tentar).
+let userLugaresFavoritos = new Set();
+
 // Painel de detalhes do espaço (substitui o popup do Leaflet)
 let activeMarker = null;
 let currentDetailSpaceId = null;
@@ -73,19 +77,27 @@ document.addEventListener('DOMContentLoaded', function () {
 // ===================================
 
 function initAuth() {
-    const checkFirebase = setInterval(() => {
+    const checkFirebase = setInterval(async () => {
         if (window.db && window.auth) {
             clearInterval(checkFirebase);
 
+            // Nenhuma tela de login na entrada: garante uma sessão (anônima,
+            // se preciso) apenas para satisfazer as regras do Firestore,
+            // sem nunca navegar para login.html. Se já existir conta real
+            // logada, a função detecta isso e não mexe na sessão.
+            if (typeof garantirSessaoVisitante === 'function') {
+                await garantirSessaoVisitante();
+            }
+
             window.auth.onAuthStateChanged(async (user) => {
+                renderMapAuthState(user);
                 if (user) {
-                    console.log('✅ Usuário autenticado:', user.email);
+                    console.log(user.isAnonymous ? '👋 Sessão de visitante ativa' : `✅ Usuário autenticado: ${user.email}`);
                     await loadUserProfile(user);
-                    initApp();
                 } else {
-                    console.log('⚠️ Usuário não autenticado, redirecionando...');
-                    redirectToLogin();
+                    console.log('👋 Navegando sem sessão (recursos que exigem conta ficam bloqueados)');
                 }
+                initApp();
             });
         }
     }, 100);
@@ -99,8 +111,32 @@ function initAuth() {
     }, 10000);
 }
 
-function redirectToLogin() {
-    window.location.href = 'pages/login.html';
+/** Alterna entre o avatar/dropdown (conta permanente) e o botão
+ *  "Entrar / Criar Conta" (visitante anônimo ou sem sessão). */
+function renderMapAuthState(user) {
+    const wrap = document.getElementById('hdUserWrap');
+    if (!wrap) return;
+
+    const isGuest = !user || user.isAnonymous;
+    const avatarBtn = document.getElementById('btnUserMenu');
+    let cta = document.getElementById('btnAuthCta');
+
+    if (isGuest) {
+        if (!cta) {
+            cta = document.createElement('a');
+            cta.id = 'btnAuthCta';
+            cta.className = 'hd-auth-cta';
+            cta.textContent = 'Entrar / Criar Conta';
+            wrap.appendChild(cta);
+        }
+        cta.href = wrap.dataset.loginHref || 'login.html';
+        cta.style.display = '';
+        if (avatarBtn) avatarBtn.style.display = 'none';
+        document.getElementById('userDropdown')?.classList.remove('active');
+    } else {
+        if (cta) cta.style.display = 'none';
+        if (avatarBtn) avatarBtn.style.display = '';
+    }
 }
 
 async function loadUserProfile(user) {
@@ -114,7 +150,7 @@ async function loadUserProfile(user) {
             currentUser = {
                 uid: user.uid,
                 email: user.email,
-                nome: user.displayName || user.email.split('@')[0],
+                nome: user.displayName || (user.isAnonymous ? 'Visitante' : user.email?.split('@')[0]) || 'Usuário',
                 role: 'usuario',
                 isAdmin: false
             };
@@ -122,9 +158,62 @@ async function loadUserProfile(user) {
         }
 
         displayUserProfile();
+        await loadUserLugaresFavoritos(user.uid);
     } catch (error) {
         console.error('❌ Erro ao carregar perfil:', error);
         showToast('Erro ao carregar perfil', 'error');
+    }
+}
+
+/* ===================================
+   FAVORITOS DE LOCAIS
+   =================================== */
+
+async function loadUserLugaresFavoritos(uid) {
+    try {
+        const doc = await window.db.collection('users').doc(uid)
+            .collection('favoritos').doc('lugares').get();
+        userLugaresFavoritos = (doc.exists && Array.isArray(doc.data().ids))
+            ? new Set(doc.data().ids)
+            : new Set();
+    } catch {
+        userLugaresFavoritos = new Set();
+    }
+    paintFavButton(currentDetailSpaceId);
+}
+
+function paintFavButton(spaceId) {
+    if (!spaceId) return;
+    const btn = document.querySelector(`[data-fav-id="${CSS.escape(spaceId)}"]`);
+    if (!btn) return;
+    const isFav = userLugaresFavoritos.has(spaceId);
+    btn.classList.toggle('is-fav', isFav);
+    btn.setAttribute('aria-label', isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+    const path = btn.querySelector('svg path');
+    if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
+}
+
+async function toggleLugarFavorite(spaceId) {
+    if (!requireAccount('Favoritar locais')) return;
+
+    const wasFav = userLugaresFavoritos.has(spaceId);
+    wasFav ? userLugaresFavoritos.delete(spaceId) : userLugaresFavoritos.add(spaceId);
+    paintFavButton(spaceId);
+
+    try {
+        await window.db.collection('users').doc(currentUser.uid)
+            .collection('favoritos').doc('lugares')
+            .set({ ids: Array.from(userLugaresFavoritos), updatedAt: new Date() });
+    } catch (error) {
+        wasFav ? userLugaresFavoritos.add(spaceId) : userLugaresFavoritos.delete(spaceId);
+        paintFavButton(spaceId);
+        console.error('❌ Favorito de local:', error);
+        showToast(
+            error?.code === 'permission-denied'
+                ? 'Sem permissão para salvar favoritos.'
+                : 'Não foi possível salvar o favorito.',
+            'error'
+        );
     }
 }
 
@@ -589,7 +678,8 @@ const PC_ICON = {
     info: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M9 6V9L12 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
     instagram: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>',
     globe: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M3 9H15M9 3C9 3 7 5 7 9C7 13 9 15 9 15M9 3C9 3 11 5 11 9C11 13 9 15 9 15" stroke="currentColor" stroke-width="1.5"/></svg>',
-    share: '<svg class="pc-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><circle cx="12.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="3.5" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="12.5" cy="12.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M5.3 7L10.7 4.2M5.3 9L10.7 11.8" stroke="currentColor" stroke-width="1.4"/></svg>'
+    share: '<svg class="pc-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><circle cx="12.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="3.5" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="12.5" cy="12.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M5.3 7L10.7 4.2M5.3 9L10.7 11.8" stroke="currentColor" stroke-width="1.4"/></svg>',
+    heart: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M9 15.5C9 15.5 2 11 2 6.5C2 4.2 3.9 2.5 6 2.5C7.3 2.5 8.4 3.1 9 4.1C9.6 3.1 10.7 2.5 12 2.5C14.1 2.5 16 4.2 16 6.5C16 11 9 15.5 9 15.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>'
 };
 
 /**
@@ -729,11 +819,20 @@ function createPopupContent(space) {
 
     const linksHTML = linksInner ? `<div class="pc-links">${linksInner}</div>` : '';
 
-    const shareHTML = `
-        <button type="button" class="pc-share" data-share-id="${esc(space.id)}"
-                aria-label="Compartilhar ${esc(nome)}">
-            ${PC_ICON.share}<span>Compartilhar</span>
-        </button>
+    const isFav = userLugaresFavoritos.has(space.id);
+    const heartIcon = PC_ICON.heart.replace('<path ', `<path fill="${isFav ? 'currentColor' : 'none'}" `);
+
+    const secondaryHTML = `
+        <div class="pc-secondary-actions">
+            <button type="button" class="pc-fav${isFav ? ' is-fav' : ''}" data-fav-id="${esc(space.id)}"
+                    aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
+                ${heartIcon}<span>Favoritar</span>
+            </button>
+            <button type="button" class="pc-share" data-share-id="${esc(space.id)}"
+                    aria-label="Compartilhar ${esc(nome)}">
+                ${PC_ICON.share}<span>Compartilhar</span>
+            </button>
+        </div>
     `;
 
     return `
@@ -749,7 +848,7 @@ function createPopupContent(space) {
             <footer class="pc-actions">
                 ${routesHTML}
                 ${linksHTML}
-                ${shareHTML}
+                ${secondaryHTML}
             </footer>
         </article>
     `;
@@ -994,10 +1093,18 @@ function setupShareDelegation() {
     if (!panelEl) return;
 
     panelEl.addEventListener('click', (event) => {
-        const btn = event.target.closest('[data-share-id]');
-        if (!btn) return;
-        event.preventDefault();
-        shareSpace(btn.dataset.shareId);
+        const shareBtn = event.target.closest('[data-share-id]');
+        if (shareBtn) {
+            event.preventDefault();
+            shareSpace(shareBtn.dataset.shareId);
+            return;
+        }
+
+        const favBtn = event.target.closest('[data-fav-id]');
+        if (favBtn) {
+            event.preventDefault();
+            toggleLugarFavorite(favBtn.dataset.favId);
+        }
     });
 }
 
@@ -1125,10 +1232,13 @@ function setupEventListeners() {
     if (btnLogout) {
         btnLogout.addEventListener('click', async (e) => {
             e.preventDefault();
+            document.getElementById('userDropdown')?.classList.remove('active');
             try {
                 await window.auth.signOut();
-                showToast('Saindo...', 'info');
-                setTimeout(() => redirectToLogin(), 500);
+                if (typeof garantirSessaoVisitante === 'function') {
+                    await garantirSessaoVisitante();
+                }
+                showToast('Você saiu da sua conta.', 'info');
             } catch (error) {
                 console.error('❌ Erro ao sair:', error);
                 showToast('Erro ao sair', 'error');
