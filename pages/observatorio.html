@@ -217,6 +217,36 @@
                     </div>
                 </div>
 
+                <!-- Panorama em Números (insights automáticos, calculados a partir dos mesmos dados do Firebase) -->
+                <div class="info-card insight-card">
+                    <div class="info-card-header">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 2L3 14H11L10 22L21 9H13L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <h3>Panorama em Números</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="insight-list">
+                            <div class="insight-chip">
+                                <span class="insight-chip-icon" aria-hidden="true">🎟️</span>
+                                <span class="insight-chip-text" id="insightGratuito">Calculando participação de eventos gratuitos…</span>
+                            </div>
+                            <div class="insight-chip">
+                                <span class="insight-chip-icon" aria-hidden="true">♿</span>
+                                <span class="insight-chip-text" id="insightAcessibilidade">Calculando cobertura de acessibilidade…</span>
+                            </div>
+                            <div class="insight-chip">
+                                <span class="insight-chip-icon" aria-hidden="true">📍</span>
+                                <span class="insight-chip-text" id="insightRegiao">Identificando a região com mais pontos culturais…</span>
+                            </div>
+                            <div class="insight-chip">
+                                <span class="insight-chip-icon" aria-hidden="true">🏷️</span>
+                                <span class="insight-chip-text" id="insightCategoria">Identificando a categoria mais frequente…</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Introdução -->
                 <div class="info-card">
                     <div class="info-card-header">
@@ -273,6 +303,29 @@
                     </div>
                     
                     <div class="analysis-body">
+                        <div class="mini-kpi-grid">
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Regiões Mapeadas</span>
+                                <span class="mini-kpi-value" id="kpiRegioes">-</span>
+                                <span class="mini-kpi-sub">bairros/localidades distintas</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Região Líder</span>
+                                <span class="mini-kpi-value" id="kpiRegiaoLider">-</span>
+                                <span class="mini-kpi-sub" id="kpiRegiaoLiderSub">espaços cadastrados</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Concentração Top 3</span>
+                                <span class="mini-kpi-value" id="kpiConcentracao">-</span>
+                                <span class="mini-kpi-sub">dos pontos nas 3 regiões líderes</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Menor Presença</span>
+                                <span class="mini-kpi-value" id="kpiRegiaoMenor">-</span>
+                                <span class="mini-kpi-sub" id="kpiRegiaoMenorSub">região com menos pontos</span>
+                            </div>
+                        </div>
+
                         <div class="doc-section">
                             <h4>📍 Objetivo</h4>
                             <p>
@@ -334,6 +387,29 @@
                     </div>
                     
                     <div class="analysis-body">
+                        <div class="mini-kpi-grid">
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Entrada Gratuita</span>
+                                <span class="mini-kpi-value" id="kpiPctGratuito">-</span>
+                                <span class="mini-kpi-sub">dos espaços cadastrados</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Acessibilidade Mapeada</span>
+                                <span class="mini-kpi-value" id="kpiPctAcessivel">-</span>
+                                <span class="mini-kpi-sub">acessível total ou parcial</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Plenamente Inclusivos</span>
+                                <span class="mini-kpi-value" id="kpiInclusivos">-</span>
+                                <span class="mini-kpi-sub">gratuitos e acessíveis</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Índice de Equidade</span>
+                                <span class="mini-kpi-value" id="kpiIndiceEquidade">-</span>
+                                <span class="mini-kpi-sub">média entre gratuidade e acessibilidade</span>
+                            </div>
+                        </div>
+
                         <div class="doc-section">
                             <h4>🎯 Objetivo</h4>
                             <p>
@@ -418,6 +494,29 @@
                     </div>
                     
                     <div class="analysis-body">
+                        <div class="mini-kpi-grid">
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Categorias Cadastradas</span>
+                                <span class="mini-kpi-value" id="kpiTotalCategorias">-</span>
+                                <span class="mini-kpi-sub">tipos de atividade distintos</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Categoria Destaque</span>
+                                <span class="mini-kpi-value" id="kpiCategoriaTop">-</span>
+                                <span class="mini-kpi-sub" id="kpiCategoriaTopSub">espaços cadastrados</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Categorias Nicho</span>
+                                <span class="mini-kpi-value" id="kpiCategoriasNicho">-</span>
+                                <span class="mini-kpi-sub">com apenas 1 espaço cadastrado</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Média por Categoria</span>
+                                <span class="mini-kpi-value" id="kpiMediaCategoria">-</span>
+                                <span class="mini-kpi-sub">espaços por categoria</span>
+                            </div>
+                        </div>
+
                         <div class="doc-section">
                             <h4>🎭 Objetivo</h4>
                             <p>

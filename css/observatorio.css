@@ -450,6 +450,86 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ===================================
+   MINI KPI GRID
+   (indicadores rápidos por seção — Território,
+   Equidade e Consumo — sempre calculados a partir
+   dos mesmos dados dos gráficos da seção)
+=================================== */
+.mini-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.mini-kpi-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.mini-kpi-label {
+    font-size: calc(11px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.mini-kpi-value {
+    font-family: var(--font-display);
+    font-size: calc(24px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--verde-floresta);
+    line-height: 1.2;
+    overflow-wrap: break-word;
+}
+
+.mini-kpi-sub {
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    color: #999;
+}
+
+/* ===================================
+   INSIGHT LIST
+   (Visão Geral — panorama em linguagem natural)
+=================================== */
+.insight-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+}
+
+.insight-chip {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: var(--creme);
+    border-radius: 10px;
+    border-left: 3px solid var(--verde-folha);
+}
+
+.insight-chip-icon {
+    font-size: calc(18px * var(--a11y-text-scale, 1));
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.insight-chip-text {
+    font-size: calc(14px * var(--a11y-text-scale, 1));
+    line-height: 1.5;
+    color: #555;
+}
+
+.insight-chip-text strong {
+    color: var(--verde-floresta);
+}
+
+/* ===================================
    CHARTS
 =================================== */
 .chart-container {
@@ -1166,7 +1246,15 @@ h1, h2, h3, h4, h5, h6 {
     .data-grid {
         grid-template-columns: 1fr;
     }
-    
+
+    .mini-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .insight-list {
+        grid-template-columns: 1fr;
+    }
+
     .impact-grid {
         grid-template-columns: 1fr;
     }
@@ -1247,7 +1335,15 @@ h1, h2, h3, h4, h5, h6 {
     .doc-section li {
         font-size: calc(13px * var(--a11y-text-scale, 1));
     }
-    
+
+    .mini-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mini-kpi-value {
+        font-size: calc(20px * var(--a11y-text-scale, 1));
+    }
+
     .chart-wrapper {
         min-height: 250px;
     }
