@@ -442,6 +442,12 @@ body.visitor-mode #menuAdminPanel {
     background: var(--green-100);
 }
 
+/* Linha fina entre seções consecutivas — mesma linguagem visual
+   usada em eventos.html (.ev-news-section) para separar os blocos. */
+.section + .section {
+    border-top: 1px solid var(--grey-200);
+}
+
 .section-header {
     display: flex;
     justify-content: space-between;
@@ -782,8 +788,12 @@ body.visitor-mode #menuAdminPanel {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    isolation: isolate;
 }
 
+/* z-index: -1 no ::before + isolation: isolate acima: o texto do botão é
+   solto (sem <span>), então ".cat-filter > *" não se aplica a ele — isso
+   garante que o preenchimento do hover fique atrás do texto. */
 .cat-filter::before {
     content: '';
     position: absolute;
@@ -792,6 +802,7 @@ body.visitor-mode #menuAdminPanel {
     transform: scale(0);
     transition: transform 0.2s;
     border-radius: 999px;
+    z-index: -1;
 }
 
 .cat-filter:hover::before {
@@ -811,14 +822,14 @@ body.visitor-mode #menuAdminPanel {
 
 .cat-filter-active {
     background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
-    border-color: var(--leaf-900);
+    border-color: transparent;
     color: white;
     box-shadow: 0 4px 14px rgba(20,92,48,.32);
 }
 
 .cat-filter-active:hover {
     background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
-    border-color: var(--leaf-900);
+    border-color: transparent;
     color: white;
     transform: translateY(-2px);
 }
@@ -969,6 +980,24 @@ body.visitor-mode #menuAdminPanel {
     background: rgba(255,255,255,.16);
     border-color: rgba(255,255,255,.28);
     transform: translateY(-2px);
+}
+
+/* Sem isso, os dois cartões clicáveis (Lugares / Eventos Ativos) ficam
+   visualmente idênticos aos quatro estáticos ao lado — nada indica que
+   são links até o usuário passar o mouse. A setinha usa a mesma
+   linguagem de hover (desliza ao passar o mouse) do resto do site
+   (.section-link, .place-link, .ev-link). */
+.highlight-item-arrow {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: var(--green-300);
+    opacity: .55;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.highlight-item-link:hover .highlight-item-arrow {
+    opacity: 1;
+    transform: translateX(3px);
 }
 
 .btn-primary {
@@ -1958,6 +1987,11 @@ body.visitor-mode #menuAdminPanel {
 .a11y-high-contrast .news-card,
 .a11y-high-contrast .hosp-price-badge,
 .a11y-high-contrast .hosp-action-btn { border: 1px solid #000 !important; }
+.a11y-high-contrast .cat-filter-active {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+}
 .a11y-high-contrast .section-header-text p,
 .a11y-high-contrast .ev-desc,
 .a11y-high-contrast .place-desc { color: #374151 !important; }

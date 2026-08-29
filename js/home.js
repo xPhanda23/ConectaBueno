@@ -402,7 +402,8 @@ function getCatIcon(cat) {
         'Exposição':'🖼️','Festival':'🎪','Literatura':'📚',
         'Gastronomia':'🍽️','Esporte':'⚽','Tradicional':'🎉',
         'Cultural':'🎨','Religioso':'⛪','Artesanato':'🧶',
-        'Hotel':'🏨','Pousada':'🏡','Chale':'🏔️','Camping':'⛺','Hostel':'🛏️'
+        'Hotel':'🏨','Pousada':'🏡','Chale':'🏔️','Camping':'⛺','Hostel':'🛏️',
+        'Comércio':'🛍️','Comercio':'🛍️','Cultura':'🏛️','Natureza':'🌳'
     };
     return icons[cat] || '📅';
 }
@@ -450,6 +451,7 @@ async function loadLugares() {
                 btn.className = 'cat-filter';
                 btn.textContent = cat;
                 btn.dataset.category = cat;
+                btn.setAttribute('aria-pressed', 'false');
                 btn.addEventListener('click', () => filterByCategory(cat));
                 filtersWrap.appendChild(btn);
             });
@@ -472,7 +474,9 @@ function filterByCategory(cat) {
 
     // Atualiza botões ativos
     filtersWrap?.querySelectorAll('.cat-filter').forEach(btn => {
-        btn.classList.toggle('cat-filter-active', btn.dataset.category === cat);
+        const isActive = btn.dataset.category === cat;
+        btn.classList.toggle('cat-filter-active', isActive);
+        btn.setAttribute('aria-pressed', String(isActive));
     });
 
     // Filtra lugares

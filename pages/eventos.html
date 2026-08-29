@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/eventos.css">
+    <link rel="stylesheet" href="../css/home.css">
 </head>
 <body>
 
@@ -108,22 +109,49 @@
                 </button>
             </div>
         </div>
+
+        <div class="hero-scroll-indicator">
+            <span>Deslize para explorar</span>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M5 8l5 5 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
     </section>
 
-    <!-- Faixa discreta com os números da agenda, logo abaixo do hero -->
-    <div class="ev-agenda-strip" aria-live="polite">
+    <!-- Faixa discreta com os números da agenda, logo abaixo do hero.
+         Vira um aviso "ao vivo" (ev-agenda-strip-live) quando algum evento
+         está em andamento hoje — ver updateHeroStats() em eventos.js. -->
+    <div class="ev-agenda-strip" id="heroAgendaStrip" aria-live="polite">
         <div class="ev-agenda-strip-inner">
-            <div class="ev-agenda-stat">
-                <strong id="heroAgendaValue">—</strong>
-                <span id="heroAgendaLabel">eventos em agenda</span>
+            <div class="ev-agenda-strip-stats">
+                <svg class="ev-agenda-strip-icon" width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="2" y="3" width="12" height="11" rx="1.8" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M5 1.5v3M11 1.5v3M2 6.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <div class="ev-agenda-stat">
+                    <strong id="heroAgendaValue">—</strong>
+                    <span id="heroAgendaLabel">eventos em agenda</span>
+                </div>
+                <span class="ev-agenda-divider" aria-hidden="true"></span>
+                <div class="ev-agenda-stat">
+                    <strong id="heroAgendaCountdown">—</strong>
+                    <span id="heroAgendaCountdownLabel">próximo evento</span>
+                </div>
             </div>
-            <div class="ev-agenda-stat">
-                <strong id="heroAgendaCountdown">—</strong>
-                <span>próximo evento</span>
-            </div>
-            <span class="ev-summary-pill" id="heroAgendaPill">Neste mês</span>
+            <span class="ev-summary-pill" id="heroAgendaPill">
+                <span class="ev-live-dot" id="heroLiveDot" hidden aria-hidden="true"></span>
+                <span id="heroAgendaPillText">Neste mês</span>
+            </span>
         </div>
-        <div class="ev-agenda-strip-meta" id="heroAgendaMeta">Próximo destaque em preparação</div>
+        <div class="ev-agenda-strip-meta-row">
+            <p class="ev-agenda-strip-meta" id="heroAgendaMeta">Próximo destaque em preparação</p>
+            <button type="button" class="ev-agenda-strip-cta" id="heroAgendaCTA" hidden>
+                Ver evento
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- ═══════════════════════════

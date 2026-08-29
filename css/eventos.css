@@ -251,9 +251,25 @@ main { flex: 1; }
 
 /* ── Faixa discreta com os números da agenda, logo abaixo do hero ── */
 .ev-agenda-strip {
+    position: relative;
     background: white;
     border-bottom: 1px solid var(--grey-200);
+    box-shadow: 0 2px 14px rgba(20,45,30,.05);
+    transition: background var(--t3) var(--ease), border-color var(--t3) var(--ease), box-shadow var(--t3) var(--ease);
 }
+
+/* Faixa de acento à esquerda no estado "ao vivo" — reforça o alerta sem
+   depender só da mudança de cor de fundo. */
+.ev-agenda-strip::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--red);
+    opacity: 0;
+    transition: opacity var(--t3) var(--ease);
+}
+.ev-agenda-strip-live::before { opacity: 1; }
 
 .ev-agenda-strip-inner {
     max-width: 1200px;
@@ -261,9 +277,33 @@ main { flex: 1; }
     padding: 16px 24px;
     display: flex;
     align-items: center;
-    gap: 24px;
+    justify-content: space-between;
+    gap: 12px 24px;
     flex-wrap: wrap;
 }
+
+.ev-agenda-strip-stats {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.ev-agenda-strip-icon {
+    color: var(--green-600);
+    flex-shrink: 0;
+    transition: color var(--t3) var(--ease);
+}
+.ev-agenda-strip-live .ev-agenda-strip-icon { color: var(--red); }
+
+.ev-agenda-divider {
+    width: 1px;
+    height: 26px;
+    background: var(--grey-200);
+    flex-shrink: 0;
+    transition: background var(--t3) var(--ease);
+}
+.ev-agenda-strip-live .ev-agenda-divider { background: rgba(220,38,38,.2); }
 
 .ev-agenda-stat {
     display: flex;
@@ -277,19 +317,22 @@ main { flex: 1; }
     font-weight: 800;
     color: var(--grey-900);
     letter-spacing: -0.02em;
+    white-space: nowrap;
 }
 
 .ev-agenda-stat span {
     font-size: calc(12.5px * var(--a11y-text-scale, 1));
     color: var(--grey-500);
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .ev-summary-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 10px;
+    flex-shrink: 0;
+    padding: 6px 12px;
     border-radius: var(--r99);
     background: var(--green-50);
     border: 1px solid var(--green-200);
@@ -298,16 +341,78 @@ main { flex: 1; }
     font-weight: 800;
     letter-spacing: .8px;
     text-transform: uppercase;
+    white-space: nowrap;
+    transition: all var(--t3) var(--ease);
 }
 
-.ev-agenda-strip-meta {
+/* Ponto pulsante "ao vivo" — mesma linguagem visual dos badges vermelhos
+   (.ev-badge-hoje, toasts de erro) já usados no resto da agenda. */
+.ev-live-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    margin-right: 5px;
+    position: relative;
+    flex-shrink: 0;
+}
+.ev-live-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid var(--red);
+    animation: liveDotPulse 1.6s ease-out infinite;
+}
+@keyframes liveDotPulse {
+    0%   { transform: scale(.6); opacity: .9; }
+    100% { transform: scale(1.9); opacity: 0; }
+}
+
+/* Estado "ao vivo": algum evento está acontecendo hoje (ver isLiveNow()
+   em eventos.js). Reaproveita o vermelho já usado para urgência (badge
+   "Hoje", toasts de erro) em vez de introduzir uma cor nova. */
+.ev-agenda-strip-live { background: var(--red-bg); border-bottom-color: rgba(220,38,38,.25); }
+.ev-agenda-strip-live .ev-summary-pill { background: white; border-color: rgba(220,38,38,.35); color: var(--red); }
+
+.ev-agenda-strip-meta-row {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.ev-agenda-strip-meta {
     color: var(--grey-500);
     font-size: calc(12.5px * var(--a11y-text-scale, 1));
     line-height: 1.5;
+    flex: 1 1 auto;
+    min-width: 200px;
 }
+.ev-agenda-strip-live .ev-agenda-strip-meta { color: var(--red); font-weight: 600; }
+
+.ev-agenda-strip-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: var(--r99);
+    background: var(--green-700);
+    color: white;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all var(--t2) var(--ease);
+}
+.ev-agenda-strip-cta:hover { background: var(--green-800); transform: translateY(-1px); }
+.ev-agenda-strip-live .ev-agenda-strip-cta { background: var(--red); }
+.ev-agenda-strip-live .ev-agenda-strip-cta:hover { background: #b91c1c; }
 
 /* ================================================================
    BARRA DE FILTROS — sticky
@@ -379,10 +484,29 @@ main { flex: 1; }
 }
 .ev-tab:hover      { background: var(--green-100); color: var(--green-700); border-color: var(--green-200); }
 .ev-tab-active     { background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900)); color: white; box-shadow: var(--sh-green); border-color: var(--leaf-900); }
-.ev-tab-active:hover { filter: brightness(1.06); }
+/* Reafirma o visual "ativo" no hover: .ev-tab:hover tem a mesma especificidade
+   (classe + :hover) e, sem isso, "apaga" o fundo/cor da aba selecionada
+   ao passar o mouse. */
+.ev-tab-active:hover {
+    background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
+    color: white;
+    border-color: var(--leaf-900);
+    filter: brightness(1.06);
+}
 
 /* Categorias — mesmo raciocínio de min-width:0 que .ev-tabs acima */
 .ev-cats { display: flex; gap: 7px; flex-wrap: wrap; flex: 1 1 auto; min-width: 0; }
+
+/* A categoria vem crua do Firestore (ex.: "show"); capitaliza na exibição
+   em vez de depender de como cada admin digitou o cadastro. */
+.ev-cat,
+.ev-card-cat,
+.ev-tl-cat,
+.ev-modal-hero-cat,
+.news-card-cat,
+.news-modal-cat {
+    text-transform: capitalize;
+}
 
 .ev-cat {
     padding: 7px 15px;
@@ -400,7 +524,14 @@ main { flex: 1; }
 }
 .ev-cat:hover       { border-color: var(--green-400); color: var(--green-700); background: var(--green-50); transform: translateY(-1px); }
 .ev-cat-active      { background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900)); border-color: var(--leaf-900); color: white; font-weight: 700; box-shadow: var(--sh-green); }
-.ev-cat-active:hover { filter: brightness(1.06); }
+/* Mesmo caso de .ev-tab-active:hover acima — mantém o fundo/cor ativos
+   em vez de deixar .ev-cat:hover (mesma especificidade) sobrescrever. */
+.ev-cat-active:hover {
+    background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
+    border-color: var(--leaf-900);
+    color: white;
+    filter: brightness(1.06);
+}
 
 /* Toggle de visualização */
 .ev-view-toggle {
@@ -612,6 +743,16 @@ main { flex: 1; }
 .ev-upcoming-date .ud-day { font-size: calc(17px * var(--a11y-text-scale, 1)); font-weight: 800; color: var(--green-700); line-height: 1; }
 .ev-upcoming-date .ud-mon { font-size: calc(9px * var(--a11y-text-scale, 1)); font-weight: 700; color: var(--green-500); text-transform: uppercase; letter-spacing: .5px; }
 
+/* Evento em andamento hoje — mesma cor de urgência do resto da agenda.
+   "HOJE" é mais largo que um número de dois dígitos, então reduz a fonte
+   para continuar cabendo na caixinha de 40px. */
+.ev-upcoming-date-live { background: var(--red-bg); }
+.ev-upcoming-date-live .ud-day {
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    color: var(--red);
+}
+.ev-upcoming-date-live .ud-mon { color: var(--red); }
+
 .ev-upcoming-info { flex: 1; min-width: 0; }
 .ev-upcoming-info strong { display: block; font-size: calc(13px * var(--a11y-text-scale, 1)); font-weight: 700; color: var(--grey-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev-upcoming-info span   { font-size: calc(11.5px * var(--a11y-text-scale, 1)); color: var(--grey-500); }
@@ -750,6 +891,9 @@ main { flex: 1; }
     backdrop-filter: blur(6px);
 }
 .ev-badge-hoje   { background: var(--red); color: white; }
+.ev-badge-live   { background: var(--red); color: white; display: inline-flex; align-items: center; gap: 4px; }
+.ev-badge-live .ev-live-dot { margin-right: 0; background: white; }
+.ev-badge-live .ev-live-dot::after { border-color: white; }
 .ev-badge-amanha { background: var(--amber); color: white; }
 .ev-badge-breve  { background: rgba(255,255,255,.9); color: var(--green-700); }
 .ev-badge-em-alta {
@@ -886,11 +1030,14 @@ main { flex: 1; }
 .ev-rsvp-btn.is-going { background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900)); color: white; }
 .ev-rsvp-btn .rsvp-count { font-weight: 800; margin-left: 4px; }
 
-.ev-rsvp-btn[title] {
+/* data-tooltip (não title): usar o atributo nativo aqui faria o balão
+   customizado abaixo aparecer JUNTO com o tooltip nativo do navegador
+   ao passar o mouse — dois balões sobrepostos. */
+.ev-rsvp-btn[data-tooltip] {
     position: relative;
 }
-.ev-rsvp-btn[title]::after {
-    content: attr(title);
+.ev-rsvp-btn[data-tooltip]::after {
+    content: attr(data-tooltip);
     position: absolute;
     left: 50%;
     bottom: calc(100% + 8px);
@@ -907,8 +1054,8 @@ main { flex: 1; }
     box-shadow: 0 10px 24px rgba(0,0,0,.18);
     z-index: 20;
 }
-.ev-rsvp-btn[title]:hover::after,
-.ev-rsvp-btn[title]:focus-visible::after {
+.ev-rsvp-btn[data-tooltip]:hover::after,
+.ev-rsvp-btn[data-tooltip]:focus-visible::after {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
@@ -926,6 +1073,8 @@ main { flex: 1; }
     .ev-tab, .ev-cat { min-height: 44px; padding: 10px 14px; font-size: calc(14px * var(--a11y-text-scale, 1)); }
     .ev-search-bar { max-width: 100%; padding: 10px 14px; }
     .ev-agenda-strip-inner { gap: 14px 20px; }
+    .ev-agenda-divider { display: none; }
+    .ev-summary-pill { margin-left: auto; }
 }
 
 .ev-card-link {
@@ -1355,6 +1504,23 @@ main { flex: 1; }
 .ev-modal-desc-label { font-size: calc(13px * var(--a11y-text-scale, 1)); font-weight: 700; color: var(--grey-700); margin-bottom: 8px; }
 .ev-modal-desc       { font-size: calc(14px * var(--a11y-text-scale, 1)); color: var(--grey-600); line-height: 1.7; margin-bottom: 20px; }
 
+/* Prova social: quem já confirmou presença (populado sob demanda ao
+   abrir o modal — ver loadAttendeesPreview() em eventos.js). */
+.ev-modal-attendees {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    background: var(--green-50);
+    border: 1px solid var(--green-200);
+    border-radius: var(--r10);
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    color: var(--leaf-700);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
 .ev-modal-footer {
     display: flex;
     gap: 10px;
@@ -1408,11 +1574,11 @@ main { flex: 1; }
     .ev-main-inner { grid-template-columns: 240px 1fr; gap: 20px; }
 }
 
-@media (max-width: 768px) {
-    .ev-main-inner    { grid-template-columns: 1fr; }
-    .ev-sidebar       { position: static; flex-direction: row; flex-wrap: wrap; }
-    .ev-mini-cal, .ev-upcoming-list { flex: 1 1 260px; }
-}
+/* ≤900px já empilha a sidebar em coluna única (ver .ev-sidebar logo
+   acima de .ev-mini-cal). Nada específico de 768px é necessário aqui —
+   uma regra anterior forçava flex-direction:row nessa faixa, o que
+   esticava o mini-calendário a ~500px de largura por falta de um
+   segundo item ao lado para dividir a linha. Removida. */
 
 @media (max-width: 640px) {
     .ev-hero-content  { padding: 84px 20px 32px; gap: 12px; }
@@ -1430,10 +1596,21 @@ main { flex: 1; }
 
     .ev-modal-info-grid { grid-template-columns: 1fr; }
 
-    .ev-tl-item  { padding: 14px 16px; gap: 12px; }
-    .ev-tl-aside { display: none; }
-
-    .ev-sidebar  { flex-direction: column; }
+    .ev-tl-item  { padding: 14px 16px; gap: 12px; flex-wrap: wrap; }
+    /* Em vez de escondida (o que também removia categoria, compartilhar
+       e favoritar do modo lista no celular), a coluna lateral vira uma
+       linha própria abaixo do título — flex-basis:100% força a quebra
+       mesmo havendo espaço sobrando ao lado do texto. */
+    .ev-tl-aside {
+        flex-direction: row;
+        align-items: center;
+        flex-basis: 100%;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--grey-100);
+    }
 }
 
 /* ================================================================
