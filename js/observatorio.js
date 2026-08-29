@@ -280,7 +280,13 @@ async function loadObservatorioData() {
         
         // Atualizar estatísticas
         updateStats(espacos);
-        
+
+        // Painéis de indicadores (dashboard) de cada seção
+        updateInsightsVisaoGeral(espacos);
+        updateKPITerritorio(espacos);
+        updateKPIEquidade(espacos);
+        updateKPIConsumo(espacos);
+
         // Renderizar gráficos
         await renderCharts(espacos);
         
@@ -320,6 +326,204 @@ function updateStats(espacos) {
         categorias: categorias.size,
         comAcessibilidade
     });
+}
+
+// ===================================
+// HELPERS DE AGREGAÇÃO
+// (compartilhados entre os gráficos e os painéis de indicadores,
+// para que os números nunca divirjam entre si)
+// ===================================
+
+/**
+ * Extrai região/bairro de cada endereço e conta ocorrências.
+ * Ex: "Rua X, Centro, Bueno Brandão" → "Centro"
+ */
+function calcularDistribuicaoRegional(espacos) {
+    const distribuicao = new Map();
+
+    espacos.forEach(espaco => {
+        if (!espaco.endereco) return;
+
+        const partes = espaco.endereco.split(',').map(p => p.trim());
+        let regiao = 'Não especificado';
+
+        if (partes.length >= 2) {
+            regiao = partes[1]; // Segunda parte geralmente é o bairro
+        } else if (partes.length === 1) {
+            regiao = partes[0];
+        }
+
+        regiao = regiao.replace(/^(Rua|Av|Avenida|Travessa)\s+/i, '');
+
+        distribuicao.set(regiao, (distribuicao.get(regiao) || 0) + 1);
+    });
+
+    return distribuicao;
+}
+
+/**
+ * Conta espaços por categoria cultural.
+ */
+function calcularContagemCategorias(espacos) {
+    const contagem = new Map();
+
+    espacos.forEach(espaco => {
+        const categoria = espaco.categoria || 'Sem Categoria';
+        contagem.set(categoria, (contagem.get(categoria) || 0) + 1);
+    });
+
+    return contagem;
+}
+
+// ===================================
+// PAINÉIS DE INDICADORES (DASHBOARD)
+// ===================================
+
+/**
+ * Visão Geral: insights automáticos em linguagem natural,
+ * calculados a partir dos mesmos dados dos gráficos.
+ */
+function updateInsightsVisaoGeral(espacos) {
+    const total = espacos.length;
+    const elGratuito = document.getElementById('insightGratuito');
+    const elAcessibilidade = document.getElementById('insightAcessibilidade');
+    const elRegiao = document.getElementById('insightRegiao');
+    const elCategoria = document.getElementById('insightCategoria');
+
+    if (total === 0) {
+        const semDados = 'Ainda não há espaços suficientes para gerar este panorama.';
+        [elGratuito, elAcessibilidade, elRegiao, elCategoria].forEach(el => {
+            if (el) el.textContent = semDados;
+        });
+        return;
+    }
+
+    const gratuitos = espacos.filter(e => e.entrada === 'gratuita').length;
+    if (elGratuito) {
+        const pct = ((gratuitos / total) * 100).toFixed(0);
+        elGratuito.innerHTML = `<strong>${pct}%</strong> dos espaços culturais têm entrada gratuita`;
+    }
+
+    const acessiveis = espacos.filter(e => e.acessibilidade === 'sim' || e.acessibilidade === 'parcial').length;
+    if (elAcessibilidade) {
+        const pct = ((acessiveis / total) * 100).toFixed(0);
+        elAcessibilidade.innerHTML = `<strong>${pct}%</strong> têm algum nível de acessibilidade mapeado`;
+    }
+
+    const distribuicao = calcularDistribuicaoRegional(espacos);
+    if (elRegiao) {
+        if (distribuicao.size > 0) {
+            const [regiaoTop, qtd] = [...distribuicao.entries()].sort((a, b) => b[1] - a[1])[0];
+            elRegiao.innerHTML = `<strong>${regiaoTop}</strong> concentra o maior número de pontos culturais (${qtd})`;
+        } else {
+            elRegiao.textContent = 'Nenhum endereço cadastrado ainda permite identificar regiões.';
+        }
+    }
+
+    const categorias = calcularContagemCategorias(espacos);
+    if (elCategoria && categorias.size > 0) {
+        const [categoriaTop, qtd] = [...categorias.entries()].sort((a, b) => b[1] - a[1])[0];
+        elCategoria.innerHTML = `<strong>${categoriaTop}</strong> é a categoria mais frequente (${qtd} espaço${qtd === 1 ? '' : 's'})`;
+    }
+}
+
+/**
+ * Distribuição Territorial: indicadores de concentração/vazio geográfico.
+ */
+function updateKPITerritorio(espacos) {
+    const distribuicao = calcularDistribuicaoRegional(espacos);
+    const total = espacos.length;
+
+    const elRegioes = document.getElementById('kpiRegioes');
+    const elLider = document.getElementById('kpiRegiaoLider');
+    const elLiderSub = document.getElementById('kpiRegiaoLiderSub');
+    const elConcentracao = document.getElementById('kpiConcentracao');
+    const elMenor = document.getElementById('kpiRegiaoMenor');
+    const elMenorSub = document.getElementById('kpiRegiaoMenorSub');
+
+    if (distribuicao.size === 0 || total === 0) {
+        [elRegioes, elLider, elConcentracao, elMenor].forEach(el => { if (el) el.textContent = '-'; });
+        if (elLiderSub) elLiderSub.textContent = 'espaços cadastrados';
+        if (elMenorSub) elMenorSub.textContent = 'região com menos pontos';
+        return;
+    }
+
+    const ordenado = [...distribuicao.entries()].sort((a, b) => b[1] - a[1]);
+
+    if (elRegioes) elRegioes.textContent = distribuicao.size;
+
+    const [regiaoLider, qtdLider] = ordenado[0];
+    if (elLider) elLider.textContent = regiaoLider;
+    if (elLiderSub) elLiderSub.textContent = `${qtdLider} de ${total} espaço${total === 1 ? '' : 's'}`;
+
+    const somaTop3 = ordenado.slice(0, 3).reduce((soma, [, qtd]) => soma + qtd, 0);
+    if (elConcentracao) elConcentracao.textContent = `${((somaTop3 / total) * 100).toFixed(0)}%`;
+
+    const [regiaoMenor, qtdMenor] = ordenado[ordenado.length - 1];
+    if (elMenor) elMenor.textContent = regiaoMenor;
+    if (elMenorSub) elMenorSub.textContent = `apenas ${qtdMenor} espaço${qtdMenor > 1 ? 's' : ''}`;
+}
+
+/**
+ * Equidade e Inclusão: taxas de gratuidade/acessibilidade e sua interseção.
+ */
+function updateKPIEquidade(espacos) {
+    const total = espacos.length;
+
+    const elGratuito = document.getElementById('kpiPctGratuito');
+    const elAcessivel = document.getElementById('kpiPctAcessivel');
+    const elInclusivos = document.getElementById('kpiInclusivos');
+    const elIndice = document.getElementById('kpiIndiceEquidade');
+
+    if (total === 0) {
+        [elGratuito, elAcessivel, elInclusivos, elIndice].forEach(el => { if (el) el.textContent = '-'; });
+        return;
+    }
+
+    const gratuitos = espacos.filter(e => e.entrada === 'gratuita').length;
+    const acessiveis = espacos.filter(e => e.acessibilidade === 'sim' || e.acessibilidade === 'parcial').length;
+    const inclusivos = espacos.filter(e => e.entrada === 'gratuita' && e.acessibilidade === 'sim').length;
+
+    const pctGratuito = (gratuitos / total) * 100;
+    const pctAcessivel = (acessiveis / total) * 100;
+
+    if (elGratuito) elGratuito.textContent = `${pctGratuito.toFixed(0)}%`;
+    if (elAcessivel) elAcessivel.textContent = `${pctAcessivel.toFixed(0)}%`;
+    if (elInclusivos) elInclusivos.textContent = inclusivos;
+    if (elIndice) elIndice.textContent = `${((pctGratuito + pctAcessivel) / 2).toFixed(0)}%`;
+}
+
+/**
+ * Perfil de Consumo: concentração e diversidade entre categorias culturais.
+ */
+function updateKPIConsumo(espacos) {
+    const categorias = calcularContagemCategorias(espacos);
+    const total = espacos.length;
+
+    const elTotalCategorias = document.getElementById('kpiTotalCategorias');
+    const elTop = document.getElementById('kpiCategoriaTop');
+    const elTopSub = document.getElementById('kpiCategoriaTopSub');
+    const elNicho = document.getElementById('kpiCategoriasNicho');
+    const elMedia = document.getElementById('kpiMediaCategoria');
+
+    if (categorias.size === 0 || total === 0) {
+        [elTotalCategorias, elTop, elNicho, elMedia].forEach(el => { if (el) el.textContent = '-'; });
+        if (elTopSub) elTopSub.textContent = 'espaços cadastrados';
+        return;
+    }
+
+    const ordenado = [...categorias.entries()].sort((a, b) => b[1] - a[1]);
+
+    if (elTotalCategorias) elTotalCategorias.textContent = categorias.size;
+
+    const [categoriaTop, qtdTop] = ordenado[0];
+    if (elTop) elTop.textContent = categoriaTop;
+    if (elTopSub) elTopSub.textContent = `${qtdTop} espaço${qtdTop === 1 ? '' : 's'} (${((qtdTop / total) * 100).toFixed(0)}%)`;
+
+    const nicho = ordenado.filter(([, qtd]) => qtd === 1).length;
+    if (elNicho) elNicho.textContent = nicho;
+
+    if (elMedia) elMedia.textContent = (total / categorias.size).toFixed(1);
 }
 
 // ===================================
@@ -363,31 +567,8 @@ async function renderDistribuicaoChart(espacos) {
     
     try {
         // Extrair regiões dos endereços
-        const distribuicao = new Map();
-        
-        espacos.forEach(espaco => {
-            if (!espaco.endereco) return;
-            
-            // Tentar extrair região/bairro do endereço
-            // Exemplo: "Rua X, Centro, Bueno Brandão" → "Centro"
-            const partes = espaco.endereco.split(',').map(p => p.trim());
-            let regiao = 'Não especificado';
-            
-            if (partes.length >= 2) {
-                regiao = partes[1]; // Segunda parte geralmente é o bairro
-            } else if (partes.length === 1) {
-                regiao = partes[0];
-            }
-            
-            // Normalizar
-            regiao = regiao.replace(/^(Rua|Av|Avenida|Travessa)\s+/i, '');
-            
-            distribuicao.set(
-                regiao,
-                (distribuicao.get(regiao) || 0) + 1
-            );
-        });
-        
+        const distribuicao = calcularDistribuicaoRegional(espacos);
+
         // Se não houver dados suficientes
         if (distribuicao.size === 0) {
             showEmptyState(canvasId, emptyId);
@@ -758,13 +939,8 @@ async function renderCategoriasChart(espacos) {
     
     try {
         // Contar por categoria
-        const contagem = new Map();
-        
-        espacos.forEach(espaco => {
-            const categoria = espaco.categoria || 'Sem Categoria';
-            contagem.set(categoria, (contagem.get(categoria) || 0) + 1);
-        });
-        
+        const contagem = calcularContagemCategorias(espacos);
+
         // Se não houver dados
         if (contagem.size === 0) {
             showEmptyState(canvasId, emptyId);
@@ -905,6 +1081,12 @@ function showAllEmptyStates() {
     document.getElementById('statGratuitos').textContent = '0';
     document.getElementById('statCategorias').textContent = '0';
     document.getElementById('statAcessibilidade').textContent = '0/0';
+
+    // Zerar painéis de indicadores das demais seções
+    updateInsightsVisaoGeral([]);
+    updateKPITerritorio([]);
+    updateKPIEquidade([]);
+    updateKPIConsumo([]);
 }
 
 // ===================================
