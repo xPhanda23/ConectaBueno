@@ -777,6 +777,8 @@ body.visitor-mode #menuAdminPanel {
 }
 
 .cat-filter {
+    appearance: none;
+    -webkit-appearance: none;
     padding: 10px 20px;
     border: 2px solid var(--grey-200);
     border-radius: 999px;
@@ -818,6 +820,15 @@ body.visitor-mode #menuAdminPanel {
 .cat-filter > * {
     position: relative;
     z-index: 1;
+}
+
+.cat-filter:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(47, 158, 82, 0.35);
+}
+
+.cat-filter-active:focus-visible {
+    box-shadow: 0 4px 14px rgba(20,92,48,.32), 0 0 0 3px rgba(47, 158, 82, 0.35);
 }
 
 .cat-filter-active {

@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2d5a3d">
-    <title>Configurações - Conecta Bueno</title>
+    <meta name="description" content="Gerencie sua conta, segurança e preferências no Conecta Bueno.">
+    <title>Configurações — Conecta Bueno</title>
     <link rel="icon" href="https://conectabueno.discloud.app/assets/images/logo.png" type="image/png">
 
-    <!-- Fonte legível (acessibilidade) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Estilos -->
     <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/settings.css">
 </head>
@@ -21,37 +22,73 @@
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
-        <p>Carregando configurações...</p>
+        <p>Carregando configurações…</p>
     </div>
 
-    <!-- Layout Principal -->
-    <div class="admin-layout">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <div class="brand-logo">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                        <circle cx="16" cy="16" r="14" fill="#2d5a3d"/>
-                        <path d="M16 8L12 18H20L16 8Z" fill="white"/>
-                        <circle cx="16" cy="20" r="2" fill="white"/>
-                    </svg>
-                    <div>
-                        <h1>Conecta Bueno</h1>
-                        <span>Configurações</span>
+    <!-- ═══════════════════════════
+         HEADER
+         ═══════════════════════════ -->
+    <header class="site-header" id="siteHeader">
+        <div class="hd-inner">
+
+            <a href="../index.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
+                <span class="hd-brand-seals">
+                    <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                    <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                </span>
+                <span class="hd-brand-name">Conecta Bueno</span>
+            </a>
+
+            <nav class="hd-nav" aria-label="Navegação principal">
+                <a href="../index.html"    class="hd-nav-link">Início</a>
+                <a href="mapa.html"        class="hd-nav-link">Mapa</a>
+                <a href="eventos.html"     class="hd-nav-link">Eventos</a>
+                <a href="observatorio.html" class="hd-nav-link">Observatório</a>
+            </nav>
+
+            <button class="hd-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <div class="hd-user-wrap" id="hdUserWrap" data-login-href="login.html">
+                <button class="hd-avatar" id="btnUserMenu" aria-label="Menu do usuário" aria-expanded="false">
+                    <span id="userInitials">CB</span>
+                </button>
+                <div class="hd-dropdown" id="userDropdown" role="menu">
+                    <div class="hd-dd-profile">
+                        <div class="hd-dd-avatar"><span id="userInitialsLarge">CB</span></div>
+                        <div class="hd-dd-info">
+                            <strong id="userName">…</strong>
+                            <span id="userEmail">…</span>
+                        </div>
                     </div>
+                    <div class="hd-dd-divider"></div>
+                    <a href="../index.html"    class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="mapa.html"        class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <div class="hd-dd-divider"></div>
+                    <a href="settings.html"    class="hd-dd-item hd-dd-current" aria-current="page" role="menuitem">Configurações</a>
+                    <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
+                    <div class="hd-dd-divider"></div>
+                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
                 </div>
             </div>
 
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════
+         LAYOUT (estilo admin/observatório: sidebar fixa sob o
+         header, sem banner — ver pages/observatorio.html)
+         ═══════════════════════════ -->
+    <div class="admin-layout">
+
+        <!-- Sidebar de navegação das configurações -->
+        <aside class="admin-sidebar" id="settingsSidebar">
             <nav class="sidebar-nav">
-                <a href="../index.html" class="nav-item nav-item-home">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 3L3 9H6V16H9V12H11V16H14V9H17L10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Voltar para Home</span>
-                </a>
-                
-                <div class="nav-divider"></div>
-                
                 <button class="nav-item active" data-section="conta">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
@@ -91,34 +128,27 @@
                     <span>Privacidade</span>
                 </button>
             </nav>
-
-            <div class="sidebar-footer">
-                <a href="mapa.html" class="btn-back-map">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <path d="M7 4L2 9L7 14M2 9H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    <span>Voltar ao Mapa</span>
-                </a>
-            </div>
         </aside>
 
+        <div class="admin-sidebar-backdrop" id="settingsSidebarBackdrop"></div>
 
         <!-- Content Area -->
-        <main class="admin-content">
+        <main class="admin-main">
             <!-- Menu Toggle Mobile -->
-            <button class="btn-menu-toggle" id="btnMenuToggle">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <button class="section-menu-toggle" id="btnMenuToggle" aria-expanded="false" aria-controls="settingsSidebar">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
+                <span>Seções</span>
             </button>
-            
+
+            <div class="content-header">
+                <h2 id="sectionTitle">Informações da Conta</h2>
+                <p id="sectionSubtitle">Gerencie seus dados pessoais e foto de perfil</p>
+            </div>
+
             <!-- Conta Section -->
             <section class="section-content active" id="section-conta">
-                <div class="content-header">
-                    <h2>Informações da Conta</h2>
-                    <p>Gerencie seus dados pessoais e foto de perfil</p>
-                </div>
-
                 <div class="settings-card">
                     <div class="card-section">
                         <h3>Foto de Perfil</h3>
@@ -173,11 +203,6 @@
 
             <!-- Segurança Section -->
             <section class="section-content" id="section-seguranca">
-                <div class="content-header">
-                    <h2>Segurança</h2>
-                    <p>Proteja sua conta com uma senha forte</p>
-                </div>
-
                 <div class="settings-card">
                     <div class="card-section">
                         <h3>Alterar Senha</h3>
@@ -235,18 +260,12 @@
                 </div>
             </section>
 
-
             <!-- Notificações Section -->
             <section class="section-content" id="section-notificacoes">
-                <div class="content-header">
-                    <h2>Notificações</h2>
-                    <p>Controle como você recebe atualizações</p>
-                </div>
-
                 <div class="settings-card">
                     <div class="card-section">
                         <h3>Alertas do Sistema</h3>
-                        
+
                         <div class="toggle-item">
                             <div class="toggle-info">
                                 <h4>Novos Lugares Turísticos</h4>
@@ -281,12 +300,11 @@
                         </div>
                     </div>
 
-
                     <div class="divider"></div>
 
                     <div class="card-section">
                         <h3>Notificações por E-mail</h3>
-                        
+
                         <div class="toggle-item">
                             <div class="toggle-info">
                                 <h4>Boletim Semanal</h4>
@@ -314,15 +332,10 @@
 
             <!-- Aparência Section -->
             <section class="section-content" id="section-aparencia">
-                <div class="content-header">
-                    <h2>Aparência</h2>
-                    <p>Personalize a interface do sistema</p>
-                </div>
-
                 <div class="settings-card">
                     <div class="card-section">
                         <h3>Tema</h3>
-                        
+
                         <div class="theme-options">
                             <label class="theme-option">
                                 <input type="radio" name="theme" value="light" checked>
@@ -337,7 +350,6 @@
                                     </div>
                                 </div>
                             </label>
-
 
                             <label class="theme-option">
                                 <input type="radio" name="theme" value="dark">
@@ -373,19 +385,13 @@
 
             <!-- Privacidade Section -->
             <section class="section-content" id="section-privacidade">
-                <div class="content-header">
-                    <h2>Privacidade & Dados</h2>
-                    <p>Gerencie seus dados conforme a LGPD</p>
-                </div>
-
                 <div class="settings-card">
                     <div class="card-section">
                         <h3>Seus Dados</h3>
                         <p class="section-description">
-                            De acordo com a Lei Geral de Proteção de Dados (LGPD), você tem direito ao acesso, 
+                            De acordo com a Lei Geral de Proteção de Dados (LGPD), você tem direito ao acesso,
                             correção e exclusão dos seus dados pessoais.
                         </p>
-
 
                         <div class="data-actions">
                             <button class="btn-data-export" id="btnExportarDados">
@@ -441,7 +447,6 @@
             </section>
         </main>
     </div>
-
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
@@ -531,6 +536,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
     <script src="../js/firebase-config.js"></script>
+    <script src="../js/shared-components.js"></script>
     <script src="../js/accessibility.js"></script>
     <script src="../js/settings.js"></script>
 </body>

@@ -3,6 +3,32 @@
 // Gestão de Configurações do Usuário
 // ===================================
 
+// ===================================
+// TEMA (Aparência)
+// Aplica o tema salvo antes mesmo do Firebase carregar, para não
+// piscar o tema errado enquanto o perfil é buscado.
+// ===================================
+
+function applyTheme(theme) {
+    if (theme && theme !== 'light') {
+        document.documentElement.setAttribute('data-theme', theme);
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+    try {
+        localStorage.setItem('cb_theme', theme || 'light');
+    } catch (e) { /* localStorage indisponível — segue sem persistir localmente */ }
+}
+
+(function applyCachedThemeEarly() {
+    try {
+        const cached = localStorage.getItem('cb_theme');
+        if (cached && cached !== 'light') {
+            document.documentElement.setAttribute('data-theme', cached);
+        }
+    } catch (e) { /* localStorage indisponível */ }
+})();
+
 // Aguardar Firebase estar disponível
 function waitForFirebase() {
     return new Promise((resolve) => {
@@ -45,14 +71,14 @@ window.addEventListener('load', async () => {
     storage = null;
     
     auth.onAuthStateChanged(async (user) => {
-        if (user) {
+        if (user && !user.isAnonymous) {
             currentUser = user;
             console.log('✅ Usuário autenticado:', user.email);
             await loadUserProfile();
             hideLoading();
         } else {
-            console.log('❌ Usuário não autenticado');
-            window.location.href = '../pages/login.html';
+            console.log('❌ Configurações exigem uma conta permanente — redirecionando para login');
+            window.location.href = 'login.html';
         }
     });
 });
@@ -69,21 +95,35 @@ async function loadUserProfile() {
         if (userDoc.exists) {
             userProfile = userDoc.data();
             console.log('👤 Perfil carregado:', userProfile);
-            
+
             // Preencher dados da conta
             document.getElementById('inputNome').value = userProfile.nome || '';
             document.getElementById('inputEmail').value = currentUser.email || '';
-            
+
             // Foto de perfil (sem validação que trava)
             updatePhotoDisplay(userProfile.photoURL);
-            
+
             // Carregar preferências
             loadUserPreferences();
         }
+
+        // Refletir os dados no menu do usuário (avatar/nome/e-mail no header)
+        syncHeaderUser();
     } catch (error) {
         console.error('❌ Erro ao carregar perfil:', error);
         showToast('Erro ao carregar perfil', 'error');
     }
+}
+
+function syncHeaderUser() {
+    if (!window.sharedComponents || !currentUser) return;
+
+    window.sharedComponents.renderUserInfo({
+        nome: userProfile?.nome || currentUser.email?.split('@')[0] || 'Usuário',
+        email: currentUser.email,
+        photoURL: userProfile?.photoURL,
+        isAdmin: userProfile?.isAdmin
+    });
 }
 
 function updatePhotoDisplay(photoURL) {
@@ -138,6 +178,7 @@ function loadUserPreferences() {
         if (prefs.theme) {
             const themeInput = document.querySelector(`input[name="theme"][value="${prefs.theme}"]`);
             if (themeInput) themeInput.checked = true;
+            applyTheme(prefs.theme);
         }
     }
 }
@@ -147,71 +188,64 @@ function loadUserPreferences() {
 // NAVEGAÇÃO ENTRE ABAS
 // ===================================
 
+const SECTION_TITLES = {
+    'conta':          { title: 'Informações da Conta', subtitle: 'Gerencie seus dados pessoais e foto de perfil' },
+    'seguranca':      { title: 'Segurança', subtitle: 'Proteja sua conta com uma senha forte' },
+    'notificacoes':   { title: 'Notificações', subtitle: 'Controle como você recebe atualizações' },
+    'aparencia':      { title: 'Aparência', subtitle: 'Personalize a interface do sistema' },
+    'privacidade':    { title: 'Privacidade & Dados', subtitle: 'Gerencie seus dados conforme a LGPD' }
+};
+
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
         const targetSection = item.dataset.section;
-        
+
         // Atualizar itens ativos
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        
+
         // Mostrar conteúdo
         document.querySelectorAll('.section-content').forEach(content => {
             content.classList.remove('active');
         });
         document.getElementById(`section-${targetSection}`).classList.add('active');
-        
-        // Atualizar título do header
-        const titles = {
-            'conta': 'Configurações da Conta',
-            'seguranca': 'Segurança',
-            'notificacoes': 'Notificações',
-            'aparencia': 'Aparência',
-            'privacidade': 'Privacidade & Dados'
-        };
-        document.querySelector('.content-header h2').textContent = titles[targetSection];
-        
-        // Fechar sidebar em mobile após selecionar
-        if (window.innerWidth <= 1024) {
-            const sidebar = document.querySelector('.admin-sidebar');
-            if (sidebar) {
-                sidebar.classList.remove('active');
-            }
-        }
+
+        // Atualizar título do cabeçalho
+        const info = SECTION_TITLES[targetSection] || SECTION_TITLES['conta'];
+        document.getElementById('sectionTitle').textContent = info.title;
+        document.getElementById('sectionSubtitle').textContent = info.subtitle;
+
+        // No mobile a sidebar é uma gaveta sobreposta: fecha após escolher a seção
+        closeSectionMenu();
     });
 });
 
 // ===================================
-// MENU TOGGLE MOBILE
+// MENU TOGGLE MOBILE (gaveta off-canvas, mesmo padrão do Observatório)
 // ===================================
 
-const btnMenuToggle = document.getElementById('btnMenuToggle');
-const sidebar = document.querySelector('.admin-sidebar');
+function closeSectionMenu() {
+    document.getElementById('settingsSidebar')?.classList.remove('active');
+    document.getElementById('settingsSidebarBackdrop')?.classList.remove('active');
+    document.getElementById('btnMenuToggle')?.setAttribute('aria-expanded', 'false');
+}
 
-if (btnMenuToggle && sidebar) {
-    btnMenuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sidebar.classList.toggle('active');
-    });
-    
-    // Fechar sidebar ao clicar fora (apenas mobile)
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 1024) {
-            if (sidebar.classList.contains('active') && 
-                !sidebar.contains(e.target) && 
-                !btnMenuToggle.contains(e.target)) {
-                sidebar.classList.remove('active');
-            }
-        }
-    });
-    
-    // Fechar sidebar ao redimensionar para desktop
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 1024) {
-            sidebar.classList.remove('active');
-        }
+const btnMenuToggle = document.getElementById('btnMenuToggle');
+const settingsBackdrop = document.getElementById('settingsSidebarBackdrop');
+
+if (btnMenuToggle) {
+    btnMenuToggle.addEventListener('click', () => {
+        const isOpen = document.getElementById('settingsSidebar').classList.toggle('active');
+        settingsBackdrop?.classList.toggle('active', isOpen);
+        btnMenuToggle.setAttribute('aria-expanded', String(isOpen));
     });
 }
+
+settingsBackdrop?.addEventListener('click', closeSectionMenu);
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSectionMenu();
+});
 
 // ===================================
 // UPLOAD DE FOTO
@@ -254,6 +288,7 @@ document.getElementById('photoInput').addEventListener('change', async (e) => {
         }
         
         updatePhotoDisplay(base64);
+        syncHeaderUser();
         showToast('Foto atualizada com sucesso!', 'success');
         
     } catch (error) {
@@ -341,6 +376,7 @@ document.getElementById('btnRemovePhoto').addEventListener('click', async () => 
         }
         
         updatePhotoDisplay(null);
+        syncHeaderUser();
         showToast('Foto removida com sucesso!', 'success');
         
     } catch (error) {
@@ -380,7 +416,8 @@ document.getElementById('formConta').addEventListener('submit', async (e) => {
         
         // Atualizar perfil local
         userProfile.nome = nome;
-        
+        syncHeaderUser();
+
         showToast('Dados atualizados com sucesso!', 'success');
         
     } catch (error) {
@@ -489,6 +526,7 @@ notificationToggles.forEach(toggleId => {
 
 document.querySelectorAll('input[name="theme"]').forEach(radio => {
     radio.addEventListener('change', async (e) => {
+        applyTheme(e.target.value);
         await savePreference('theme', e.target.value);
         showToast('Tema atualizado!', 'success');
     });
@@ -582,7 +620,7 @@ document.getElementById('btnExcluirConta').addEventListener('click', () => {
                 showToast('Conta excluída com sucesso', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = '../pages/login.html';
+                    window.location.href = 'login.html';
                 }, 2000);
                 
             } catch (error) {
@@ -591,7 +629,7 @@ document.getElementById('btnExcluirConta').addEventListener('click', () => {
                 if (error.code === 'auth/requires-recent-login') {
                     showToast('Por segurança, faça login novamente para excluir sua conta', 'error');
                     setTimeout(() => {
-                        window.location.href = '../pages/login.html';
+                        window.location.href = 'login.html';
                     }, 2000);
                 } else {
                     showToast('Erro ao excluir conta', 'error');
