@@ -104,6 +104,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-item svg {
     flex-shrink: 0;
+    color: #999;
 }
 
 .nav-item:hover {
@@ -111,10 +112,18 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--verde-floresta);
 }
 
+.nav-item:hover svg {
+    color: var(--verde-floresta);
+}
+
 .nav-item.active {
     background: var(--verde-suave);
     color: var(--verde-floresta);
     font-weight: 600;
+}
+
+.nav-item.active svg {
+    color: var(--verde-floresta);
 }
 
 /* ===================================
@@ -410,45 +419,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 8px;
 }
 
-.doc-section code {
-    background: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: calc(13px * var(--a11y-text-scale, 1));
-    color: var(--verde-floresta);
-}
-
-/* ===================================
-   DATA GRID
-=================================== */
-.data-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
-}
-
-.data-item {
-    background: white;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-
-.data-item strong {
-    display: block;
-    font-size: calc(14px * var(--a11y-text-scale, 1));
-    color: var(--verde-floresta);
-    font-weight: 600;
-    margin-bottom: 6px;
-}
-
-.data-item p {
-    font-size: calc(13px * var(--a11y-text-scale, 1));
-    color: #666;
-    margin: 0;
-}
-
 /* ===================================
    MINI KPI GRID
    (indicadores rápidos por seção — Território,
@@ -649,20 +619,17 @@ h1, h2, h3, h4, h5, h6 {
     padding: 24px;
     border-left: 4px solid var(--verde-folha);
     transition: all 0.3s ease;
-}
-
-.source-card:hover {
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.source-card {
     display: grid;
     grid-template-columns: 48px 1fr;
     gap: 16px;
     grid-template-areas:
         "icon content"
         "desc desc";
+}
+
+.source-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .source-icon {
@@ -733,17 +700,6 @@ h1, h2, h3, h4, h5, h6 {
     outline: 2px solid var(--verde-floresta);
     outline-offset: 2px;
     border-radius: 2px;
-}
-
-.code-block {
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 16px;
-    font-family: 'Courier New', monospace;
-    font-size: calc(13px * var(--a11y-text-scale, 1));
-    color: #333;
-    margin-top: 12px;
 }
 
 .alert-box {
@@ -937,18 +893,15 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px;
     padding: 16px;
     margin-top: 16px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    line-height: 1.6;
+    color: #666;
 }
 
 .ods-meta strong {
     font-size: calc(13px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
-}
-
-.ods-meta {
-    font-size: calc(13px * var(--a11y-text-scale, 1));
-    line-height: 1.6;
-    color: #666;
 }
 
 /* ===================================
@@ -1243,10 +1196,6 @@ h1, h2, h3, h4, h5, h6 {
         grid-template-columns: 1fr;
     }
     
-    .data-grid {
-        grid-template-columns: 1fr;
-    }
-
     .mini-kpi-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1391,44 +1340,6 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-
-/* Botão Voltar para Home */
-.nav-item-home {
-    background: linear-gradient(135deg, #2d5a3d 0%, #1a3a2e 100%) !important;
-    color: white !important;
-    font-weight: 600;
-    border: none !important;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.nav-item-home svg {
-    color: white !important;
-}
-
-.nav-item-home:hover {
-    background: linear-gradient(135deg, #245032 0%, #0f1f18 100%) !important;
-    transform: translateX(2px);
-}
-
-.nav-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
-    margin: 12px 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .nav-item-home {
-        font-size: calc(13px * var(--a11y-text-scale, 1));
-        padding: 10px 14px;
-    }
-
-    .nav-item-home svg {
-        width: 18px;
-        height: 18px;
-    }
-}
 
 /* ================================================================
    ACESSIBILIDADE — ajustes específicos do observatório
