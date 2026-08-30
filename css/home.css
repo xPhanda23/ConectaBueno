@@ -1958,6 +1958,7 @@ body.visitor-mode #menuAdminPanel {
     background: linear-gradient(135deg, rgba(6,15,10,.95) 0%, rgba(10,25,15,.85) 50%, rgba(6,15,10,.95) 100%);
 }
 .a11y-focus .hero-weather-corner { display: none; }
+.a11y-focus .hero-scroll-indicator { display: none; }
 .a11y-focus .event-card,
 .a11y-focus .place-card {
     border-color: var(--leaf-400);
@@ -1980,14 +1981,19 @@ body.visitor-mode #menuAdminPanel {
     background-image: none !important;
     color: #111827 !important;
 }
-.a11y-high-contrast .section *,
-.a11y-high-contrast .bg-off * {
+.a11y-high-contrast .section *:not(.hosp-img),
+.a11y-high-contrast .bg-off *:not(.hosp-img) {
     color: inherit !important;
     background: transparent !important;
     background-image: none !important;
     box-shadow: none !important;
     text-shadow: none !important;
 }
+/* .hosp-img guarda a foto real da hospedagem via background-image inline
+   — não é fundo decorativo de cartão, é o próprio conteúdo. A cascata
+   acima (necessária para os cartões escuros ao redor) não pode apagá-la;
+   só reforça a borda para continuar se destacando do fundo branco. */
+.a11y-high-contrast .hosp-img { border: 1px solid #000 !important; }
 .a11y-high-contrast .event-card,
 .a11y-high-contrast .place-card,
 .a11y-high-contrast .cat-filter,

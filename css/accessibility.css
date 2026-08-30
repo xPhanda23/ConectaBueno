@@ -12,6 +12,9 @@
 .a11y-tools { position: fixed; right: 18px; bottom: 18px; z-index: 11000; }
 
 .a11y-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 50px; height: 50px;
     border: none;
     border-radius: 50%;
@@ -23,6 +26,7 @@
     font-size: 15px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.a11y-fab-icon { width: 24px; height: 24px; flex: none; }
 .a11y-fab:hover, .a11y-fab:focus-visible { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(15, 36, 25, 0.42); }
 
 .a11y-menu {
@@ -192,6 +196,10 @@ body.a11y-large-cursor label {
 /* ---------------------------------------------------------------
    REDUZIR MOVIMENTO — congela animações/transições decorativas.
    Vídeos com autoplay são pausados via JS (accessibility.js).
+   O Modo Foco usa a mesma regra: pulsar, saltitar, brilhar etc. são
+   exatamente o tipo de estímulo que distrai quem tem TDAH — o modo
+   foco não faz sentido sem isso, mesmo com "reduzir movimento"
+   desligado.
    --------------------------------------------------------------- */
 /* Sem prefixo "body." de propósito: elementos position:fixed são
    realocados para fora do <body> (filhos de <html>) sempre que o
@@ -202,7 +210,10 @@ body.a11y-large-cursor label {
    não importa qual dos dois seja o ancestral no momento. */
 .a11y-reduce-motion *,
 .a11y-reduce-motion *::before,
-.a11y-reduce-motion *::after {
+.a11y-reduce-motion *::after,
+.a11y-focus *,
+.a11y-focus *::before,
+.a11y-focus *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;

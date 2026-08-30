@@ -2081,25 +2081,31 @@ body {
    se adequar à paleta flat de preto/branco. */
 .a11y-high-contrast .ic-morph-seed { display: none !important; }
 
-/* A foto de capa (e o véu que garante contraste do título sobre ela)
-   não são cobertos pela cascata de alto contraste acima — imagens não
-   têm color/background pra forçar. Sem isto, o título/eyebrow (que a
-   cascata já deixou com texto escuro e fundo transparente) fica
-   ilegível em cima de uma foto qualquer. Mais seguro esconder a foto
-   e cair num fundo sólido — mesma legibilidade do card antigo, que
-   nunca colocava título sobre imagem. */
-.a11y-high-contrast .ic-hero__img,
-.a11y-high-contrast .ic-hero__scrim,
-.a11y-high-contrast .ic-hero--noimg::before {
-    display: none !important;
+/* A foto de capa continua visível em alto contraste — nenhuma foto real
+   deve sumir só porque o modo está ligado. O véu escuro (.ic-hero__scrim)
+   já garante contraste pro texto por cima; só reforçamos com borda na
+   capa (pra não se perder no fundo branco dos outros cartões) e
+   text-shadow no título/eyebrow (pra continuar legível em cima de
+   qualquer foto, não só das mais escuras). Sem foto, cai no fundo
+   sólido de sempre — não há o que preservar ali. */
+.a11y-high-contrast .ic-hero { border: 1px solid #000; }
+.a11y-high-contrast .ic-hero--noimg { background: #fff !important; }
+.a11y-high-contrast .ic-hero--noimg::before { display: none !important; }
+/* .ic-hero__scrim, .ic-title e .ic-eyebrow também caem na cascata
+   ".ic-card *"/".sd-panel *" acima (mesma especificidade, então quem
+   vale é a ordem no arquivo) — por isso essas 3 regras precisam vir
+   depois dela, não antes, senão a cascata acima ganha e apaga o véu/
+   texto de novo. */
+.a11y-high-contrast .ic-hero__scrim {
+    background: linear-gradient(180deg, rgba(8, 20, 13, 0) 30%, rgba(6, 16, 11, .92) 100%) !important;
 }
-.a11y-high-contrast .ic-hero {
-    height: auto !important;
-    background: #fff !important;
-    padding-top: 6px;
+.a11y-high-contrast .ic-title {
+    color: #fff !important;
+    text-shadow: 0 1px 4px rgba(0,0,0,.9), 0 0 14px rgba(0,0,0,.6) !important;
 }
 .a11y-high-contrast .ic-eyebrow {
-    background: var(--grey-100) !important;
+    background: rgba(255, 255, 255, .95) !important;
+    color: #000 !important;
     border: 1px solid #000 !important;
 }
 

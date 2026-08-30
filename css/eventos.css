@@ -1692,6 +1692,10 @@ main { flex: 1; }
    ================================================================ */
 .a11y-focus .ev-hero-video { animation-play-state: paused; }
 .a11y-focus .ev-agenda-strip { opacity: .7; }
+.a11y-focus .hero-scroll-indicator { display: none; }
+/* Calendário/próximas datas é apoio à lista principal de eventos —
+   reduz o peso visual sem escondê-lo (continua acessível). */
+.a11y-focus .ev-sidebar { opacity: .75; }
 
 .a11y-high-contrast { background: #fff; }
 /* Cartões escuros/coloridos com texto claro (destaques, tabs ativas...)
@@ -1710,12 +1714,12 @@ main { flex: 1; }
     color: #111827 !important;
     border-color: #000 !important;
 }
-.a11y-high-contrast .ev-card *,
-.a11y-high-contrast .news-card *,
+.a11y-high-contrast .ev-card *:not(.ev-card-img),
+.a11y-high-contrast .news-card *:not(.news-card-img),
 .a11y-high-contrast .ev-sidebar *,
 .a11y-high-contrast .ev-mini-cal *,
 .a11y-high-contrast .ev-filters-bar *,
-.a11y-high-contrast .ev-modal-box *,
+.a11y-high-contrast .ev-modal-box *:not(.ev-modal-hero),
 .a11y-high-contrast .ev-timeline * {
     color: inherit !important;
     background: transparent !important;
@@ -1725,4 +1729,13 @@ main { flex: 1; }
 .a11y-high-contrast .ev-tab-active,
 .a11y-high-contrast .ev-cat-active,
 .a11y-high-contrast .ev-view-active { outline: 2px solid #000 !important; }
+
+/* .ev-card-img / .news-card-img / .ev-modal-hero guardam a foto real do
+   evento/notícia via background-image inline — não são fundo decorativo
+   do cartão, são o próprio conteúdo. A cascata acima (necessária pros
+   cartões escuros ao redor) não pode apagá-las; só reforça a borda pra
+   continuar se destacando do cartão branco. */
+.a11y-high-contrast .ev-card-img,
+.a11y-high-contrast .news-card-img,
+.a11y-high-contrast .ev-modal-hero { border: 1px solid #000 !important; }
 

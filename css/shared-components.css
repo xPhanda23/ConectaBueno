@@ -391,8 +391,8 @@ body {
 
 .ft-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 48px;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 40px;
     padding-bottom: 40px;
     border-bottom: 1px solid rgba(255,255,255,.1);
     margin-bottom: 24px;
@@ -403,22 +403,56 @@ body {
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
+    text-decoration: none;
+    color: inherit;
+    width: fit-content;
 }
 
-.ft-brand svg { flex-shrink: 0; }
+.ft-brand .hd-brand-seals { flex-shrink: 0; }
+.ft-brand .hd-brand-seal { width: 38px; height: 38px; }
 
-.ft-brand div strong { 
-    font-size: calc(17px * var(--a11y-text-scale, 1)); font-weight: 800; 
-    color: white; display: block; 
+.ft-brand div strong {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    font-size: calc(17px * var(--a11y-text-scale, 1)); font-weight: 800;
+    color: white; display: block;
 }
-.ft-brand div span { 
-    font-size: calc(12px * var(--a11y-text-scale, 1)); opacity: .6; display: block; 
+.ft-brand div span {
+    font-size: calc(12px * var(--a11y-text-scale, 1)); opacity: .6; display: block;
 }
 
 .ft-desc {
     font-size: calc(13.5px * var(--a11y-text-scale, 1));
     line-height: 1.65;
     opacity: .6;
+    margin-bottom: 18px;
+}
+
+/* Ícones sociais (e-mail ativo, Instagram aguardando criação da conta) */
+.ft-social { display: flex; align-items: center; gap: 10px; }
+
+.ft-social-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.14);
+    color: rgba(255,255,255,.75);
+    transition: all 0.18s;
+    flex-shrink: 0;
+}
+.ft-social-icon svg { width: 16px; height: 16px; }
+
+a.ft-social-icon:hover {
+    background: rgba(255,255,255,.16);
+    border-color: rgba(255,255,255,.3);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.ft-social-icon--soon {
+    cursor: default;
+    opacity: .4;
+    position: relative;
 }
 
 .ft-col { display: flex; flex-direction: column; gap: 10px; }
@@ -432,17 +466,44 @@ body {
     margin-bottom: 4px;
 }
 
-.ft-col a { 
-    font-size: calc(14px * var(--a11y-text-scale, 1)); 
-    color: rgba(255,255,255,.7); 
-    transition: color 0.15s; 
+.ft-col a, .ft-col-static {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
+    color: rgba(255,255,255,.7);
+    transition: color 0.15s;
+    line-height: 1.4;
 }
 .ft-col a:hover { color: white; }
 
-.ft-bottom { 
-    text-align: center; 
-    font-size: calc(12px * var(--a11y-text-scale, 1)); 
-    opacity: .4; 
+.ft-col svg { flex-shrink: 0; opacity: .55; width: 15px; height: 15px; }
+
+.ft-col-soon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
+    color: rgba(255,255,255,.4);
+}
+.ft-col-soon svg { flex-shrink: 0; opacity: .4; width: 15px; height: 15px; }
+.ft-col-soon small {
+    font-size: calc(10.5px * var(--a11y-text-scale, 1));
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.12);
+    padding: 1px 7px;
+    border-radius: 100px;
+    letter-spacing: .2px;
+}
+
+.ft-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    opacity: .4;
 }
 
 /* ================================================================
@@ -476,9 +537,9 @@ body {
         display: flex;
     }
     
-    .ft-grid { 
-        grid-template-columns: 1fr 1fr; 
-        gap: 32px; 
+    .ft-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px 24px;
     }
     .ft-brand-col { grid-column: 1 / -1; }
 }
@@ -490,7 +551,7 @@ body {
 
     .ft-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 28px;
     }
 }
 

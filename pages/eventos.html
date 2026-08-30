@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#2d5a3d">
     <meta name="description" content="Agenda Cultural de Bueno Brandão — Eventos, festas e festividades da Serra da Mantiqueira.">
     <title>Agenda Cultural — Conecta Bueno</title>
-    <link rel="icon" href="https://conectabueno.discloud.app/assets/images/logo.png" type="image/png">
+    <link rel="icon" href="../assets/images/logo.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
@@ -358,17 +358,25 @@
         <div class="container">
             <div class="ft-grid">
                 <div class="ft-brand-col">
-                    <div class="ft-brand">
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-                            <path d="M14 2C10.5 2 7.5 5 7.5 8.5C7.5 14 14 24 14 24S20.5 14 20.5 8.5C20.5 5 17.5 2 14 2Z" fill="white"/>
-                            <circle cx="14" cy="8.5" r="2.5" fill="rgba(255,255,255,0.4)"/>
-                        </svg>
+                    <a href="../index.html" class="ft-brand" aria-label="Conecta Bueno — página inicial">
+                        <span class="hd-brand-seals">
+                            <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                            <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                        </span>
                         <div>
                             <strong>Conecta Bueno</strong>
                             <span>Plataforma Cultural Oficial</span>
                         </div>
-                    </div>
+                    </a>
                     <p class="ft-desc">Democratizando o acesso à cultura e ao turismo de Bueno Brandão, Serra da Mantiqueira, MG.</p>
+                    <div class="ft-social">
+                        <a href="mailto:contato@conectabueno.com.br" class="ft-social-icon" aria-label="Enviar e-mail para o suporte do Conecta Bueno">
+                            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 5l6 4.5L15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </a>
+                        <span class="ft-social-icon ft-social-icon--soon" title="Instagram em breve" aria-label="Instagram — em breve">
+                            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>
+                        </span>
+                    </div>
                 </div>
                 <div class="ft-col">
                     <strong>Explorar</strong>
@@ -382,16 +390,35 @@
                     <a href="termos-de-uso.html">Termos de Uso</a>
                     <a href="politica-de-privacidade.html">Privacidade</a>
                 </div>
+                <div class="ft-col">
+                    <strong>Contato</strong>
+                    <a href="mailto:contato@conectabueno.com.br">
+                        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 5l6 4.5L15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        contato@conectabueno.com.br
+                    </a>
+                    <span class="ft-col-soon" title="Em breve">
+                        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>
+                        Instagram <small>em breve</small>
+                    </span>
+                    <span class="ft-col-static">
+                        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 16S3 9.5 3 6.2A6 6 0 1115 6.2C15 9.5 9 16 9 16z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9" cy="6.3" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+                        Bueno Brandão, MG
+                    </span>
+                </div>
             </div>
             <div class="ft-bottom">
                 <span>© 2026 Conecta Bueno</span>
+                <span>Uma iniciativa cultural para Bueno Brandão — Serra da Mantiqueira, MG</span>
             </div>
         </div>
     </footer>
 
     <aside class="a11y-tools" aria-label="Opções de acessibilidade">
         <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
-            <span aria-hidden="true">Aa</span>
+            <svg class="a11y-fab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="5" r="2.2" fill="currentColor"/>
+                <path d="M12 9v6M12 9l-5 2M12 9l5 2M12 15l-3.5 6M12 15l3.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
         </button>
         <div class="a11y-menu" id="a11yMenu" hidden>
             <div class="a11y-menu__head">
