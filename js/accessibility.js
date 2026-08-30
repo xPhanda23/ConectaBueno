@@ -15,6 +15,13 @@
     const MAX_TEXT_SIZE = 22;
     const DEFAULT_TEXT_SIZE = 16;
 
+    // No celular o tamanho já estava bom; no computador o texto ficava
+    // pequeno demais. Em vez de mexer em cada font-size do CSS, aplicamos
+    // um pequeno reforço extra na mesma variável de escala usada pelo
+    // widget de acessibilidade, só acima do breakpoint mobile do site.
+    const DESKTOP_MIN_WIDTH = 769;
+    const DESKTOP_TEXT_BOOST = 1.08;
+
     const defaults = {
         focus: false,
         contrast: false,
@@ -127,7 +134,8 @@
     // usada em cada regra, e o menu (accessibility.css) fica de fora de
     // propósito, com tamanho fixo e estável.
     function applyTextSize() {
-        document.documentElement.style.setProperty('--a11y-text-scale', state.textSize / DEFAULT_TEXT_SIZE);
+        const boost = window.innerWidth >= DESKTOP_MIN_WIDTH ? DESKTOP_TEXT_BOOST : 1;
+        document.documentElement.style.setProperty('--a11y-text-scale', (state.textSize / DEFAULT_TEXT_SIZE) * boost);
     }
 
     function updateVideoPlayback() {
@@ -316,6 +324,17 @@
     } else {
         init();
     }
+
+    // Reaplica a escala se a janela cruzar o breakpoint desktop/mobile
+    // (redimensionar a janela, girar um tablet, etc.), e de novo no "load"
+    // como rede de segurança — em alguns navegadores/emuladores o tamanho
+    // real da viewport só fica disponível depois do DOMContentLoaded.
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(applyTextSize, 150);
+    });
+    window.addEventListener('load', applyTextSize);
 
     if (typeof window !== 'undefined') {
         window.CBAccessibility = {

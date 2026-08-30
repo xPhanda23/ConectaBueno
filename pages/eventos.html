@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/eventos.css">
     <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/passport.css">
 </head>
 <body>
 
@@ -68,6 +69,7 @@
                     <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
                     <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
                     <div class="hd-dd-divider"></div>
+                    <button type="button" class="hd-dd-item" id="menuPassaporte" role="menuitem">Meu Passaporte</button>
                     <a href="settings.html"    class="hd-dd-item" role="menuitem">Configurações</a>
                     <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
                     <div class="hd-dd-divider"></div>
@@ -441,6 +443,19 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
+    <!-- Passaporte Cultural -->
+    <div id="passportModal" role="dialog" aria-modal="true" aria-labelledby="passportModalTitle" hidden>
+        <div class="pp-dialog">
+            <div class="pp-dialog__head">
+                <h3 id="passportModalTitle">🎫 Meu Passaporte Cultural</h3>
+                <button type="button" class="pp-dialog__close" id="passportModalClose" aria-label="Fechar">×</button>
+            </div>
+            <div id="passportModalBody">
+                <p class="pp-empty">Carregando...</p>
+            </div>
+        </div>
+    </div>
+
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
@@ -460,6 +475,10 @@
     <script src="../js/shared-components.js"></script>
     <script src="../js/accessibility.js"></script>
     <script src="../js/visitor-access.js"></script>
+
+    <!-- Passaporte Cultural (compartilhado com outras páginas) -->
+    <script src="../js/passport.js"></script>
+
     <script src="../js/eventos.js"></script>
 
 </body>
