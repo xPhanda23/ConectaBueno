@@ -209,6 +209,7 @@ function showSection(sectionName) {
     const titles = {
         dashboard: 'Dashboard',
         lugares: 'Gerenciar Lugares',
+        comunidade: 'Comunidade',
         usuarios: 'Gerenciar Usuários',
         categorias: 'Gerenciar Categorias',
         eventos: 'Gerenciar Eventos',
@@ -238,6 +239,9 @@ function loadSectionData(sectionName) {
             break;
         case 'lugares':
             loadLugares();
+            break;
+        case 'comunidade':
+            loadComunidade();
             break;
         case 'usuarios':
             loadUsuarios();
@@ -466,6 +470,7 @@ async function loadLugarData(lugarId) {
             document.getElementById('lugarNome').value = data.nome || '';
             document.getElementById('lugarCategoria').value = data.categoria || '';
             document.getElementById('lugarDescricao').value = data.descricao || '';
+            document.getElementById('lugarCuriosidades').value = data.curiosidades || '';
             document.getElementById('lugarEndereco').value = data.endereco || '';
             document.getElementById('lugarStatus').value = data.status || 'ativo';
             
@@ -540,6 +545,7 @@ async function saveLugar(e) {
         nome: document.getElementById('lugarNome').value,
         categoria: document.getElementById('lugarCategoria').value,
         descricao: document.getElementById('lugarDescricao').value,
+        curiosidades: document.getElementById('lugarCuriosidades').value,
         endereco: document.getElementById('lugarEndereco').value,
         telefone: document.getElementById('lugarTelefone').value,
         website: document.getElementById('lugarWebsite').value,
@@ -609,6 +615,107 @@ function deleteLugar(lugarId, nome) {
     );
 }
 
+// ===================================
+// COMUNIDADE — moderação de dicas de visitantes
+// ===================================
+
+async function loadComunidade() {
+    const tbody = document.getElementById('tableComunidade');
+    tbody.innerHTML = '<tr class="loading-row"><td colspan="6"><div class="loading-spinner-small"></div><span>Carregando...</span></td></tr>';
+
+    try {
+        // Sem orderBy no servidor (evita depender de índice composto pra
+        // collectionGroup) — ordena e limita no cliente.
+        const snapshot = await firebase.firestore().collectionGroup('dicas').get();
+
+        if (snapshot.empty) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Nenhuma dica registrada ainda</td></tr>';
+            return;
+        }
+
+        const dicas = snapshot.docs
+            .map(doc => ({ id: doc.id, espacoId: doc.ref.parent.parent.id, ...doc.data() }))
+            .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
+            .slice(0, 50);
+
+        // O nome do lugar não vem no doc da dica — busca uma vez por
+        // espacoId único, em vez de uma leitura por dica.
+        const espacoIds = [...new Set(dicas.map(d => d.espacoId))];
+        const nomesPorEspaco = {};
+        await Promise.all(espacoIds.map(async id => {
+            const doc = await firebase.firestore().collection('espacos').doc(id).get();
+            nomesPorEspaco[id] = doc.exists ? (doc.data().nome || id) : id;
+        }));
+
+        tbody.innerHTML = '';
+        dicas.forEach(dica => {
+            const tr = document.createElement('tr');
+            const dataFormatada = dica.createdAt?.toDate ? dica.createdAt.toDate().toLocaleDateString('pt-BR') : '-';
+            const isVisivel = dica.status === 'visivel';
+            const texto = dica.texto || '';
+
+            tr.innerHTML = `
+                <td>${escPanel(nomesPorEspaco[dica.espacoId] || dica.espacoId)}</td>
+                <td>${escPanel(dica.autorNome || 'Visitante')}</td>
+                <td>${escPanel(texto.slice(0, 80))}${texto.length > 80 ? '…' : ''}</td>
+                <td>${dataFormatada}</td>
+                <td><span class="badge ${isVisivel ? 'badge-success' : 'badge-danger'}">${isVisivel ? 'Visível' : 'Oculta'}</span></td>
+                <td>
+                    <button class="btn-icon-table" onclick="toggleDicaStatus('${dica.espacoId}', '${dica.id}', '${isVisivel ? 'oculto' : 'visivel'}')" title="${isVisivel ? 'Ocultar' : 'Mostrar'}">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M2 9C2 9 5 3 9 3C13 3 16 9 16 9C16 9 13 15 9 15C5 15 2 9 2 9Z" stroke="currentColor" stroke-width="1.5" opacity="${isVisivel ? '1' : '.4'}"/>
+                            ${isVisivel ? '<circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/>' : '<path d="M3 3L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'}
+                        </svg>
+                    </button>
+                    <button class="btn-icon-table danger" onclick="deleteDica('${dica.espacoId}', '${dica.id}')" title="Excluir">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar comunidade:', error);
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Erro ao carregar dados — se for a primeira vez, o Firestore pode pedir pra criar um índice pra collectionGroup("dicas"); veja o console do navegador para o link de criação automática.</td></tr>';
+    }
+}
+
+function toggleDicaStatus(espacoId, dicaId, novoStatus) {
+    firebase.firestore()
+        .collection('espacos').doc(espacoId).collection('dicas').doc(dicaId)
+        .update({ status: novoStatus })
+        .then(() => {
+            showToast(novoStatus === 'visivel' ? 'Dica exibida novamente' : 'Dica ocultada', 'success');
+            logAction('update', 'comunidade', `${novoStatus === 'visivel' ? 'Mostrou' : 'Ocultou'} dica ${dicaId}`);
+            loadComunidade();
+        })
+        .catch(error => {
+            console.error('❌ Erro ao moderar dica:', error);
+            showToast('Erro ao atualizar a dica', 'error');
+        });
+}
+
+function deleteDica(espacoId, dicaId) {
+    showConfirm(
+        'Tem certeza que deseja excluir esta dica permanentemente?',
+        async () => {
+            try {
+                await firebase.firestore()
+                    .collection('espacos').doc(espacoId).collection('dicas').doc(dicaId)
+                    .delete();
+                showToast('Dica excluída', 'success');
+                await logAction('delete', 'comunidade', `Excluiu dica ${dicaId}`);
+                loadComunidade();
+            } catch (error) {
+                console.error('❌ Erro ao excluir dica:', error);
+                showToast('Erro ao excluir dica', 'error');
+            }
+        }
+    );
+}
 
 // ===================================
 // USUÁRIOS (CRUD)

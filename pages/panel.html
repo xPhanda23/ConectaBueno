@@ -71,6 +71,13 @@
                     <span>Lugares</span>
                 </button>
                 
+                <button class="nav-item" data-section="comunidade">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 5C3 3.9 3.9 3 5 3H15C16.1 3 17 3.9 17 5V11C17 12.1 16.1 13 15 13H8L4 16.5V13H5C3.9 13 3 12.1 3 11V5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Comunidade</span>
+                </button>
+
                 <button class="nav-item" data-section="usuarios">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
@@ -304,6 +311,39 @@
                                 <td colspan="5">
                                     <div class="loading-spinner-small"></div>
                                     <span>Carregando lugares...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Comunidade Section (moderação de dicas de visitantes) -->
+            <section id="sectionComunidade" class="section-content">
+                <div class="section-header">
+                    <div>
+                        <h3>Comunidade</h3>
+                        <p>Modere as dicas que visitantes deixam nos lugares do mapa</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Lugar</th>
+                                <th>Autor</th>
+                                <th>Dica</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th width="150">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableComunidade">
+                            <tr class="loading-row">
+                                <td colspan="6">
+                                    <div class="loading-spinner-small"></div>
+                                    <span>Carregando dicas...</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -699,6 +739,12 @@
                     <div class="form-group">
                         <label>Descrição</label>
                         <textarea id="lugarDescricao" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>📖 Curiosidades / História do local</label>
+                        <textarea id="lugarCuriosidades" class="form-control" rows="3" placeholder="Um causo, uma curiosidade histórica ou cultural sobre o lugar..."></textarea>
+                        <p class="help-text">Aparece no cartão do mapa numa seção separada e pode ser narrado em voz alta pelo visitante.</p>
                     </div>
 
                     <div class="form-group">

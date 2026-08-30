@@ -69,9 +69,17 @@
         }
     }
 
+    // As classes vão tanto no <body> quanto no <html>: elementos com
+    // position:fixed (sidebar, header) são movidos para fora do <body>
+    // por escapeFixedElementsFromFilter() logo abaixo, então uma regra
+    // CSS como ".a11y-focus .admin-sidebar" só continua funcionando
+    // depois desses elementos serem movidos se o <html> também carregar
+    // a classe (ele é o novo ancestral deles).
     function applyBodyClasses() {
         Object.keys(BODY_CLASSES).forEach(stateKey => {
-            document.body.classList.toggle(BODY_CLASSES[stateKey], !!state[stateKey]);
+            const enabled = !!state[stateKey];
+            document.body.classList.toggle(BODY_CLASSES[stateKey], enabled);
+            document.documentElement.classList.toggle(BODY_CLASSES[stateKey], enabled);
         });
     }
 
@@ -168,10 +176,17 @@
                     0       0       0      1 0" />
             </filter>
             <filter id="cb-tritanopia" color-interpolation-filters="sRGB">
+                <!-- Protanopia/deuteranopia redistribuem o erro vermelho-verde
+                     no canal azul (eixo R/G é o afetado nelas). Na tritanopia
+                     quem falta é o cone S (azul), então o eixo confundido é
+                     verde-azul: usar a mesma fórmula R-G aqui (como estava
+                     antes) colapsava cores bem diferentes (ciano, azul,
+                     laranja) todas em verde/rosa. Corrigido redistribuindo a
+                     diferença G/B em vez de R/G. -->
                 <feColorMatrix type="matrix" values="
-                    1.1774 -0.1774  0.0000 0 0
-                   -0.0485  1.0485  0.0000 0 0
-                    1.1780 -1.1780  1.0000 0 0
+                    1.0000  0.0000  0.0000 0 0
+                    0.0000  1.0160 -0.0160 0 0
+                    0.0000 -0.9840  1.9840 0 0
                     0       0       0      1 0" />
             </filter>
         `;
@@ -305,7 +320,10 @@
     if (typeof window !== 'undefined') {
         window.CBAccessibility = {
             getState: () => ({ ...state }),
-            setupAccessibilityTools
+            setupAccessibilityTools,
+            // Idempotente — seguro chamar de novo depois de inserir UI fixa
+            // nova dinamicamente (ex.: um modal criado via createElement).
+            sweepFixedElements: escapeFixedElementsFromFilter
         };
     }
 })();

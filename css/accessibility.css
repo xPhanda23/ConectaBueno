@@ -193,11 +193,45 @@ body.a11y-large-cursor label {
    REDUZIR MOVIMENTO — congela animações/transições decorativas.
    Vídeos com autoplay são pausados via JS (accessibility.js).
    --------------------------------------------------------------- */
-body.a11y-reduce-motion *,
-body.a11y-reduce-motion *::before,
-body.a11y-reduce-motion *::after {
+/* Sem prefixo "body." de propósito: elementos position:fixed são
+   realocados para fora do <body> (filhos de <html>) sempre que o
+   filtro de daltonismo está ativo — ver escapeFixedElementsFromFilter()
+   em accessibility.js. Um seletor "body.a11y-reduce-motion *" para de
+   casar com eles assim que isso acontece; ancorando em ".a11y-reduce-motion"
+   (aplicada tanto a <body> quanto a <html>) a regra continua valendo
+   não importa qual dos dois seja o ancestral no momento. */
+.a11y-reduce-motion *,
+.a11y-reduce-motion *::before,
+.a11y-reduce-motion *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+}
+
+/* ---------------------------------------------------------------
+   MODO FOCO (TDAH) — regra "base" que funciona em qualquer página
+   que carregue este arquivo. Sem isso, o botão ficava sem nenhum
+   efeito visível em páginas que não tinham CSS próprio para
+   .a11y-focus (panel.html e settings.html) — o usuário ativava e
+   nada mudava na tela.
+   Itens não-ativos do menu lateral (.nav-item, usado em
+   panel/observatório/configurações) ficam acinzentados para
+   competir menos com o conteúdo principal; o item ativo continua
+   destacado normalmente. Volta à cor normal em hover/foco, então a
+   navegação continua 100% utilizável — só menos "gritante" quando
+   não está em uso. Cada página soma ajustes próprios (ver
+   css/home.css, css/map.css, css/eventos.css, css/observatorio.css,
+   css/auth.css, css/settings.css, css/panel.css).
+   --------------------------------------------------------------- */
+.a11y-focus .nav-item:not(.active),
+.a11y-focus .nav-item:not(.active) svg {
+    color: var(--grey-400, #9ca3af) !important;
+}
+
+.a11y-focus .nav-item:not(.active):hover,
+.a11y-focus .nav-item:not(.active):hover svg,
+.a11y-focus .nav-item:not(.active):focus-visible,
+.a11y-focus .nav-item:not(.active):focus-visible svg {
+    color: var(--leaf-900, #145c30) !important;
 }

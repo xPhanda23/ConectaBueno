@@ -3,32 +3,6 @@
 // Gestão de Configurações do Usuário
 // ===================================
 
-// ===================================
-// TEMA (Aparência)
-// Aplica o tema salvo antes mesmo do Firebase carregar, para não
-// piscar o tema errado enquanto o perfil é buscado.
-// ===================================
-
-function applyTheme(theme) {
-    if (theme && theme !== 'light') {
-        document.documentElement.setAttribute('data-theme', theme);
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-    }
-    try {
-        localStorage.setItem('cb_theme', theme || 'light');
-    } catch (e) { /* localStorage indisponível — segue sem persistir localmente */ }
-}
-
-(function applyCachedThemeEarly() {
-    try {
-        const cached = localStorage.getItem('cb_theme');
-        if (cached && cached !== 'light') {
-            document.documentElement.setAttribute('data-theme', cached);
-        }
-    } catch (e) { /* localStorage indisponível */ }
-})();
-
 // Aguardar Firebase estar disponível
 function waitForFirebase() {
     return new Promise((resolve) => {
@@ -102,9 +76,6 @@ async function loadUserProfile() {
 
             // Foto de perfil (sem validação que trava)
             updatePhotoDisplay(userProfile.photoURL);
-
-            // Carregar preferências
-            loadUserPreferences();
         }
 
         // Refletir os dados no menu do usuário (avatar/nome/e-mail no header)
@@ -164,26 +135,6 @@ function getInitials(name) {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 }
 
-function loadUserPreferences() {
-    // Carregar preferências de notificações
-    if (userProfile.preferences) {
-        const prefs = userProfile.preferences;
-        document.getElementById('toggleNovosLugares').checked = prefs.notifyNewPlaces !== false;
-        document.getElementById('toggleEventos').checked = prefs.notifyEvents !== false;
-        document.getElementById('toggleHorarios').checked = prefs.notifySchedules || false;
-        document.getElementById('toggleBoletim').checked = prefs.emailNewsletter || false;
-        document.getElementById('toggleDicas').checked = prefs.emailTips !== false;
-        
-        // Tema
-        if (prefs.theme) {
-            const themeInput = document.querySelector(`input[name="theme"][value="${prefs.theme}"]`);
-            if (themeInput) themeInput.checked = true;
-            applyTheme(prefs.theme);
-        }
-    }
-}
-
-
 // ===================================
 // NAVEGAÇÃO ENTRE ABAS
 // ===================================
@@ -191,10 +142,35 @@ function loadUserPreferences() {
 const SECTION_TITLES = {
     'conta':          { title: 'Informações da Conta', subtitle: 'Gerencie seus dados pessoais e foto de perfil' },
     'seguranca':      { title: 'Segurança', subtitle: 'Proteja sua conta com uma senha forte' },
-    'notificacoes':   { title: 'Notificações', subtitle: 'Controle como você recebe atualizações' },
-    'aparencia':      { title: 'Aparência', subtitle: 'Personalize a interface do sistema' },
+    'passaporte':     { title: 'Meu Passaporte Cultural', subtitle: 'Acompanhe os lugares que você já visitou' },
     'privacidade':    { title: 'Privacidade & Dados', subtitle: 'Gerencie seus dados conforme a LGPD' }
 };
+
+// Carrega só na primeira vez que a aba é aberta — evita ler o
+// Firestore de novo a cada troca de aba.
+let passaporteCarregado = false;
+async function carregarPassaporteSeNecessario() {
+    if (passaporteCarregado) return;
+    const container = document.getElementById('passaporteContainer');
+    if (!container || !window.CBPassport || !currentUser) return;
+
+    if (currentUser.isAnonymous) {
+        container.innerHTML = '<p class="pp-empty">Entre com uma conta permanente para acompanhar seu passaporte cultural.</p>';
+        return;
+    }
+
+    passaporteCarregado = true;
+    try {
+        const [visitas, activeSpaces] = await Promise.all([
+            window.CBPassport.fetchVisitas(currentUser.uid),
+            window.CBPassport.fetchActiveSpaces()
+        ]);
+        window.CBPassport.renderPassportInto(container, { visitas, activeSpaces });
+    } catch {
+        passaporteCarregado = false;
+        container.innerHTML = '<p class="pp-empty">Não foi possível carregar seu passaporte agora.</p>';
+    }
+}
 
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -214,6 +190,8 @@ document.querySelectorAll('.nav-item').forEach(item => {
         const info = SECTION_TITLES[targetSection] || SECTION_TITLES['conta'];
         document.getElementById('sectionTitle').textContent = info.title;
         document.getElementById('sectionSubtitle').textContent = info.subtitle;
+
+        if (targetSection === 'passaporte') carregarPassaporteSeNecessario();
 
         // No mobile a sidebar é uma gaveta sobreposta: fecha após escolher a seção
         closeSectionMenu();
@@ -503,61 +481,6 @@ document.querySelectorAll('.btn-toggle-password').forEach(btn => {
 
 
 // ===================================
-// NOTIFICAÇÕES - AUTO SAVE
-// ===================================
-
-const notificationToggles = [
-    'toggleNovosLugares',
-    'toggleEventos',
-    'toggleHorarios',
-    'toggleBoletim',
-    'toggleDicas'
-];
-
-notificationToggles.forEach(toggleId => {
-    document.getElementById(toggleId).addEventListener('change', async (e) => {
-        await savePreference(toggleId, e.target.checked);
-    });
-});
-
-// ===================================
-// TEMA - AUTO SAVE
-// ===================================
-
-document.querySelectorAll('input[name="theme"]').forEach(radio => {
-    radio.addEventListener('change', async (e) => {
-        applyTheme(e.target.value);
-        await savePreference('theme', e.target.value);
-        showToast('Tema atualizado!', 'success');
-    });
-});
-
-async function savePreference(key, value) {
-    try {
-        const prefMap = {
-            'toggleNovosLugares': 'notifyNewPlaces',
-            'toggleEventos': 'notifyEvents',
-            'toggleHorarios': 'notifySchedules',
-            'toggleBoletim': 'emailNewsletter',
-            'toggleDicas': 'emailTips',
-            'theme': 'theme'
-        };
-        
-        const prefKey = prefMap[key] || key;
-        
-        await db.collection('users').doc(currentUser.uid).update({
-            [`preferences.${prefKey}`]: value
-        });
-        
-        console.log(`✅ Preferência salva: ${prefKey} = ${value}`);
-        
-    } catch (error) {
-        console.error('❌ Erro ao salvar preferência:', error);
-        showToast('Erro ao salvar preferência', 'error');
-    }
-}
-
-// ===================================
 // EXPORTAR DADOS (LGPD)
 // ===================================
 
@@ -608,10 +531,20 @@ document.getElementById('btnExcluirConta').addEventListener('click', () => {
         async () => {
             try {
                 showLoading();
-                
-                // Excluir documento do Firestore
-                await db.collection('users').doc(currentUser.uid).delete();
-                console.log('✅ Documento Firestore removido');
+
+                // Firestore não cascateia a exclusão de subcoleções — sem
+                // isto, favoritos/lugares, favoritos/eventos e visitas/*
+                // (selos do passaporte cultural) ficam órfãos, presos sob
+                // um uid que não existe mais.
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const batch = db.batch();
+                batch.delete(userRef.collection('favoritos').doc('lugares'));
+                batch.delete(userRef.collection('favoritos').doc('eventos'));
+                const visitasSnap = await userRef.collection('visitas').get();
+                visitasSnap.forEach(doc => batch.delete(doc.ref));
+                batch.delete(userRef);
+                await batch.commit();
+                console.log('✅ Documento Firestore e subcoleções removidos');
                 
                 // Excluir conta do Firebase Auth
                 await currentUser.delete();

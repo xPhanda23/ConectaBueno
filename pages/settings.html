@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="../css/passport.css">
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -105,18 +106,13 @@
                     <span>Segurança</span>
                 </button>
 
-                <button class="nav-item" data-section="notificacoes">
+                <button class="nav-item" data-section="passaporte">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M8 16C8 17.1 8.9 18 10 18C11.1 18 12 17.1 12 16M15 6C15 4.67392 14.4732 3.40215 13.5355 2.46447C12.5979 1.52678 11.3261 1 10 1C8.67392 1 7.40215 1.52678 6.46447 2.46447C5.52678 3.40215 5 4.67392 5 6C5 11 3 13 3 13H17C17 13 15 11 15 6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M7 3V17M13 3V17" stroke="currentColor" stroke-width="1.5" stroke-dasharray="1.6 2"/>
+                        <path d="M8.5 9.5L9.7 10.7L11.8 8.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span>Notificações</span>
-                </button>
-
-                <button class="nav-item" data-section="aparencia">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 3V10M10 3C6.13 3 3 6.13 3 10C3 13.87 6.13 17 10 17C13.87 17 17 13.87 17 10C17 6.13 13.87 3 10 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                    <span>Aparência</span>
+                    <span>Meu Passaporte</span>
                 </button>
 
                 <button class="nav-item" data-section="privacidade">
@@ -260,124 +256,16 @@
                 </div>
             </section>
 
-            <!-- Notificações Section -->
-            <section class="section-content" id="section-notificacoes">
+            <!-- Meu Passaporte Section -->
+            <section class="section-content" id="section-passaporte">
                 <div class="settings-card">
                     <div class="card-section">
-                        <h3>Alertas do Sistema</h3>
-
-                        <div class="toggle-item">
-                            <div class="toggle-info">
-                                <h4>Novos Lugares Turísticos</h4>
-                                <p>Receba notificações quando novos lugares forem adicionados</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleNovosLugares" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-item">
-                            <div class="toggle-info">
-                                <h4>Eventos Especiais</h4>
-                                <p>Seja notificado sobre eventos e festividades em Bueno Brandão</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleEventos" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-item">
-                            <div class="toggle-info">
-                                <h4>Atualizações de Horários</h4>
-                                <p>Notificações sobre mudanças de horários em estabelecimentos</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleHorarios">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="card-section">
-                        <h3>Notificações por E-mail</h3>
-
-                        <div class="toggle-item">
-                            <div class="toggle-info">
-                                <h4>Boletim Semanal</h4>
-                                <p>Receba um resumo semanal das novidades do Conecta Bueno</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleBoletim">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="toggle-item">
-                            <div class="toggle-info">
-                                <h4>Dicas de Turismo</h4>
-                                <p>Receba dicas e sugestões de lugares para visitar</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleDicas" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Aparência Section -->
-            <section class="section-content" id="section-aparencia">
-                <div class="settings-card">
-                    <div class="card-section">
-                        <h3>Tema</h3>
-
-                        <div class="theme-options">
-                            <label class="theme-option">
-                                <input type="radio" name="theme" value="light" checked>
-                                <div class="theme-card">
-                                    <div class="theme-preview light-theme">
-                                        <div class="preview-header"></div>
-                                        <div class="preview-content"></div>
-                                    </div>
-                                    <div class="theme-info">
-                                        <h4>Tema Claro</h4>
-                                        <p>Interface clara e luminosa</p>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <label class="theme-option">
-                                <input type="radio" name="theme" value="dark">
-                                <div class="theme-card">
-                                    <div class="theme-preview dark-theme">
-                                        <div class="preview-header"></div>
-                                        <div class="preview-content"></div>
-                                    </div>
-                                    <div class="theme-info">
-                                        <h4>Tema Escuro</h4>
-                                        <p>Interface escura para ambientes com pouca luz</p>
-                                    </div>
-                                </div>
-                            </label>
-
-                            <label class="theme-option">
-                                <input type="radio" name="theme" value="nature">
-                                <div class="theme-card">
-                                    <div class="theme-preview nature-theme">
-                                        <div class="preview-header"></div>
-                                        <div class="preview-content"></div>
-                                    </div>
-                                    <div class="theme-info">
-                                        <h4>Tema Natureza</h4>
-                                        <p>Tons orgânicos inspirados na Serra da Mantiqueira</p>
-                                    </div>
-                                </div>
-                            </label>
+                        <h3>🎫 Passaporte Cultural</h3>
+                        <p class="section-description">
+                            Acompanhe os lugares que você já visitou em Bueno Brandão e os selos que já conquistou.
+                        </p>
+                        <div id="passaporteContainer">
+                            <p class="pp-empty">Carregando...</p>
                         </div>
                     </div>
                 </div>
@@ -538,6 +426,7 @@
     <script src="../js/firebase-config.js"></script>
     <script src="../js/shared-components.js"></script>
     <script src="../js/accessibility.js"></script>
+    <script src="../js/passport.js"></script>
     <script src="../js/settings.js"></script>
 </body>
 </html>

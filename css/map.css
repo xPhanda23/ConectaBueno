@@ -603,6 +603,250 @@ body {
 }
 
 /* ================================================================
+   ABAS DA SIDEBAR — Explorar / Meu roteiro
+   ================================================================ */
+.sb-tabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+    padding: 0 4px 12px;
+}
+
+.sb-tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 10px;
+    border: 1.5px solid var(--grey-200);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--grey-600);
+    font: inherit;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.sb-tab:hover { border-color: var(--leaf-400); }
+
+.sb-tab.active {
+    background: var(--leaf-900);
+    border-color: var(--leaf-900);
+    color: #fff;
+}
+
+.sb-tab:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
+}
+
+.sb-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--clay-600);
+    color: #fff;
+    font-size: calc(10.5px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+}
+
+.sb-tab.active .sb-tab-count { background: #fff; color: var(--leaf-900); }
+.sb-tab-count[hidden] { display: none; }
+
+.sb-panel { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.sb-panel[hidden] { display: none; }
+
+/* ================================================================
+   MEU ROTEIRO — planejador de passeio (localStorage, prefixo .rt-*)
+   ================================================================ */
+.rt-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 40px 12px;
+    color: var(--grey-500);
+}
+
+.rt-empty__icon { font-size: 34px; opacity: .7; }
+
+.rt-empty__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: calc(14px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--grey-700);
+}
+
+.rt-empty__hint {
+    margin: 0;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    line-height: 1.5;
+    max-width: 220px;
+}
+
+.rt-summary {
+    flex-shrink: 0;
+    margin: 0 4px 10px;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--grey-700);
+}
+
+.rt-summary__note { font-weight: 500; color: var(--grey-400); }
+
+.rt-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0 4px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rt-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--grey-200);
+    border-radius: 10px;
+    background: #fff;
+}
+
+.rt-item__order {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--green-100);
+    color: var(--leaf-900);
+    font-size: calc(10.5px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+}
+
+.rt-item__icon { flex-shrink: 0; font-size: 15px; }
+
+.rt-item__name {
+    flex: 1;
+    min-width: 0;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    font-weight: 600;
+    color: var(--grey-900);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rt-item__actions { flex-shrink: 0; display: flex; gap: 2px; }
+
+.rt-item__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--grey-500);
+    font-size: 13px;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.rt-item__btn:hover { background: var(--green-50); color: var(--leaf-900); }
+.rt-item__btn:disabled { opacity: .3; cursor: not-allowed; }
+.rt-item__btn:disabled:hover { background: transparent; color: var(--grey-500); }
+.rt-item__btn--danger:hover { background: #fdecea; color: #b3261e; }
+.rt-item__btn:focus-visible { outline: 2px solid var(--leaf-400); outline-offset: 1px; }
+
+.rt-actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 4px 4px;
+    margin-top: 8px;
+    border-top: 1px solid var(--grey-200);
+}
+
+.rt-clear {
+    padding: 6px;
+    border: none;
+    background: none;
+    color: var(--grey-500);
+    font: inherit;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.rt-clear:hover { color: #b3261e; }
+
+/* Aviso no canto livre do mapa (topo-esquerda) quando a pessoa quer
+   voltar pro roteiro sem procurar a aba — único canto sem disputa com
+   controles/legenda/a11y/VLibras, que vivem embaixo. */
+.rt-badge {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    z-index: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 999px;
+    background: var(--leaf-900);
+    color: #fff;
+    box-shadow: var(--shadow-soft);
+    font: inherit;
+    font-size: calc(12px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+/* Sem isto, "display:inline-flex" acima (mesma especificidade do
+   seletor de atributo [hidden]) venceria por ordem de declaração e o
+   botão continuaria visível mesmo com o atributo hidden presente. */
+.rt-badge[hidden] { display: none; }
+
+.rt-badge:hover { transform: translateY(-1px); box-shadow: var(--shadow-card); }
+.rt-badge:focus-visible { outline: 3px solid var(--leaf-400); outline-offset: 2px; }
+
+.rt-badge__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--clay-600);
+    font-size: calc(10.5px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+}
+
+/* ================================================================
    MAPA
    ================================================================ */
 .map-container {
@@ -847,14 +1091,15 @@ body {
 }
 
 /* ================================================================
-   CARD DO PONTO TURÍSTICO (popup do mapa)
-   Componente próprio, prefixo .pc-*, com estética de app nativo.
+   CARTÃO IMERSIVO DO PONTO TURÍSTICO
+   Componente próprio, prefixo .ic-*, estética editorial — o cartão
+   nasce do próprio marcador (ver .ic-morph-seed mais abaixo).
    ================================================================ */
 
 /* ── Casca do painel de detalhes (ver bloco .sd-* mais abaixo) ──── */
 
 /* ── Estrutura do card ────────────────────────────────────────── */
-.pc-card {
+.ic-card {
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -864,35 +1109,88 @@ body {
     height: 100%;
 }
 
-/* ── Capa ─────────────────────────────────────────────────────── */
-.pc-media {
+/* ── Capa: sempre presente (com ou sem foto) — é onde a categoria
+   e o nome vivem agora, como manchete de revista sobre a imagem. ── */
+.ic-hero {
     position: relative;
     margin: 0;
-    height: 168px;
+    height: 240px;
     flex-shrink: 0;
     overflow: hidden;
-    background: linear-gradient(135deg, var(--green-100), var(--green-50));
+    background: linear-gradient(160deg, var(--green-100), var(--green-50) 65%);
+    display: flex;
+    align-items: flex-end;
 }
 
-.pc-media__img {
+.ic-hero__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-/* Véu no topo: garante contraste do botão de fechar sobre fotos claras */
-.pc-media::after {
-    content: "";
+/* Sem foto (ou foto quebrada): textura discreta em vez de vazio —
+   ícone da categoria sangrando pelo canto, bem apagado (textura,
+   não "sticker" central). */
+.ic-hero--noimg::before {
+    content: attr(data-icon);
     position: absolute;
-    inset: 0 0 auto 0;
-    height: 76px;
-    background: linear-gradient(180deg, rgba(8, 20, 13, .34), transparent);
+    right: -14px;
+    bottom: -22px;
+    font-size: 128px;
+    line-height: 1;
+    opacity: .16;
+    filter: grayscale(.35);
+}
+
+/* Véu: garante contraste do título e do botão de fechar sobre
+   qualquer foto, clara ou escura. */
+.ic-hero__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(8, 20, 13, 0) 38%, rgba(6, 16, 11, .78) 100%);
     pointer-events: none;
 }
 
+.ic-hero__caption {
+    position: relative;
+    z-index: 1;
+    padding: 18px 50px 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.ic-eyebrow {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .94);
+    color: var(--grey-900);
+    font-size: calc(10.5px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.ic-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: calc(25px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -.015em;
+    color: #fff;
+}
+
 /* ── Corpo ────────────────────────────────────────────────────── */
-.pc-body {
+.ic-body {
     padding: 16px 18px 18px;
     display: flex;
     flex-direction: column;
@@ -903,30 +1201,189 @@ body {
     overscroll-behavior: contain;
 }
 
-.pc-body::-webkit-scrollbar {
+.ic-body::-webkit-scrollbar {
     width: 6px;
 }
 
-.pc-body::-webkit-scrollbar-thumb {
+.ic-body::-webkit-scrollbar-thumb {
     background: var(--grey-300);
     border-radius: 3px;
 }
 
-.pc-title {
+/* Ponto de extensão: cada seção nova do cartão (curiosidades,
+   comunidade, ...) usa este bloco genérico — herda alto contraste
+   automaticamente via ".ic-card *" mais abaixo, sem CSS próprio. */
+.ic-section {
+    padding-top: 14px;
+    margin-top: 2px;
+    border-top: 1px solid var(--grey-200);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ic-section__title {
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-family: var(--font-display);
-    font-size: calc(18px * var(--a11y-text-scale, 1));
+    font-size: calc(12px * var(--a11y-text-scale, 1));
     font-weight: 700;
-    line-height: 1.28;
-    letter-spacing: -.01em;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    color: var(--leaf-700);
+}
+
+/* Comunidade: acento terracota + fundo levemente diferente, pra
+   separar visualmente de conteúdo oficial (curiosidades, descrição)
+   sem precisar de mais texto explicando a diferença. */
+.ic-section--comunidade {
+    margin-left: -18px;
+    margin-right: -18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    border-top: none;
+    border-left: 3px solid var(--clay-400);
+    background: var(--green-50);
+}
+
+.ic-section--comunidade .ic-section__title {
+    color: var(--clay-800);
+}
+
+.cm-tip {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--grey-200);
+}
+
+.cm-tip:last-of-type {
+    border-bottom: none;
+}
+
+.cm-tip__text {
+    margin: 0 0 4px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    line-height: 1.5;
     color: var(--grey-900);
 }
 
-/* Favoritar + compartilhar dividem a mesma linha, no rodapé de ações */
-.pc-secondary-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.cm-tip__author {
+    margin: 0;
+    font-size: calc(11px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--grey-500);
+}
+
+.cm-empty {
+    margin: 4px 0 12px;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    color: var(--grey-500);
+}
+
+.cm-composer {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    padding-top: 10px;
+}
+
+.cm-composer__input {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--grey-300);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--grey-900);
+    font: inherit;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    resize: vertical;
+}
+
+.cm-composer__input:focus-visible {
+    outline: none;
+    border-color: var(--clay-400);
+}
+
+/* Ações secundárias (favoritar, compartilhar, e adiante: roteiro/
+   ouvir/check-in): flex-wrap em vez do grid fixo de 2 colunas — cada
+   fase nova soma um botão sem precisar tocar neste CSS. */
+.ic-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ic-actions-row > * {
+    flex: 1 1 100px;
+    min-width: 100px;
+}
+
+/* Check-in do passaporte cultural — estilo reservado aqui, botão
+   entra no cartão na Fase 4. Acento terracota (--clay-*), a mesma
+   cor já reservada em todo o site para "identidade da cidade"/selos,
+   pra não competir visualmente com o verde das rotas. */
+.ic-checkin {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--clay-800);
+    background: linear-gradient(135deg, var(--clay-400), var(--clay-800));
+    color: #fff;
+    font: inherit;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    box-shadow: 0 6px 16px rgba(150, 80, 42, .24);
+}
+
+/* Sem estas duas regras o ícone SVG (sem width/height próprio) cai no
+   tamanho intrínseco padrão do navegador e o texto quebra em duas
+   linhas — o botão "infla" e desalinha do resto de .pc-actions. */
+.ic-checkin .pc-icon {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.ic-checkin span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ic-checkin:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+.ic-checkin.is-visited {
+    background: var(--green-50);
+    border-color: var(--leaf-700);
+    color: var(--leaf-900);
+    box-shadow: none;
+}
+
+.ic-checkin:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
+}
+
+/* Confirmação cosmética de proximidade — nunca bloqueia o check-in
+   manual, só aparece quando faz sentido (ver createImmersiveCard). */
+.ic-nearby-hint {
+    margin: 0 0 6px;
+    font-size: calc(11.5px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--leaf-700);
 }
 
 .pc-fav {
@@ -966,27 +1423,9 @@ body {
     outline-offset: 2px;
 }
 
-/* Categoria e avaliação dividem a mesma linha */
-.pc-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.pc-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 11px;
-    border-radius: 999px;
-    font-size: calc(10.5px * var(--a11y-text-scale, 1));
-    font-weight: 800;
-    letter-spacing: .6px;
-    text-transform: uppercase;
-    color: #fff;
-    white-space: nowrap;
-}
+/* Categoria e nome agora vivem em .ic-eyebrow/.ic-title, dentro da
+   capa (.ic-hero__caption) — mostrar de novo aqui seria repetir a
+   mesma informação logo abaixo da manchete. */
 
 /* ── Tags livres ──────────────────────────────────────────────── */
 .pc-tags {
@@ -1233,19 +1672,10 @@ body {
     outline-offset: 2px;
 }
 
-/* Painel estreito (mobile pequeno): os links de apoio passam a ocupar
-   a linha inteira, já que .pc-routes agora é sempre uma coluna só. */
-@media (max-width: 371px) {
-    .pc-links,
-    .pc-links:has(> :nth-child(2)) {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-
 /* ================================================================
    PAINEL DE DETALHES (substitui o popup do Leaflet)
    Desacoplado do marcador: gaveta (bottom sheet) no mobile, painel
-   lateral no desktop. Reaproveita o .pc-card por dentro.
+   lateral no desktop. Reaproveita o .ic-card por dentro.
    ================================================================ */
 .sd-backdrop {
     position: fixed;
@@ -1358,7 +1788,7 @@ body {
         left: 0;
         right: 0;
         bottom: 0;
-        max-height: 82vh;
+        max-height: 90vh;
         border-radius: 20px 20px 0 0;
         box-shadow: 0 -12px 40px rgba(12, 32, 20, .22);
         transform: translateY(100%);
@@ -1371,6 +1801,24 @@ body {
     .sd-handle {
         display: block;
     }
+
+    /* A gaveta tem altura limitada e cada botão empilhado no rodapé
+       rouba espaço da área rolável de informações (.ic-body) — rotas e
+       links de apoio dividem a linha em vez de empilhar, e o rodapé
+       ganha respiro mais enxuto. Ainda dentro do alvo de toque de 44px. */
+    .pc-actions {
+        gap: 6px;
+        padding: 12px 16px 14px;
+    }
+
+    .pc-routes:has(> :nth-child(2)) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .ic-body {
+        gap: 8px;
+        padding: 14px 16px 16px;
+    }
 }
 
 /* Marcador com o painel de detalhes aberto: destaque visual, já que
@@ -1378,6 +1826,29 @@ body {
 .marker-selected .marker-pin {
     transform: scale(1.22);
     box-shadow: 0 0 0 5px rgba(47, 158, 82, .32), 0 8px 20px rgba(0, 0, 0, .38);
+}
+
+/* ================================================================
+   MORPH SEED — o pino "vira" o cartão
+   Elemento decorativo (aria-hidden), controlado via estilo inline
+   por playCardMorph() em map.js: nasce do tamanho/posição exatos do
+   pino clicado e cresce até um retângulo arredondado, sumindo no
+   fim. Só usa `transition`, então tanto prefers-reduced-motion
+   quanto .a11y-reduce-motion colapsam a animação pra ~0ms sem
+   nenhum branch de JS (só a pausa artificial do stagger em
+   setTimeout precisa de um check em JS — ver shouldReduceMotion()).
+   ================================================================ */
+.ic-morph-seed {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1055;
+    opacity: 0;
+    transition: left .38s cubic-bezier(.16, 1, .3, 1),
+                top .38s cubic-bezier(.16, 1, .3, 1),
+                width .38s cubic-bezier(.16, 1, .3, 1),
+                height .38s cubic-bezier(.16, 1, .3, 1),
+                border-radius .38s cubic-bezier(.16, 1, .3, 1),
+                opacity .18s ease .2s;
 }
 
 /* ================================================================
@@ -1480,8 +1951,8 @@ body {
         max-width: 170px;
     }
 
-    .pc-media {
-        height: 150px;
+    .ic-hero {
+        height: 190px;
     }
 }
 
@@ -1552,6 +2023,23 @@ body {
     .a11y-tools { bottom: 128px; }
 }
 
+/* No desktop, com o painel de detalhes aberto, ele é uma faixa fixa
+   de 420px na borda direita, do topo até o rodapé da tela (ver
+   .sd-panel mais abaixo) — sem isto, o botão de acessibilidade fica
+   embaixo do rodapé de ações do cartão (rotas/links/favoritar)
+   sempre que o conteúdo é longo o bastante pra empurrar o rodapé até
+   a base da tela. Só desloca enquanto o painel está de fato aberto
+   (classe somada pelo JS em openSpaceDetail/closeSpaceDetail, tanto
+   no <body> quanto no <html> — mesmo motivo do padrão já usado em
+   accessibility.js: o próprio .a11y-tools é candidato a ser
+   realocado pra fora do <body> quando o filtro de daltonismo está
+   ativo, então o seletor não pode depender só do <body> carregar a
+   classe). Do contrário o botão fica deslocado à toa com o painel
+   fechado. */
+@media (min-width: 1025px) {
+    .sd-panel-open .a11y-tools { right: calc(min(420px, 92vw) + 18px); }
+}
+
 .a11y-focus .map-legend { opacity: .5; }
 .a11y-focus .sd-panel { border-color: var(--leaf-400, #4caf50); }
 
@@ -1565,7 +2053,9 @@ body {
 .a11y-high-contrast .space-card,
 .a11y-high-contrast .map-legend,
 .a11y-high-contrast .sd-panel,
-.a11y-high-contrast .pc-card {
+.a11y-high-contrast .ic-card,
+.a11y-high-contrast .rt-badge,
+.a11y-high-contrast #passportModal {
     background: #fff !important;
     background-image: none !important;
     color: #111827 !important;
@@ -1576,7 +2066,9 @@ body {
 .a11y-high-contrast .space-card *,
 .a11y-high-contrast .map-legend *,
 .a11y-high-contrast .sd-panel *,
-.a11y-high-contrast .pc-card * {
+.a11y-high-contrast .ic-card *,
+.a11y-high-contrast .rt-badge *,
+.a11y-high-contrast #passportModal * {
     color: inherit !important;
     background: transparent !important;
     background-image: none !important;
@@ -1584,5 +2076,31 @@ body {
 }
 .a11y-high-contrast .search-input,
 .a11y-high-contrast .map-control-btn { border-color: #000 !important; }
+
+/* Decorativo (aria-hidden) — some sob alto contraste em vez de tentar
+   se adequar à paleta flat de preto/branco. */
+.a11y-high-contrast .ic-morph-seed { display: none !important; }
+
+/* A foto de capa (e o véu que garante contraste do título sobre ela)
+   não são cobertos pela cascata de alto contraste acima — imagens não
+   têm color/background pra forçar. Sem isto, o título/eyebrow (que a
+   cascata já deixou com texto escuro e fundo transparente) fica
+   ilegível em cima de uma foto qualquer. Mais seguro esconder a foto
+   e cair num fundo sólido — mesma legibilidade do card antigo, que
+   nunca colocava título sobre imagem. */
+.a11y-high-contrast .ic-hero__img,
+.a11y-high-contrast .ic-hero__scrim,
+.a11y-high-contrast .ic-hero--noimg::before {
+    display: none !important;
+}
+.a11y-high-contrast .ic-hero {
+    height: auto !important;
+    background: #fff !important;
+    padding-top: 6px;
+}
+.a11y-high-contrast .ic-eyebrow {
+    background: var(--grey-100) !important;
+    border: 1px solid #000 !important;
+}
 
 .a11y-large-cursor .marker-pin { cursor: inherit; }

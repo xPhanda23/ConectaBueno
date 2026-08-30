@@ -69,6 +69,20 @@ service cloud.firestore {
       match /favoritos/{docId} {
         allow read, write: if isSelf(uid);
       }
+
+      // Selos do Passaporte Cultural (users/{uid}/visitas/{lugarId}) —
+      // um doc por lugar visitado. Exige conta permanente (mesmo
+      // critério já usado pra presença em eventos): o progresso precisa
+      // sobreviver entre sessões, e sessão anônima não é durável.
+      // Imutável depois de criado (mesma filosofia da coleção "logs":
+      // selo ganho é permanente).
+      match /visitas/{lugarId} {
+        allow read: if isSelf(uid);
+        allow create: if isSelf(uid) && isRegistered() &&
+          hasFields(['lugarId', 'nome', 'categoria', 'checkinAt', 'method']) &&
+          request.resource.data.method in ['manual', 'geo'];
+        allow update, delete: if false;
+      }
     }
 
     // ── Eventos ───────────────────────────────────────────────
@@ -137,6 +151,30 @@ service cloud.firestore {
 
       // Apenas admin pode escrever
       allow create, update, delete: if isAdmin();
+
+      // Dicas de visitantes (espacos/{id}/dicas/{dicaId}). Só em
+      // "espacos" (a coleção que o app realmente usa) — "places" é um
+      // alias que nada no app lê, não vale a pena espelhar aqui.
+      // isRegistered() (não só isAuth()) pra publicar: conteúdo público
+      // atribuível a alguém exige conta permanente, mesmo critério já
+      // usado pra presença em eventos.
+      match /dicas/{dicaId} {
+        allow read: if isAuth() && (resource.data.status == 'visivel' || isAdmin());
+
+        allow create: if isRegistered() &&
+          hasFields(['autorUid', 'autorNome', 'texto', 'createdAt', 'status']) &&
+          request.resource.data.autorUid == request.auth.uid &&
+          request.resource.data.status == 'visivel' &&
+          request.resource.data.texto is string &&
+          request.resource.data.texto.size() > 0 &&
+          request.resource.data.texto.size() <= 500;
+
+        // Moderação (ocultar/mostrar) é só do admin
+        allow update: if isAdmin();
+
+        // Autor apaga a própria dica; admin apaga qualquer uma
+        allow delete: if isAdmin() || (isAuth() && resource.data.autorUid == request.auth.uid);
+      }
     }
 
     // ── Hospedagens ───────────────────────────────────────────
