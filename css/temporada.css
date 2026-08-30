@@ -1,0 +1,282 @@
+/* ================================================================
+   temporada.css — Alta e baixa temporada — Conecta Bueno
+   Componente do widget renderizado por js/temporada.js
+   ================================================================ */
+
+/* Contêiner de montagem — o card é injetado dentro dele. */
+[data-temporada] { display: block; }
+
+/* Posicionamento por página */
+.tp-mount--home    { margin-bottom: 48px; }
+.tp-mount--eventos { max-width: 1200px; margin: 0 auto; padding: 24px 24px 0; }
+
+/* ── Card ──────────────────────────────────────────────────────── */
+
+.tp-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px 24px 20px 26px;
+    border: 1px solid var(--tp-border);
+    border-radius: 18px;
+    background: var(--tp-surface);
+    box-shadow: 0 10px 26px rgba(20, 45, 30, .07);
+    overflow: hidden;
+}
+
+/* Faixa de acento à esquerda — mesma linguagem da faixa "ao vivo"
+   da agenda (.ev-agenda-strip::before), para o nível ser legível
+   mesmo sem distinguir as cores de fundo. */
+.tp-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--tp-accent);
+}
+
+/* ── Paletas por nível ─────────────────────────────────────────── */
+
+/* Alta: terracota, a cor de acento da identidade da cidade. */
+.tp-alta {
+    --tp-accent:  #a8522a;
+    --tp-border:  #f0d5bd;
+    --tp-surface: linear-gradient(135deg, #fffaf5 0%, #fdeedf 100%);
+    --tp-orb:     #fbe3cd;
+    --tp-ink:     #7a3c1e;
+}
+
+/* Movimento moderado: o verde folha da plataforma. */
+.tp-media {
+    --tp-accent:  #1f7a41;
+    --tp-border:  #c8e6d4;
+    --tp-surface: linear-gradient(135deg, #f7fcf9 0%, #e8f5ee 100%);
+    --tp-orb:     #d8f0e2;
+    --tp-ink:     #145c30;
+}
+
+/* Baixa: azul sereno, para não competir com o verde das seções. */
+.tp-baixa {
+    --tp-accent:  #2f6a8f;
+    --tp-border:  #cfe1ee;
+    --tp-surface: linear-gradient(135deg, #f8fbfd 0%, #e9f2f8 100%);
+    --tp-orb:     #d9e9f4;
+    --tp-ink:     #234f6b;
+}
+
+/* ── Topo: selo, título e medidor ──────────────────────────────── */
+
+.tp-top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+}
+
+.tp-orb {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--tp-border);
+    background: var(--tp-orb);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+    font-size: calc(25px * var(--a11y-text-scale, 1));
+    line-height: 1;
+}
+
+.tp-head { min-width: 0; }
+
+.tp-eyebrow {
+    margin: 0 0 3px;
+    font-size: calc(11px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--tp-accent);
+}
+
+.tp-level {
+    margin: 0;
+    font-family: var(--font-display, 'Poppins', sans-serif);
+    font-size: calc(clamp(20px, 2.4vw, 26px) * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.015em;
+    color: var(--tp-ink);
+}
+
+.tp-call {
+    margin: 4px 0 0;
+    font-size: calc(13.5px * var(--a11y-text-scale, 1));
+    line-height: 1.45;
+    color: var(--grey-600, #4b5563);
+}
+
+/* Medidor de 3 degraus — repete o nível em forma gráfica. */
+.tp-gauge {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 30px;
+}
+
+.tp-gauge-step {
+    width: 9px;
+    border-radius: 3px;
+    background: var(--tp-border);
+}
+
+.tp-gauge-step:nth-child(1) { height: 14px; }
+.tp-gauge-step:nth-child(2) { height: 22px; }
+.tp-gauge-step:nth-child(3) { height: 30px; }
+.tp-gauge-step.is-on        { background: var(--tp-accent); }
+
+/* ── Sinais que motivaram a classificação ──────────────────────── */
+
+.tp-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--tp-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .8);
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--tp-ink);
+}
+
+/* ── Dica de planejamento ──────────────────────────────────────── */
+
+.tp-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 14px 16px;
+    border: 1px solid var(--tp-border);
+    border-left: 3px solid var(--tp-accent);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.tp-tip-icon {
+    flex-shrink: 0;
+    font-size: calc(16px * var(--a11y-text-scale, 1));
+    line-height: 1.5;
+}
+
+.tp-tip p {
+    margin: 0;
+    font-size: calc(14px * var(--a11y-text-scale, 1));
+    line-height: 1.55;
+    color: var(--grey-700, #374151);
+}
+
+/* ── Rodapé: horizonte, agenda e link ──────────────────────────── */
+
+.tp-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--tp-border);
+}
+
+.tp-horizon {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--tp-accent);
+}
+
+.tp-horizon svg { flex-shrink: 0; }
+
+.tp-agenda-names {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    color: var(--grey-500, #6b7280);
+}
+
+.tp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--tp-accent);
+    text-decoration: none;
+    transition: gap .15s ease, opacity .15s ease;
+}
+
+.tp-link:hover {
+    gap: 10px;
+    color: var(--tp-accent);
+    opacity: .8;
+}
+
+.tp-link svg { flex-shrink: 0; }
+
+/* ── Responsivo ────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .tp-mount--home    { margin-bottom: 36px; }
+    .tp-mount--eventos { padding: 20px 16px 0; }
+}
+
+@media (max-width: 640px) {
+    .tp-card {
+        gap: 14px;
+        padding: 18px 16px 16px 18px;
+        border-radius: 15px;
+    }
+
+    .tp-top { gap: 13px; }
+
+    .tp-orb {
+        width: 44px;
+        height: 44px;
+        font-size: calc(21px * var(--a11y-text-scale, 1));
+    }
+
+    .tp-gauge { height: 24px; }
+    .tp-gauge-step { width: 7px; }
+    .tp-gauge-step:nth-child(1) { height: 11px; }
+    .tp-gauge-step:nth-child(2) { height: 17px; }
+    .tp-gauge-step:nth-child(3) { height: 24px; }
+
+    .tp-link { margin-left: 0; }
+}
+
+@media (max-width: 420px) {
+    /* Espaço demais disputado na primeira linha: o medidor desce e o
+       título fica com a largura inteira. Com o bloco de texto alto, o
+       selo centralizado descolava da primeira linha — daí o start. */
+    .tp-top {
+        grid-template-columns: auto 1fr;
+        align-items: start;
+    }
+
+    .tp-gauge { grid-column: 1 / -1; }
+    .tp-agenda-names { display: none; }
+}

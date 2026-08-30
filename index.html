@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/shared-components.css">
     <link rel="stylesheet" href="css/accessibility.css">
     <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/temporada.css">
     <link rel="stylesheet" href="css/passport.css">
 </head>
 <body>
@@ -207,6 +208,14 @@
     <!-- EVENTOS -->
     <section class="section section-eventos" id="secEventos">
         <div class="container">
+
+            <!-- Situação da temporada — calculada em js/temporada.js a partir
+                 do calendário (férias escolares, feriados, fins de semana)
+                 cruzado com a agenda real do Firestore. -->
+            <div class="tp-mount tp-mount--home reveal"
+                 data-temporada
+                 data-temporada-agenda="pages/eventos.html"></div>
+
             <div class="section-header reveal">
                 <div class="section-header-text">
                     <span class="section-tag">Agenda Cultural</span>
@@ -448,6 +457,9 @@
 
     <!-- Passaporte Cultural (compartilhado com outras páginas) -->
     <script src="js/passport.js"></script>
+
+    <!-- Alta/baixa temporada (compartilhado com a agenda) -->
+    <script src="js/temporada.js"></script>
 
     <script src="js/home.js"></script>
 </body>
