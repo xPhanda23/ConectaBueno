@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/eventos.css">
     <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/temporada.css">
     <link rel="stylesheet" href="../css/passport.css">
 </head>
 <body>
@@ -157,6 +158,13 @@
             </button>
         </div>
     </div>
+
+    <!-- Situação da temporada — js/temporada.js classifica o período pelo
+         calendário (férias escolares, feriados, fins de semana) e cruza com
+         a agenda que eventos.js já carregou (fonte="host"). -->
+    <div class="tp-mount tp-mount--eventos"
+         data-temporada
+         data-temporada-fonte="host"></div>
 
     <!-- ═══════════════════════════
          FILTROS — sticky
@@ -505,6 +513,10 @@
 
     <!-- Passaporte Cultural (compartilhado com outras páginas) -->
     <script src="../js/passport.js"></script>
+
+    <!-- Alta/baixa temporada — carregado antes de eventos.js, que lhe
+         entrega a agenda já lida (data-temporada-fonte="host"). -->
+    <script src="../js/temporada.js"></script>
 
     <script src="../js/eventos.js"></script>
 

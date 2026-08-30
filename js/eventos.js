@@ -193,6 +193,10 @@ async function loadEventos() {
 
     filteredEventos = [...allEventos];
 
+    // O widget de temporada cruza feriados e férias com a agenda real —
+    // entregamos a lista já lida para ele não repetir a consulta.
+    window.Temporada?.definirEventos(allEventos);
+
     populateCategoryFilter();
     buildMiniCalendar();
     buildUpcomingList();
