@@ -1,17 +1,37 @@
 /* ================================================================
    PASSAPORTE CULTURAL — prefixo .pp-*
-   Compartilhado entre o mapa (#passportModal) e configurações (seção
-   "Meu Passaporte") — arquivo próprio em vez de map.css/settings.css
-   porque o conteúdo é o mesmo (renderPassportInto, em js/passport.js)
-   nas duas páginas.
+   Compartilhado entre todas as páginas com header (mapa, início,
+   eventos, observatório) e a seção "Meu Passaporte" de configurações
+   — arquivo próprio em vez de map.css/settings.css porque o conteúdo
+   é o mesmo (renderPassportInto, em js/passport.js) em todas elas.
    Tokens com fallback (var(--leaf-500, #2f9e52) etc.): map.css e
    settings.css redeclaram os mesmos valores verde/folha/terracota,
-   mas os fallbacks garantem que a UI não quebre visualmente se este
-   arquivo for carregado antes desses tokens em alguma página nova.
+   mas os fallbacks garantem que a UI não quebre visualmente em
+   páginas que não declaram esses tokens (eventos, observatório,
+   início).
    ================================================================ */
 
+/* ── Selo de nível (Iniciante → Lenda de Bueno) ─────────────────── */
+.pp-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--leaf-500, #2f9e52), var(--leaf-900, #145c30));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .2px;
+}
+
+.pp-level__icon {
+    font-size: 14px;
+}
+
 .pp-progress {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .pp-progress__bar {
@@ -40,11 +60,75 @@
     color: var(--grey-400, #9ca3af);
 }
 
+/* ── "Faltam N para o próximo selo" — motiva a próxima visita ──── */
+.pp-next {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px dashed var(--clay-400, #e08a52);
+    background: #fff8f2;
+}
+
+.pp-next__icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.pp-next__text {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--grey-700, #374151);
+    line-height: 1.4;
+}
+
+.pp-next__text strong {
+    color: var(--clay-800, #96502a);
+}
+
+/* ── Selos por categoria (agrupados, com contagem) ───────────────── */
+.pp-stamp-groups {
+    margin-bottom: 18px;
+}
+
+.pp-category {
+    margin-bottom: 14px;
+}
+
+.pp-category:last-child {
+    margin-bottom: 0;
+}
+
+.pp-category__head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.pp-category__icon {
+    font-size: 14px;
+}
+
+.pp-category__label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--grey-700, #374151);
+    flex: 1;
+}
+
+.pp-category__count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--grey-400, #9ca3af);
+}
+
 .pp-stamp-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
     gap: 8px;
-    margin-bottom: 18px;
 }
 
 .pp-stamp {
@@ -66,10 +150,12 @@
     color: var(--leaf-700, #1f7a41);
 }
 
+/* ── Selos/conquistas ─────────────────────────────────────────── */
 .pp-badges {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 8px;
+    margin-bottom: 16px;
 }
 
 .pp-badge {
@@ -95,6 +181,12 @@
     font-weight: 700;
 }
 
+.pp-badge__progress {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--grey-400, #9ca3af);
+}
+
 .pp-badge.is-unlocked {
     background: linear-gradient(135deg, var(--clay-400, #e08a52), var(--clay-800, #96502a));
     color: #fff;
@@ -105,12 +197,36 @@
     opacity: 1;
 }
 
+/* ── Compartilhar progresso ──────────────────────────────────────── */
+.pp-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: var(--green-50, #f4faf7);
+    color: var(--leaf-900, #145c30);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.pp-share:hover {
+    background: var(--leaf-500, #2f9e52);
+    color: #fff;
+}
+
 .pp-empty {
     color: var(--grey-500, #6b7280);
     font-size: 13px;
 }
 
-/* ── Modal do mapa (#passportModal) ─────────────────────────────── */
+/* ── Modal (#passportModal), usado no mapa e demais páginas ─────── */
 #passportModal {
     position: fixed;
     inset: 0;
@@ -129,7 +245,7 @@
 #passportModal[hidden] { display: none; }
 
 .pp-dialog {
-    width: min(420px, 100%);
+    width: min(440px, 100%);
     max-height: 85vh;
     overflow-y: auto;
     background: #fff;

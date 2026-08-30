@@ -220,53 +220,27 @@ function refreshCheckinButtonInOpenCard() {
 
 async function handleCheckin(space) {
     if (userVisitasIds.has(space.id)) return; // já visitado — idempotente
-    const ok = await window.CBPassport.registrarVisita(space, 'manual');
+    const { ok, novosSelos } = await window.CBPassport.registrarVisitaComProgresso(space, 'manual');
     if (!ok) return;
     userVisitasIds.add(space.id);
     refreshCheckinButtonInOpenCard();
     showToast('Visita registrada no passaporte! 🎉', 'success');
-}
-
-function openPassportModal() {
-    const modal = document.getElementById('passportModal');
-    const body = document.getElementById('passportModalBody');
-    if (!modal || !body) return;
-
-    modal.hidden = false;
-    body.innerHTML = '<p class="pp-empty">Carregando...</p>';
-
-    const user = firebase.auth().currentUser;
-    if (!user || user.isAnonymous) {
-        body.innerHTML = '<p class="pp-empty">Entre com uma conta permanente para acompanhar seu passaporte cultural.</p>';
-        return;
-    }
-
-    Promise.all([window.CBPassport.fetchVisitas(user.uid), window.CBPassport.fetchActiveSpaces()])
-        .then(([visitas, activeSpaces]) => {
-            userVisitasIds = new Set(visitas.map(v => v.lugarId));
-            window.CBPassport.renderPassportInto(body, { visitas, activeSpaces });
-        })
-        .catch(() => {
-            body.innerHTML = '<p class="pp-empty">Não foi possível carregar seu passaporte agora.</p>';
-        });
-}
-
-function closePassportModal() {
-    const modal = document.getElementById('passportModal');
-    if (modal) modal.hidden = true;
-}
-
-function setupPassportModal() {
-    document.getElementById('passportModalClose')?.addEventListener('click', closePassportModal);
-    document.getElementById('passportModal')?.addEventListener('click', (event) => {
-        if (event.target.id === 'passportModal') closePassportModal();
-    });
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !document.getElementById('passportModal')?.hidden) {
-            closePassportModal();
-        }
+    (novosSelos || []).forEach((badge, i) => {
+        setTimeout(() => showToast(`Novo selo desbloqueado: ${badge.icon} ${badge.label}!`, 'success'), 900 + i * 700);
     });
 }
+
+// Modal do passaporte (abrir/fechar/carregar) é gerenciado por
+// js/passport.js (auto-init em qualquer página com #passportModal +
+// #menuPassaporte) — aqui só sincronizamos o cache local de visitas
+// pra manter o botão "Marcar como visitado" do card certo depois que
+// o modal recarrega os dados do Firestore.
+document.addEventListener('cbpassport:loaded', (event) => {
+    const visitas = event.detail?.visitas;
+    if (!visitas) return;
+    userVisitasIds = new Set(visitas.map(v => v.lugarId));
+    refreshCheckinButtonInOpenCard();
+});
 
 function paintFavButton(spaceId) {
     if (!spaceId) return;
@@ -396,8 +370,6 @@ function initApp() {
     setupRoteiroUI();
     renderRoteiroBadge();
     renderRoteiroTab();
-    setupPassportModal();
-    document.getElementById('menuPassaporte')?.addEventListener('click', openPassportModal);
     loadSpaces();
 
     setTimeout(() => {
