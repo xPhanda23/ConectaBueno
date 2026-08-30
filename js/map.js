@@ -1911,6 +1911,32 @@ function setupEventListeners() {
         });
     }
 
+    // Menu mobile do header (Início/Mapa/Eventos/Observatório) — nas
+    // demais páginas isso vem de shared-components.js, mas o mapa não
+    // carrega esse script (evita conflito com o dropdown/logout próprios
+    // daqui embaixo), então precisa da própria wiring do botão hambúrguer.
+    const hdMenuToggle = document.querySelector('.hd-menu-toggle');
+    const hdNav = document.querySelector('.hd-nav');
+
+    if (hdMenuToggle && hdNav) {
+        hdMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = hdNav.classList.toggle('active');
+            hdMenuToggle.setAttribute('aria-expanded', String(isOpen));
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!hdNav.contains(event.target) && event.target !== hdMenuToggle) {
+                hdNav.classList.remove('active');
+                hdMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        hdNav.querySelectorAll('.hd-nav-link').forEach(link => {
+            link.addEventListener('click', () => hdNav.classList.remove('active'));
+        });
+    }
+
     // Menu do usuário
     const btnUserMenu = document.getElementById('btnUserMenu');
     const userDropdown = document.getElementById('userDropdown');
