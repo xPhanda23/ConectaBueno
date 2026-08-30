@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="../css/eventos.css">
     <link rel="stylesheet" href="../css/home.css">
     <link rel="stylesheet" href="../css/temporada.css">
+    <link rel="stylesheet" href="../css/noticias.css">
     <link rel="stylesheet" href="../css/passport.css">
 </head>
 <body>
@@ -158,13 +159,6 @@
             </button>
         </div>
     </div>
-
-    <!-- Situação da temporada — js/temporada.js classifica o período pelo
-         calendário (férias escolares, feriados, fins de semana) e cruza com
-         a agenda que eventos.js já carregou (fonte="host"). -->
-    <div class="tp-mount tp-mount--eventos"
-         data-temporada
-         data-temporada-fonte="host"></div>
 
     <!-- ═══════════════════════════
          FILTROS — sticky
@@ -326,23 +320,79 @@
     <!-- ═══════════════════════════
          ÚLTIMAS NOTÍCIAS
          ═══════════════════════════ -->
-    <section class="ev-news-section" id="secNoticias">
+    <section class="ev-news-section nw-room" id="secNoticias">
         <div class="container">
             <div class="ev-sec-header">
                 <div>
                     <span class="ev-sec-tag">Conecta Bueno</span>
-                    <h2>Últimas Notícias</h2>
+                    <h2>Sala de Notícias</h2>
                     <p>Informações e novidades sobre a cultura local</p>
                 </div>
+
+                <div class="nw-toolbar">
+                    <div class="nw-search" role="search">
+                        <svg width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+                            <circle cx="7.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M11 11l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                        <input type="search" id="nwSearch" autocomplete="off"
+                               placeholder="Buscar nas notícias…" aria-label="Buscar notícias">
+                        <button type="button" class="nw-search-clear" id="nwSearchClear" hidden aria-label="Limpar busca">
+                            <svg width="10" height="10" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                                <path d="M2.5 2.5l8 8M10.5 2.5l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="nw-count" id="nwCount" aria-live="polite" aria-atomic="true"></span>
+                </div>
             </div>
-            <div class="ev-news-grid" id="newsGrid">
+
+            <!-- Categorias — montadas por js/noticias.js a partir do que
+                 existe de fato publicado no Firestore. -->
+            <div class="nw-filters" id="nwFilters" role="group" aria-label="Filtrar notícias por categoria" hidden></div>
+
+            <!-- Manchete -->
+            <div class="nw-lead" id="nwLead" hidden></div>
+
+            <!-- Demais matérias -->
+            <div class="nw-grid" id="nwGrid">
                 <div class="ev-grid-loading">
                     <div class="ev-spinner"></div>
                     <span>Carregando notícias…</span>
                 </div>
             </div>
+
+            <div class="nw-more" id="nwMore" hidden>
+                <button type="button" class="nw-more-btn" id="nwMoreBtn">Carregar mais</button>
+            </div>
+
+            <div class="nw-empty" id="nwEmpty" hidden></div>
         </div>
     </section>
+
+    <!-- ═══════════════════════════
+         LEITOR DE NOTÍCIAS
+         ═══════════════════════════ -->
+    <div id="newsReader" class="nw-reader nw-room" role="dialog" aria-modal="true" aria-labelledby="nwReaderTitle" hidden>
+        <div class="nw-reader-overlay" data-nw-close></div>
+        <div class="nw-reader-panel">
+            <div class="nw-reader-progress" role="progressbar" aria-label="Progresso da leitura">
+                <span id="nwProgressBar"></span>
+            </div>
+
+            <button type="button" class="nw-reader-close" id="nwReaderClose" data-nw-close aria-label="Fechar leitura">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+
+            <div class="nw-reader-scroll" id="nwReaderScroll">
+                <div id="nwReaderContent"></div>
+            </div>
+
+            <footer class="nw-reader-nav" id="nwReaderNav" hidden></footer>
+        </div>
+    </div>
 
     <!-- ═══════════════════════════
          MODAL
@@ -517,6 +567,10 @@
     <!-- Alta/baixa temporada — carregado antes de eventos.js, que lhe
          entrega a agenda já lida (data-temporada-fonte="host"). -->
     <script src="../js/temporada.js"></script>
+
+    <!-- Sala de notícias — eventos.js dispara Noticias.carregar()
+         já dentro do onAuthStateChanged (as regras exigem sessão). -->
+    <script src="../js/noticias.js"></script>
 
     <script src="../js/eventos.js"></script>
 

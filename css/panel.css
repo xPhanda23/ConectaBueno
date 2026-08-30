@@ -1077,6 +1077,15 @@ select.form-control {
     cursor: pointer;
 }
 
+/* Explicação curta abaixo de um checkbox, alinhada com o texto dele. */
+.checkbox-hint {
+    display: block;
+    margin: 6px 0 0 26px;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    line-height: 1.5;
+    color: #6b7280;
+}
+
 .checkbox-group {
     display: flex;
     flex-wrap: wrap;

@@ -209,13 +209,6 @@
     <section class="section section-eventos" id="secEventos">
         <div class="container">
 
-            <!-- Situação da temporada — calculada em js/temporada.js a partir
-                 do calendário (férias escolares, feriados, fins de semana)
-                 cruzado com a agenda real do Firestore. -->
-            <div class="tp-mount tp-mount--home reveal"
-                 data-temporada
-                 data-temporada-agenda="pages/eventos.html"></div>
-
             <div class="section-header reveal">
                 <div class="section-header-text">
                     <span class="section-tag">Agenda Cultural</span>
@@ -233,6 +226,14 @@
                     <span>Carregando eventos…</span>
                 </div>
             </div>
+
+            <!-- Situação da temporada — calculada em js/temporada.js a partir
+                 do calendário (férias escolares, feriados, fins de semana)
+                 cruzado com a agenda real do Firestore. -->
+            <div class="tp-mount tp-mount--home reveal"
+                 data-temporada
+                 data-temporada-agenda="pages/eventos.html"></div>
+                 
         </div>
     </section>
 

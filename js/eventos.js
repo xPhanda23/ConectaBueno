@@ -1,6 +1,6 @@
 /**
  * eventos.js — Agenda Cultural — Conecta Bueno
- * Lê as coleções 'eventos' e 'noticias' do Firestore.
+ * Lê a coleção 'eventos' do Firestore. As notícias ficam em noticias.js.
  */
 
 'use strict';
@@ -52,7 +52,7 @@ window.addEventListener('load', async () => {
         }
         setupListeners();
         hideLoading();
-        await Promise.all([loadEventos(), loadNoticias()]);
+        await Promise.all([loadEventos(), window.Noticias?.carregar()]);
         openEventFromQuery();
     });
 });
@@ -1298,123 +1298,10 @@ function showToast(message, type = 'info') {
 
 // ─────────────────────────────────────────────────────────────────
 // NOTÍCIAS
+// A sala de notícias vive em js/noticias.js (seção editorial, busca,
+// filtros e leitor próprio). Aqui só disparamos a carga, no boot,
+// porque as regras do Firestore exigem uma sessão já estabelecida.
 // ─────────────────────────────────────────────────────────────────
-
-async function loadNoticias() {
-    const grid = document.getElementById('newsGrid');
-    if (!grid) return;
-
-    let noticias = [];
-
-    try {
-        const snap = await db.collection('noticias')
-            .where('status', '==', 'publicado')
-            .orderBy('createdAt', 'desc')
-            .limit(6)
-            .get();
-
-        noticias = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    } catch (err) {
-        // Mesmo tratamento de loadEventos(): a consulta com orderBy exige um
-        // índice composto. Sem ele a seção inteira sumia da página.
-        console.warn('⚠️ noticias (fallback sem orderBy):', err?.code || err);
-        try {
-            const snap2 = await db.collection('noticias')
-                .where('status', '==', 'publicado')
-                .get();
-
-            noticias = snap2.docs
-                .map(d => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => (toDate(b.createdAt) ?? 0) - (toDate(a.createdAt) ?? 0))
-                .slice(0, 6);
-
-        } catch (err2) {
-            console.warn('⚠️ noticias indisponiveis:', err2?.code || err2);
-            document.getElementById('secNoticias')?.style.setProperty('display', 'none');
-            return;
-        }
-    }
-
-    if (!noticias.length) {
-        document.getElementById('secNoticias')?.style.setProperty('display', 'none');
-        return;
-    }
-
-    grid.innerHTML = '';
-    noticias.forEach(n => grid.appendChild(buildNewsCard(n)));
-}
-
-function buildNewsCard(n) {
-    const createdAt = toDate(n.createdAt);
-    const dateStr   = createdAt
-        ? createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-        : '';
-    const imgStyle = n.imagem
-        ? `background-image:url('${escUrl(n.imagem)}'); background-size:cover; background-position:center;`
-        : '';
-
-    const card = document.createElement('article');
-    card.className = 'news-card';
-    card.innerHTML = `
-        <div class="news-card-img" style="${imgStyle}" aria-hidden="${n.imagem ? 'false' : 'true'}">
-            ${!n.imagem ? `
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                <rect x="3" y="7" width="30" height="22" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M7 5v3M29 5v3M3 15h30" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>` : ''}
-        </div>
-        <div class="news-card-body">
-            ${n.categoria ? `<span class="news-card-cat">${esc(n.categoria)}</span>` : ''}
-            <h3 class="news-card-title">${esc(n.titulo || 'Notícia')}</h3>
-            <p class="news-card-preview">${esc(n.resumo || (n.conteudo || '').slice(0, 120))}</p>
-        </div>
-        <div class="news-card-footer">
-            <span class="news-card-date">${dateStr}</span>
-            <span class="news-card-link">
-                Ler mais
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                    <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-            </span>
-        </div>
-    `;
-
-    card.addEventListener('click', () => openNewsModal(n));
-    return card;
-}
-
-function openNewsModal(n) {
-    const modal   = document.getElementById('modalEvento');
-    const content = document.getElementById('modalContent');
-    if (!modal || !content) return;
-
-    const createdAt = toDate(n.createdAt);
-    const dateStr   = createdAt
-        ? createdAt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
-        : '';
-    const imgStyle = n.imagem
-        ? `background-image:url('${escUrl(n.imagem)}'); background-size:cover; background-position:center;`
-        : '';
-
-    content.innerHTML = `
-        <div class="ev-modal-hero" style="${imgStyle}"></div>
-        <div class="news-modal-body">
-            ${n.categoria ? `<span class="news-modal-cat">${esc(n.categoria)}</span>` : ''}
-            <h2 class="news-modal-title" id="modalEventoTitle">${esc(n.titulo || 'Notícia')}</h2>
-            <p class="news-modal-meta">${n.autor ? esc(n.autor) + ' · ' : ''}${dateStr}</p>
-            <div class="news-modal-content">
-                ${(n.conteudo || '')
-                    .split('\n')
-                    .map(p => p.trim() ? `<p>${esc(p)}</p>` : '')
-                    .join('')}
-            </div>
-        </div>
-    `;
-
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
-}
 
 // ─────────────────────────────────────────────────────────────────
 // EVENT LISTENERS

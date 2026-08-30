@@ -1464,6 +1464,7 @@ async function loadNoticiaData(noticiaId) {
         document.getElementById('noticiaResumo').value    = d.resumo    || '';
         document.getElementById('noticiaConteudo').value  = d.conteudo  || '';
         document.getElementById('noticiaImagem').value    = d.imagem    || '';
+        document.getElementById('noticiaDestaque').checked = d.destaque === true;
     } catch (err) {
         console.error('❌ loadNoticiaData:', err);
         showToast('Erro ao carregar notícia.', 'error');
@@ -1481,6 +1482,7 @@ async function saveNoticia(e) {
     const resumo     = document.getElementById('noticiaResumo').value.trim();
     const conteudo   = document.getElementById('noticiaConteudo').value.trim();
     const imagem     = document.getElementById('noticiaImagem').value.trim();
+    const destaque   = document.getElementById('noticiaDestaque').checked;
 
     if (!titulo || !conteudo) {
         showToast('Preencha o título e o conteúdo.', 'error');
@@ -1488,7 +1490,7 @@ async function saveNoticia(e) {
     }
 
     const payload = {
-        titulo, categoria, status, autor, resumo, conteudo,
+        titulo, categoria, status, autor, resumo, conteudo, destaque,
         imagem: imagem || null,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
