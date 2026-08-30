@@ -1272,3 +1272,10 @@ select.form-control {
     text-shadow: none !important;
 }
 .a11y-high-contrast .nav-item.active { outline: 2px solid #000 !important; }
+
+.a11y-focus .stat-card,
+.a11y-focus .welcome-card,
+.a11y-focus .setting-card,
+.a11y-focus .category-card {
+    box-shadow: none;
+}

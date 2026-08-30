@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="../css/shared-components.css">
     <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/map.css">
+    <link rel="stylesheet" href="../css/passport.css">
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -72,6 +73,7 @@
                     <a href="eventos.html"     class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
                     <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
                     <div class="hd-dd-divider"></div>
+                    <button type="button" class="hd-dd-item" id="menuPassaporte" role="menuitem">🎫 Meu Passaporte</button>
                     <a href="settings.html"    class="hd-dd-item" role="menuitem">Configurações</a>
                     <a href="panel.html"       class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
                     <div class="hd-dd-divider"></div>
@@ -89,6 +91,15 @@
                 <span>‹</span>
             </button>
             <div class="sidebar-content">
+                <!-- Abas: Explorar / Meu roteiro -->
+                <div class="sb-tabs" role="tablist" aria-label="Alternar entre explorar o mapa e meu roteiro">
+                    <button type="button" class="sb-tab active" id="sbTabExplore" role="tab" aria-selected="true" aria-controls="sbPanelExplore" data-sb-tab="explore">Explorar</button>
+                    <button type="button" class="sb-tab" id="sbTabRoteiro" role="tab" aria-selected="false" aria-controls="sbPanelRoteiro" data-sb-tab="roteiro">
+                        Meu roteiro<span class="sb-tab-count" id="rtTabCount" hidden>0</span>
+                    </button>
+                </div>
+
+                <div class="sb-panel" id="sbPanelExplore" role="tabpanel" aria-labelledby="sbTabExplore">
                 <!-- Estatísticas Rápidas -->
                 <div class="quick-stats">
                     <div class="stat-card">
@@ -194,12 +205,29 @@
                         <span>Carregando...</span>
                     </div>
                 </div>
+                </div>
+
+                <!-- Meu roteiro: montagem de passeio com vários pontos (localStorage) -->
+                <div class="sb-panel" id="sbPanelRoteiro" role="tabpanel" aria-labelledby="sbTabRoteiro" hidden>
+                    <div id="rtView"></div>
+                </div>
             </div>
         </aside>
 
         <!-- Mapa -->
         <div class="map-container">
             <div id="map"></div>
+
+            <!-- Atalho pro roteiro (só aparece com pelo menos 1 parada) -->
+            <button type="button" class="rt-badge" id="rtBadge" hidden aria-label="Ver meu roteiro">
+                <svg width="15" height="15" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false">
+                    <circle cx="4" cy="4" r="2.2" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="14" cy="14" r="2.2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M6 5C10 5 8 13 12 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.6 2.2"/>
+                </svg>
+                <span>Meu roteiro</span>
+                <span class="rt-badge__count" id="rtBadgeCount">0</span>
+            </button>
 
             <!-- Map Controls -->
             <div class="map-controls">
@@ -231,6 +259,7 @@
 
             <!-- Painel de detalhes do espaço (substitui o popup do Leaflet) -->
             <div id="spaceDetailBackdrop" class="sd-backdrop" hidden></div>
+            <div id="sdMorphSeed" class="ic-morph-seed" aria-hidden="true" hidden></div>
             <aside id="spaceDetail" class="sd-panel" role="dialog" aria-modal="false" aria-hidden="true" tabindex="-1">
                 <span class="sd-handle" aria-hidden="true"></span>
                 <button type="button" class="sd-close" id="sdClose" aria-label="Fechar">
@@ -306,6 +335,19 @@
     new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
+    <!-- Passaporte Cultural -->
+    <div id="passportModal" role="dialog" aria-modal="true" aria-labelledby="passportModalTitle" hidden>
+        <div class="pp-dialog">
+            <div class="pp-dialog__head">
+                <h3 id="passportModalTitle">🎫 Meu Passaporte Cultural</h3>
+                <button type="button" class="pp-dialog__close" id="passportModalClose" aria-label="Fechar">×</button>
+            </div>
+            <div id="passportModalBody">
+                <p class="pp-empty">Carregando...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
@@ -322,6 +364,9 @@
 
     <!-- Utilitários de sessão de visitante (login anônimo silencioso, guarda de ações) -->
     <script src="../js/visitor-access.js"></script>
+
+    <!-- Passaporte Cultural (compartilhado com configurações) -->
+    <script src="../js/passport.js"></script>
 
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

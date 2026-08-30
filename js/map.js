@@ -21,10 +21,22 @@ let sortMode = 'nome';
 // contas permanentes; visitantes veem o convite de login ao tentar).
 let userLugaresFavoritos = new Set();
 
+// IDs dos lugares já visitados pelo usuário (Passaporte Cultural,
+// js/passport.js) — mesmo padrão de cache local que userLugaresFavoritos.
+let userVisitasIds = new Set();
+
 // Painel de detalhes do espaço (substitui o popup do Leaflet)
 let activeMarker = null;
 let currentDetailSpaceId = null;
 let detailReturnFocusEl = null;
+
+// Meu roteiro — passeio com vários pontos, guardado em localStorage
+// (não depende de conta: funciona pra visitante anônimo também).
+// Formato: [{ id, nome, categoria, lat, lng, addedAt }]
+let roteiro = [];
+const ROTEIRO_STORAGE_KEY = 'cb-roteiro';
+const ROTEIRO_AVG_SPEED_KMH = 35; // estrada de serra sinuosa — estimativa, não roteamento real
+const ROTEIRO_MAX_WAYPOINTS = 9;  // limite prático do link de rota do Google Maps
 
 // Centro de Bueno Brandão
 const BUENO_CENTER = {
@@ -159,6 +171,7 @@ async function loadUserProfile(user) {
 
         displayUserProfile();
         await loadUserLugaresFavoritos(user.uid);
+        await loadUserVisitas(user.uid);
     } catch (error) {
         console.error('❌ Erro ao carregar perfil:', error);
         showToast('Erro ao carregar perfil', 'error');
@@ -180,6 +193,79 @@ async function loadUserLugaresFavoritos(uid) {
         userLugaresFavoritos = new Set();
     }
     paintFavButton(currentDetailSpaceId);
+}
+
+/* ===================================
+   PASSAPORTE CULTURAL
+   =================================== */
+
+async function loadUserVisitas(uid) {
+    try {
+        const visitas = await window.CBPassport.fetchVisitas(uid);
+        userVisitasIds = new Set(visitas.map(v => v.lugarId));
+    } catch {
+        userVisitasIds = new Set();
+    }
+    refreshCheckinButtonInOpenCard();
+}
+
+function refreshCheckinButtonInOpenCard() {
+    const btn = document.querySelector('[data-checkin-id]');
+    if (!btn) return;
+    const isVisited = userVisitasIds.has(btn.dataset.checkinId);
+    btn.classList.toggle('is-visited', isVisited);
+    btn.innerHTML = `${isVisited ? PC_ICON.roteiroCheck : PC_ICON.pin}<span>${isVisited ? 'Visitado ✓' : 'Marcar como visitado'}</span>`;
+    btn.setAttribute('aria-label', isVisited ? 'Você já visitou este lugar' : 'Marcar como visitado no passaporte');
+}
+
+async function handleCheckin(space) {
+    if (userVisitasIds.has(space.id)) return; // já visitado — idempotente
+    const ok = await window.CBPassport.registrarVisita(space, 'manual');
+    if (!ok) return;
+    userVisitasIds.add(space.id);
+    refreshCheckinButtonInOpenCard();
+    showToast('Visita registrada no passaporte! 🎉', 'success');
+}
+
+function openPassportModal() {
+    const modal = document.getElementById('passportModal');
+    const body = document.getElementById('passportModalBody');
+    if (!modal || !body) return;
+
+    modal.hidden = false;
+    body.innerHTML = '<p class="pp-empty">Carregando...</p>';
+
+    const user = firebase.auth().currentUser;
+    if (!user || user.isAnonymous) {
+        body.innerHTML = '<p class="pp-empty">Entre com uma conta permanente para acompanhar seu passaporte cultural.</p>';
+        return;
+    }
+
+    Promise.all([window.CBPassport.fetchVisitas(user.uid), window.CBPassport.fetchActiveSpaces()])
+        .then(([visitas, activeSpaces]) => {
+            userVisitasIds = new Set(visitas.map(v => v.lugarId));
+            window.CBPassport.renderPassportInto(body, { visitas, activeSpaces });
+        })
+        .catch(() => {
+            body.innerHTML = '<p class="pp-empty">Não foi possível carregar seu passaporte agora.</p>';
+        });
+}
+
+function closePassportModal() {
+    const modal = document.getElementById('passportModal');
+    if (modal) modal.hidden = true;
+}
+
+function setupPassportModal() {
+    document.getElementById('passportModalClose')?.addEventListener('click', closePassportModal);
+    document.getElementById('passportModal')?.addEventListener('click', (event) => {
+        if (event.target.id === 'passportModal') closePassportModal();
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !document.getElementById('passportModal')?.hidden) {
+            closePassportModal();
+        }
+    });
 }
 
 function paintFavButton(spaceId) {
@@ -306,6 +392,12 @@ function initApp() {
 
     initMap();
     setupEventListeners();
+    loadRoteiro();
+    setupRoteiroUI();
+    renderRoteiroBadge();
+    renderRoteiroTab();
+    setupPassportModal();
+    document.getElementById('menuPassaporte')?.addEventListener('click', openPassportModal);
     loadSpaces();
 
     setTimeout(() => {
@@ -679,7 +771,11 @@ const PC_ICON = {
     instagram: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>',
     globe: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M3 9H15M9 3C9 3 7 5 7 9C7 13 9 15 9 15M9 3C9 3 11 5 11 9C11 13 9 15 9 15" stroke="currentColor" stroke-width="1.5"/></svg>',
     share: '<svg class="pc-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true" focusable="false"><circle cx="12.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="3.5" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/><circle cx="12.5" cy="12.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M5.3 7L10.7 4.2M5.3 9L10.7 11.8" stroke="currentColor" stroke-width="1.4"/></svg>',
-    heart: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M9 15.5C9 15.5 2 11 2 6.5C2 4.2 3.9 2.5 6 2.5C7.3 2.5 8.4 3.1 9 4.1C9.6 3.1 10.7 2.5 12 2.5C14.1 2.5 16 4.2 16 6.5C16 11 9 15.5 9 15.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>'
+    heart: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M9 15.5C9 15.5 2 11 2 6.5C2 4.2 3.9 2.5 6 2.5C7.3 2.5 8.4 3.1 9 4.1C9.6 3.1 10.7 2.5 12 2.5C14.1 2.5 16 4.2 16 6.5C16 11 9 15.5 9 15.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+    roteiroAdd: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 5C10 5 8 13 12 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.5 2"/></svg>',
+    roteiroCheck: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.2L7.8 11.5L12.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    listen: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M3 7V11H6L10 14.5V3.5L6 7H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 6.2C13.3 7 13.8 8 13.8 9C13.8 10 13.3 11 12.5 11.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14.5 4C15.9 5.4 16.7 7.1 16.7 9C16.7 10.9 15.9 12.6 14.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".55"/></svg>',
+    stop: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="4" width="10" height="10" rx="2" fill="currentColor"/></svg>'
 };
 
 /**
@@ -703,29 +799,33 @@ function toTelHref(telefone) {
     return (digits.length === 10 || digits.length === 11) ? `+55${digits}` : digits;
 }
 
-function createPopupContent(space) {
+function createImmersiveCard(space) {
     const nome = tidyText(space.nome) || 'Local';
-    const titleId = `pc-title-${space.id}`;
+    const titleId = `ic-title-${space.id}`;
     const hasCoords = Number.isFinite(space.lat) && Number.isFinite(space.lng);
 
-    // ── Capa ────────────────────────────────────────────────────────
+    // ── Capa: sempre presente — categoria e nome vivem nela agora, como
+    // manchete de revista sobre a foto (ou textura de categoria, se não
+    // houver foto). ─────────────────────────────────────────────────
     const photo = space.foto || (Array.isArray(space.galeria) ? space.galeria[0] : null);
-    const mediaHTML = photo ? `
-        <figure class="pc-media">
-            <img class="pc-media__img" src="${esc(photo)}" alt="Foto de ${esc(nome)}"
-                 onerror="this.closest('.pc-media').remove()">
+    const icon = categoryIcons[space.categoria] || '📍';
+    const imgHTML = photo
+        ? `<img class="ic-hero__img" src="${esc(photo)}" alt="Foto de ${esc(nome)}"
+                onerror="this.remove(); this.parentElement.classList.add('ic-hero--noimg');">`
+        : '';
+    const eyebrowHTML = space.categoria
+        ? `<span class="ic-eyebrow">${icon} ${esc(tidyText(space.categoria))}</span>`
+        : '';
+    const heroHTML = `
+        <figure class="ic-hero${photo ? '' : ' ic-hero--noimg'}" data-icon="${esc(icon)}">
+            ${imgHTML}
+            <div class="ic-hero__scrim"></div>
+            <div class="ic-hero__caption">
+                ${eyebrowHTML}
+                <h3 class="ic-title" id="${esc(titleId)}">${esc(nome)}</h3>
+            </div>
         </figure>
-    ` : '';
-
-    // ── Categoria ─────────────────────────────────────────────────
-    const metaParts = [];
-
-    if (space.categoria) {
-        const color = categoryColors[space.categoria] || '#2d5a3d';
-        metaParts.push(`<span class="pc-chip" style="background:${color}">${esc(tidyText(space.categoria))}</span>`);
-    }
-
-    const metaHTML = metaParts.length ? `<div class="pc-meta">${metaParts.join('')}</div>` : '';
+    `;
 
     // ── Tags livres ─────────────────────────────────────────────────
     const tags = Array.isArray(space.tags) ? space.tags.map(tidyText).filter(Boolean).slice(0, 4) : [];
@@ -773,6 +873,34 @@ function createPopupContent(space) {
 
     const infoHTML = infoItems.length ? `<ul class="pc-info">${infoItems.join('')}</ul>` : '';
 
+    // ── Curiosidades ──────────────────────────────────────────────
+    // Some inteira se o admin não cadastrou nada — não faz sentido um
+    // título de seção sobre um campo vazio (diferente da "Comunidade"
+    // da Fase 5, que convida à ação mesmo vazia).
+    const curiosidades = tidyText(space.curiosidades);
+    const curiosidadesHTML = curiosidades
+        ? `
+            <div class="ic-section">
+                <h4 class="ic-section__title">📖 Curiosidades</h4>
+                <p class="pc-desc">${esc(curiosidades)}</p>
+            </div>
+        `
+        : '';
+
+    // ── Comunidade ────────────────────────────────────────────────
+    // Conteúdo carregado à parte (assíncrono) por renderDicasSection(),
+    // chamado logo após este HTML entrar no DOM — ver renderDetailContent().
+    // Ao contrário de curiosidades (só admin, some se vazio), esta seção
+    // sempre aparece: a ausência de dicas é um convite a deixar a primeira.
+    const comunidadeHTML = `
+        <div class="ic-section ic-section--comunidade">
+            <h4 class="ic-section__title">💬 O que a comunidade diz</h4>
+            <div id="icDicas-${esc(space.id)}">
+                <p class="pc-desc">Carregando dicas...</p>
+            </div>
+        </div>
+    `;
+
     // ── Ações ───────────────────────────────────────────────────────
     // Rotas lado a lado (grid), depois links de apoio em outline e, por
     // último, o compartilhar discreto.
@@ -819,15 +947,49 @@ function createPopupContent(space) {
 
     const linksHTML = linksInner ? `<div class="pc-links">${linksInner}</div>` : '';
 
+    // ── Passaporte cultural ───────────────────────────────────────
+    const isVisited = userVisitasIds.has(space.id);
+    let nearbyHintHTML = '';
+    if (!isVisited && userLocation && hasCoords) {
+        const distM = distanceMeters(userLocation.getLatLng(), space);
+        if (distM <= 400) nearbyHintHTML = `<p class="ic-nearby-hint">📍 Você está por perto</p>`;
+    }
+    const checkinHTML = `
+        <div>
+            ${nearbyHintHTML}
+            <button type="button" class="ic-checkin${isVisited ? ' is-visited' : ''}" data-checkin-id="${esc(space.id)}"
+                    aria-label="${isVisited ? 'Você já visitou este lugar' : 'Marcar como visitado no passaporte'}">
+                ${isVisited ? PC_ICON.roteiroCheck : PC_ICON.pin}<span>${isVisited ? 'Visitado ✓' : 'Marcar como visitado'}</span>
+            </button>
+        </div>
+    `;
+
     const isFav = userLugaresFavoritos.has(space.id);
     const heartIcon = PC_ICON.heart.replace('<path ', `<path fill="${isFav ? 'currentColor' : 'none'}" `);
 
+    const inRoteiro = isInRoteiro(space.id);
+
+    const narrationText = buildNarrationText(space);
+    const listenHTML = (narrationText && isSpeechSupported())
+        ? `
+            <button type="button" class="pc-fav" data-listen-id="${esc(space.id)}"
+                    aria-label="Ouvir narração de ${esc(nome)}">
+                ${PC_ICON.listen}<span>Ouvir</span>
+            </button>
+        `
+        : '';
+
     const secondaryHTML = `
-        <div class="pc-secondary-actions">
+        <div class="ic-actions-row">
             <button type="button" class="pc-fav${isFav ? ' is-fav' : ''}" data-fav-id="${esc(space.id)}"
                     aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">
                 ${heartIcon}<span>Favoritar</span>
             </button>
+            <button type="button" class="pc-fav${inRoteiro ? ' is-fav' : ''}" data-roteiro-id="${esc(space.id)}"
+                    aria-label="${inRoteiro ? 'Remover do roteiro' : 'Adicionar ao roteiro'}">
+                ${inRoteiro ? PC_ICON.roteiroCheck : PC_ICON.roteiroAdd}<span>${inRoteiro ? 'No roteiro ✓' : 'Adicionar ao roteiro'}</span>
+            </button>
+            ${listenHTML}
             <button type="button" class="pc-share" data-share-id="${esc(space.id)}"
                     aria-label="Compartilhar ${esc(nome)}">
                 ${PC_ICON.share}<span>Compartilhar</span>
@@ -836,18 +998,19 @@ function createPopupContent(space) {
     `;
 
     return `
-        <article class="pc-card" aria-labelledby="${esc(titleId)}">
-            ${mediaHTML}
-            <div class="pc-body">
-                <h3 class="pc-title" id="${esc(titleId)}">${esc(nome)}</h3>
-                ${metaHTML}
+        <article class="ic-card" aria-labelledby="${esc(titleId)}">
+            ${heroHTML}
+            <div class="ic-body">
                 ${tagsHTML}
                 ${descHTML}
                 ${infoHTML}
+                ${curiosidadesHTML}
+                ${comunidadeHTML}
             </div>
             <footer class="pc-actions">
                 ${routesHTML}
                 ${linksHTML}
+                ${checkinHTML}
                 ${secondaryHTML}
             </footer>
         </article>
@@ -902,7 +1065,89 @@ function setActiveMarker(marker) {
 
 function renderDetailContent(space) {
     const body = document.getElementById('sdBody');
-    if (body) body.innerHTML = createPopupContent(space);
+    if (body) body.innerHTML = createImmersiveCard(space);
+    renderDicasSection(space);
+}
+
+// ===================================
+// MORPH: o pino "vira" o cartão
+// ===================================
+
+function shouldReduceMotion() {
+    return document.documentElement.classList.contains('a11y-reduce-motion') ||
+        (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+// Anima o pino clicado até virar o cartão de detalhes. Puramente
+// decorativo — o #spaceDetail real mantém sua própria transição de
+// slide (translateX no desktop, translateY no mobile), inalterada;
+// o seed só dá a sensação de que ela "nasceu" do marcador.
+function playCardMorph(marker, space) {
+    const seed = document.getElementById('sdMorphSeed');
+    const panel = document.getElementById('spaceDetail');
+    if (!panel) return;
+
+    const markerEl = marker?.getElement();
+    const pinEl = markerEl?.querySelector('.marker-pin') || markerEl;
+    const pinRect = pinEl?.getBoundingClientRect();
+
+    // Sem seed, sem retângulo do pino (marcador fora da tela por algum
+    // motivo) ou com "reduzir movimento" ativo: abre direto, sem show.
+    if (!seed || !pinRect || shouldReduceMotion()) {
+        panel.classList.add('is-open');
+        return;
+    }
+
+    const color = categoryColors[space.categoria] || '#2d5a3d';
+    const mobile = isMobileDetailLayout();
+
+    seed.hidden = false;
+    seed.style.transition = 'none';
+    seed.style.background = color;
+    seed.style.borderRadius = '50%';
+    seed.style.opacity = '1';
+    seed.style.left = `${pinRect.left}px`;
+    seed.style.top = `${pinRect.top}px`;
+    seed.style.width = `${pinRect.width}px`;
+    seed.style.height = `${pinRect.height}px`;
+
+    // Força o navegador a "commitar" o estado inicial antes de mudar
+    // para o estado final — sem isso as duas mudanças se fundem numa
+    // só e a transição nunca é percebida.
+    void seed.offsetHeight;
+    seed.style.transition = '';
+
+    if (mobile) {
+        // "Pop and fade" no lugar do pino — percorrer a tela toda (de
+        // um círculo pequeno até uma faixa larga no rodapé) muda de
+        // forma bruscamente demais numa tela pequena. A gaveta real já
+        // sobe do rodapé sozinha, com sua própria transição.
+        const grown = pinRect.width * 2.4;
+        seed.style.left = `${pinRect.left - (grown - pinRect.width) / 2}px`;
+        seed.style.top = `${pinRect.top - (grown - pinRect.height) / 2}px`;
+        seed.style.width = `${grown}px`;
+        seed.style.height = `${grown}px`;
+        seed.style.opacity = '0';
+    } else {
+        // Desktop: cresce até um retângulo arredondado, ainda centrado
+        // sobre o pino — o painel real desliza por cima logo em seguida.
+        const targetW = 120;
+        const targetH = 72;
+        seed.style.left = `${pinRect.left + pinRect.width / 2 - targetW / 2}px`;
+        seed.style.top = `${pinRect.top + pinRect.height / 2 - targetH / 2}px`;
+        seed.style.width = `${targetW}px`;
+        seed.style.height = `${targetH}px`;
+        seed.style.borderRadius = '16px';
+        seed.style.opacity = '0';
+    }
+
+    const finalizeSeed = () => { seed.hidden = true; };
+    seed.addEventListener('transitionend', finalizeSeed, { once: true });
+    setTimeout(finalizeSeed, 420);
+
+    // O painel real "chega" perto do fim do crescimento do seed, não
+    // no instante do clique — é o que faz o gesto parecer uma coisa só.
+    setTimeout(() => panel.classList.add('is-open'), 120);
 }
 
 // Evita o marcador clicado ficar escondido atrás do painel lateral no
@@ -921,13 +1166,19 @@ function openSpaceDetail(space, marker) {
     const backdrop = document.getElementById('spaceDetailBackdrop');
     if (!panel) return;
 
+    // Em body e html (não só body — ver comentário do seletor
+    // ".sd-panel-open .a11y-tools" em map.css) pra afastar o botão de
+    // acessibilidade do rodapé de ações do cartão, no desktop.
+    document.body.classList.add('sd-panel-open');
+    document.documentElement.classList.add('sd-panel-open');
+
     const wasClosed = !panel.classList.contains('is-open');
 
     if (currentDetailSpaceId !== space.id) {
         renderDetailContent(space);
     }
 
-    panel.setAttribute('aria-labelledby', `pc-title-${space.id}`);
+    panel.setAttribute('aria-labelledby', `ic-title-${space.id}`);
     panel.removeAttribute('inert');
     panel.setAttribute('aria-hidden', 'false');
     panel.setAttribute('aria-modal', String(isMobileDetailLayout()));
@@ -937,7 +1188,12 @@ function openSpaceDetail(space, marker) {
         requestAnimationFrame(() => backdrop.classList.add('is-visible'));
     }
 
-    panel.classList.add('is-open');
+    if (wasClosed) {
+        playCardMorph(marker, space);
+    } else {
+        panel.classList.add('is-open');
+    }
+
     setActiveMarker(marker);
     currentDetailSpaceId = space.id;
     panMapForDesktopPanel(marker.getLatLng());
@@ -952,6 +1208,10 @@ function closeSpaceDetail() {
     const panel = document.getElementById('spaceDetail');
     const backdrop = document.getElementById('spaceDetailBackdrop');
     if (!panel || !panel.classList.contains('is-open')) return;
+
+    document.body.classList.remove('sd-panel-open');
+    document.documentElement.classList.remove('sd-panel-open');
+    stopSpeaking();
 
     panel.classList.remove('is-open');
     panel.setAttribute('aria-hidden', 'true');
@@ -1048,6 +1308,447 @@ function setupSpaceDetailPanel() {
 }
 
 // ===================================
+// MEU ROTEIRO — planejador de passeio
+// ===================================
+
+function loadRoteiro() {
+    try {
+        const raw = localStorage.getItem(ROTEIRO_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        roteiro = Array.isArray(parsed) ? parsed : [];
+    } catch {
+        roteiro = [];
+    }
+}
+
+function saveRoteiro() {
+    try {
+        localStorage.setItem(ROTEIRO_STORAGE_KEY, JSON.stringify(roteiro));
+    } catch {
+        // localStorage indisponível (modo privado etc.) — segue sem persistir
+    }
+}
+
+function isInRoteiro(spaceId) {
+    return roteiro.some(stop => stop.id === spaceId);
+}
+
+function addToRoteiro(spaceId) {
+    if (isInRoteiro(spaceId)) return;
+    const space = allSpaces.find(s => s.id === spaceId);
+    if (!space || !Number.isFinite(space.lat) || !Number.isFinite(space.lng)) return;
+
+    roteiro.push({
+        id: space.id,
+        nome: tidyText(space.nome) || 'Local',
+        categoria: space.categoria || null,
+        lat: space.lat,
+        lng: space.lng,
+        addedAt: Date.now()
+    });
+    saveRoteiro();
+    renderRoteiroBadge();
+    renderRoteiroTab();
+    refreshRoteiroButtonInOpenCard();
+    showToast('Adicionado ao roteiro', 'success');
+}
+
+function removeFromRoteiro(spaceId) {
+    const idx = roteiro.findIndex(stop => stop.id === spaceId);
+    if (idx === -1) return;
+    roteiro.splice(idx, 1);
+    saveRoteiro();
+    renderRoteiroBadge();
+    renderRoteiroTab();
+    refreshRoteiroButtonInOpenCard();
+}
+
+function toggleRoteiro(spaceId) {
+    if (isInRoteiro(spaceId)) {
+        removeFromRoteiro(spaceId);
+        showToast('Removido do roteiro', 'info');
+    } else {
+        addToRoteiro(spaceId);
+    }
+}
+
+// Reflete o estado atual (dentro/fora do roteiro) no botão do cartão
+// aberto no momento, sem precisar re-renderizar o cartão inteiro.
+function refreshRoteiroButtonInOpenCard() {
+    const btn = document.querySelector('[data-roteiro-id]');
+    if (!btn) return;
+    const inRoteiro = isInRoteiro(btn.dataset.roteiroId);
+    btn.classList.toggle('is-fav', inRoteiro);
+    btn.innerHTML = `${inRoteiro ? PC_ICON.roteiroCheck : PC_ICON.roteiroAdd}<span>${inRoteiro ? 'No roteiro ✓' : 'Adicionar ao roteiro'}</span>`;
+    btn.setAttribute('aria-label', inRoteiro ? 'Remover do roteiro' : 'Adicionar ao roteiro');
+}
+
+function moveRoteiroStop(spaceId, direction) {
+    const idx = roteiro.findIndex(stop => stop.id === spaceId);
+    const targetIdx = idx + direction;
+    if (idx === -1 || targetIdx < 0 || targetIdx >= roteiro.length) return;
+    [roteiro[idx], roteiro[targetIdx]] = [roteiro[targetIdx], roteiro[idx]];
+    saveRoteiro();
+    renderRoteiroTab();
+}
+
+// Ordena por vizinho mais próximo a partir da localização do visitante
+// (ou do centro da cidade, se ele não tiver compartilhado localização)
+// — reaproveita distanceMeters(), a mesma conta já usada em "Mais perto".
+function computeSuggestedRoteiroOrder() {
+    if (roteiro.length < 2) return;
+
+    let current = userLocation ? userLocation.getLatLng() : L.latLng(BUENO_CENTER.lat, BUENO_CENTER.lng);
+    const remaining = [...roteiro];
+    const ordered = [];
+
+    while (remaining.length) {
+        remaining.sort((a, b) => distanceMeters(current, a) - distanceMeters(current, b));
+        const next = remaining.shift();
+        ordered.push(next);
+        current = L.latLng(next.lat, next.lng);
+    }
+
+    roteiro = ordered;
+    saveRoteiro();
+    renderRoteiroTab();
+    showToast('Ordem sugerida aplicada', 'success');
+}
+
+// Soma das distâncias entre paradas consecutivas (na ordem atual) e um
+// tempo estimado a uma velocidade média de estrada de serra — não é
+// roteamento real, por isso a UI sempre rotula como "estimativa".
+function estimateRoteiroTotals() {
+    if (roteiro.length < 2) return { km: 0, minutes: 0 };
+    let totalM = 0;
+    for (let i = 1; i < roteiro.length; i++) {
+        totalM += distanceMeters(L.latLng(roteiro[i - 1].lat, roteiro[i - 1].lng), roteiro[i]);
+    }
+    const km = totalM / 1000;
+    return { km, minutes: (km / ROTEIRO_AVG_SPEED_KMH) * 60 };
+}
+
+// Monta um link de rota com múltiplas paradas para o Google Maps. Sem
+// equivalente no Waze (o esquema de link dele só aceita um destino).
+function buildGoogleMapsMultiStopUrl(stops) {
+    if (!stops.length) return null;
+    const coords = stop => `${stop.lat},${stop.lng}`;
+
+    let origin, waypoints, destination;
+    if (userLocation) {
+        const ll = userLocation.getLatLng();
+        origin = `${ll.lat},${ll.lng}`;
+        waypoints = stops.slice(0, -1).map(coords);
+        destination = coords(stops[stops.length - 1]);
+    } else {
+        origin = coords(stops[0]);
+        waypoints = stops.slice(1, -1).map(coords);
+        destination = coords(stops[stops.length - 1]);
+    }
+
+    const params = new URLSearchParams({ api: '1', origin, destination, travelmode: 'driving' });
+    let url = `https://www.google.com/maps/dir/?${params.toString()}`;
+    if (waypoints.length) url += `&waypoints=${waypoints.map(encodeURIComponent).join('|')}`;
+    return url;
+}
+
+function openRoteiroRoute() {
+    if (!roteiro.length) return;
+    let stops = roteiro;
+    if (stops.length > ROTEIRO_MAX_WAYPOINTS) {
+        stops = stops.slice(0, ROTEIRO_MAX_WAYPOINTS);
+        showToast(`O link de rota aceita até ${ROTEIRO_MAX_WAYPOINTS} paradas — abrindo as ${ROTEIRO_MAX_WAYPOINTS} primeiras.`, 'info');
+    }
+    const url = buildGoogleMapsMultiStopUrl(stops);
+    if (url) window.open(url, '_blank', 'noopener');
+}
+
+function renderRoteiroBadge() {
+    const badge = document.getElementById('rtBadge');
+    const badgeCount = document.getElementById('rtBadgeCount');
+    const tabCount = document.getElementById('rtTabCount');
+    const count = roteiro.length;
+
+    if (badgeCount) badgeCount.textContent = String(count);
+    if (badge) badge.hidden = count === 0;
+    if (tabCount) {
+        tabCount.textContent = String(count);
+        tabCount.hidden = count === 0;
+    }
+}
+
+function renderRoteiroTab() {
+    const view = document.getElementById('rtView');
+    if (!view) return;
+
+    if (!roteiro.length) {
+        view.innerHTML = `
+            <div class="rt-empty">
+                <span class="rt-empty__icon" aria-hidden="true">🗺️</span>
+                <p class="rt-empty__title">Seu roteiro está vazio</p>
+                <p class="rt-empty__hint">Adicione lugares pela aba Explorar ou pelo cartão de cada ponto no mapa, e monte seu passeio pela cidade.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const { km, minutes } = estimateRoteiroTotals();
+    const summaryHTML = roteiro.length > 1
+        ? `<p class="rt-summary">${roteiro.length} paradas · ~${km.toFixed(1).replace('.', ',')} km · ~${Math.round(minutes)} min <span class="rt-summary__note">(estimativa)</span></p>`
+        : `<p class="rt-summary">1 parada</p>`;
+
+    const itemsHTML = roteiro.map((stop, i) => {
+        const icon = categoryIcons[stop.categoria] || '📍';
+        const dest = `${stop.lat},${stop.lng}`;
+        return `
+            <li class="rt-item">
+                <span class="rt-item__order" aria-hidden="true">${i + 1}</span>
+                <span class="rt-item__icon" aria-hidden="true">${icon}</span>
+                <span class="rt-item__name">${esc(stop.nome)}</span>
+                <div class="rt-item__actions">
+                    <button type="button" class="rt-item__btn" data-rt-move="${esc(stop.id)}" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Mover ${esc(stop.nome)} para cima">↑</button>
+                    <button type="button" class="rt-item__btn" data-rt-move="${esc(stop.id)}" data-dir="1" ${i === roteiro.length - 1 ? 'disabled' : ''} aria-label="Mover ${esc(stop.nome)} para baixo">↓</button>
+                    <a class="rt-item__btn" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}" target="_blank" rel="noopener" aria-label="Navegar até ${esc(stop.nome)} (abre em nova aba)">↗</a>
+                    <button type="button" class="rt-item__btn rt-item__btn--danger" data-rt-remove="${esc(stop.id)}" aria-label="Remover ${esc(stop.nome)} do roteiro">×</button>
+                </div>
+            </li>
+        `;
+    }).join('');
+
+    view.innerHTML = `
+        ${summaryHTML}
+        <ul class="rt-list">${itemsHTML}</ul>
+        <div class="rt-actions">
+            ${roteiro.length > 1 ? `<button type="button" class="pc-btn pc-btn--secondary" id="rtSuggestOrder"><span>Sugerir ordem</span></button>` : ''}
+            <button type="button" class="pc-btn pc-btn--primary" id="rtOpenRoute"><span>Abrir rota completa</span></button>
+            <button type="button" class="rt-clear" id="rtClear">Limpar roteiro</button>
+        </div>
+    `;
+}
+
+function setupRoteiroUI() {
+    const tabExplore = document.getElementById('sbTabExplore');
+    const tabRoteiro = document.getElementById('sbTabRoteiro');
+    const panelExplore = document.getElementById('sbPanelExplore');
+    const panelRoteiro = document.getElementById('sbPanelRoteiro');
+    const badge = document.getElementById('rtBadge');
+    const view = document.getElementById('rtView');
+
+    function activateTab(name) {
+        const isRoteiro = name === 'roteiro';
+        tabExplore?.classList.toggle('active', !isRoteiro);
+        tabRoteiro?.classList.toggle('active', isRoteiro);
+        tabExplore?.setAttribute('aria-selected', String(!isRoteiro));
+        tabRoteiro?.setAttribute('aria-selected', String(isRoteiro));
+        if (panelExplore) panelExplore.hidden = isRoteiro;
+        if (panelRoteiro) panelRoteiro.hidden = !isRoteiro;
+    }
+
+    tabExplore?.addEventListener('click', () => activateTab('explore'));
+    tabRoteiro?.addEventListener('click', () => activateTab('roteiro'));
+
+    badge?.addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar?.classList.contains('sidebar-collapsed')) {
+            document.getElementById('btnToggleMenu')?.click();
+        }
+        activateTab('roteiro');
+    });
+
+    view?.addEventListener('click', (event) => {
+        const moveBtn = event.target.closest('[data-rt-move]');
+        if (moveBtn) {
+            moveRoteiroStop(moveBtn.dataset.rtMove, Number(moveBtn.dataset.dir));
+            return;
+        }
+        const removeBtn = event.target.closest('[data-rt-remove]');
+        if (removeBtn) {
+            removeFromRoteiro(removeBtn.dataset.rtRemove);
+            return;
+        }
+        if (event.target.closest('#rtSuggestOrder')) {
+            computeSuggestedRoteiroOrder();
+            return;
+        }
+        if (event.target.closest('#rtOpenRoute')) {
+            openRoteiroRoute();
+            return;
+        }
+        if (event.target.closest('#rtClear')) {
+            if (!roteiro.length) return;
+            roteiro = [];
+            saveRoteiro();
+            renderRoteiroBadge();
+            renderRoteiroTab();
+            refreshRoteiroButtonInOpenCard();
+            showToast('Roteiro limpo', 'info');
+        }
+    });
+}
+
+// ===================================
+// NARRAÇÃO — Web Speech API
+// ===================================
+
+function isSpeechSupported() {
+    return 'speechSynthesis' in window;
+}
+
+// Prioriza curiosidades (conteúdo editorial); cai pra descrição se não
+// houver. null se os dois estiverem vazios — nesse caso o botão nem
+// aparece no cartão (ver createImmersiveCard).
+function buildNarrationText(space) {
+    const curiosidades = tidyText(space.curiosidades);
+    if (curiosidades) return curiosidades;
+    const descricao = tidyText(space.descricao);
+    return descricao || null;
+}
+
+function speakSpace(space) {
+    if (!isSpeechSupported()) return;
+
+    const text = buildNarrationText(space);
+    if (!text) return;
+
+    // Cancela qualquer narração anterior antes de começar uma nova —
+    // sem isso, clicar "Ouvir" em dois lugares seguidos sobrepõe áudio.
+    speechSynthesis.cancel();
+
+    const utter = new SpeechSynthesisUtterance(`${tidyText(space.nome)}. ${text}`);
+    utter.lang = 'pt-BR';
+
+    const btn = document.querySelector(`[data-listen-id="${CSS.escape(space.id)}"]`);
+    const setListening = (isListening) => {
+        if (!btn) return;
+        btn.classList.toggle('is-fav', isListening);
+        btn.innerHTML = `${isListening ? PC_ICON.stop : PC_ICON.listen}<span>${isListening ? 'Parar' : 'Ouvir'}</span>`;
+        btn.setAttribute('aria-label', isListening ? `Parar narração de ${tidyText(space.nome)}` : `Ouvir narração de ${tidyText(space.nome)}`);
+    };
+
+    // Atualiza o botão já ao disparar a fala, sem esperar por onstart —
+    // esse evento é conhecidamente pouco confiável em algumas combinações
+    // de navegador/SO (dispara tarde ou nunca, mesmo com o áudio tocando
+    // normalmente). onend/onerror ainda corrigem o rótulo de volta depois.
+    setListening(true);
+    utter.onend = () => setListening(false);
+    utter.onerror = () => {
+        setListening(false);
+        showToast('Não foi possível narrar este conteúdo — seu navegador pode não ter voz em português instalada.', 'error');
+    };
+
+    speechSynthesis.speak(utter);
+}
+
+function stopSpeaking() {
+    if (!isSpeechSupported()) return;
+    speechSynthesis.cancel();
+
+    // Não depende só de onend (mesma ressalva de confiabilidade do
+    // onstart) — reseta na hora qualquer botão que ficou marcado como
+    // "Parar", pra não travar visualmente em "Parar" indefinidamente.
+    const btn = document.querySelector('[data-listen-id].is-fav');
+    if (btn) {
+        btn.classList.remove('is-fav');
+        btn.innerHTML = `${PC_ICON.listen}<span>Ouvir</span>`;
+        btn.setAttribute('aria-label', 'Ouvir narração');
+    }
+}
+
+// ===================================
+// COMUNIDADE — dicas de visitantes (espacos/{id}/dicas)
+// ===================================
+
+const DICA_MAX_CHARS = 500;
+
+async function loadDicasForSpace(espacoId) {
+    try {
+        // Só "where" (sem orderBy num campo diferente) evita precisar de
+        // índice composto — ordena no cliente, tranquilo pro volume de
+        // dicas de um único lugar.
+        const snap = await window.db.collection('espacos').doc(espacoId)
+            .collection('dicas').where('status', '==', 'visivel').get();
+        return snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+    } catch (error) {
+        console.error('❌ Dicas da comunidade:', error);
+        return [];
+    }
+}
+
+function formatDicaDate(timestamp) {
+    if (!timestamp?.toDate) return '';
+    return timestamp.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
+function buildDicasHTML(space, dicas) {
+    const listHTML = dicas.length
+        ? dicas.map(d => `
+            <div class="cm-tip">
+                <p class="cm-tip__text">${esc(tidyText(d.texto))}</p>
+                <p class="cm-tip__author">${esc(d.autorNome || 'Visitante')} · ${formatDicaDate(d.createdAt)}</p>
+            </div>
+        `).join('')
+        : `<p class="cm-empty">Seja o primeiro a deixar uma dica sobre este lugar!</p>`;
+
+    return `
+        ${listHTML}
+        <div class="cm-composer">
+            <textarea class="cm-composer__input" id="cmInput-${esc(space.id)}"
+                      maxlength="${DICA_MAX_CHARS}" placeholder="Deixe uma dica sobre este lugar..."></textarea>
+            <button type="button" class="pc-btn pc-btn--secondary" data-dica-submit="${esc(space.id)}">
+                <span>Deixar uma dica</span>
+            </button>
+        </div>
+    `;
+}
+
+async function renderDicasSection(space) {
+    const container = document.getElementById(`icDicas-${space.id}`);
+    if (!container) return;
+
+    const dicas = await loadDicasForSpace(space.id);
+
+    // O painel pode ter fechado ou trocado de lugar enquanto a consulta
+    // ao Firestore ainda estava em andamento.
+    const stillThere = document.getElementById(`icDicas-${space.id}`);
+    if (!stillThere) return;
+
+    stillThere.innerHTML = buildDicasHTML(space, dicas);
+}
+
+async function submitDica(espacoId, texto) {
+    const cleaned = tidyText(texto);
+    if (!cleaned) return;
+    if (cleaned.length > DICA_MAX_CHARS) {
+        showToast(`A dica pode ter até ${DICA_MAX_CHARS} caracteres.`, 'error');
+        return;
+    }
+    if (!requireAccount('Deixar uma dica')) return;
+
+    const user = firebase.auth().currentUser;
+    const space = allSpaces.find(s => s.id === espacoId);
+
+    try {
+        await window.db.collection('espacos').doc(espacoId).collection('dicas').add({
+            autorUid: user.uid,
+            autorNome: currentUser?.nome || user.displayName || 'Visitante',
+            texto: cleaned,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'visivel'
+        });
+        showToast('Dica publicada!', 'success');
+        if (space) renderDicasSection(space);
+    } catch (error) {
+        console.error('❌ Publicar dica:', error);
+        showToast(
+            error?.code === 'permission-denied' ? 'Sem permissão para publicar.' : 'Não foi possível publicar a dica agora.',
+            'error'
+        );
+    }
+}
+
+// ===================================
 // COMPARTILHAR (nova)
 // ===================================
 
@@ -1088,7 +1789,7 @@ async function shareSpace(id) {
 
 // Delegação: o conteúdo do painel é recriado a cada abertura, então um
 // listener só no container cobre todos os cards.
-function setupShareDelegation() {
+function setupCardActionDelegation() {
     const panelEl = document.getElementById('spaceDetail');
     if (!panelEl) return;
 
@@ -1104,6 +1805,45 @@ function setupShareDelegation() {
         if (favBtn) {
             event.preventDefault();
             toggleLugarFavorite(favBtn.dataset.favId);
+            return;
+        }
+
+        const roteiroBtn = event.target.closest('[data-roteiro-id]');
+        if (roteiroBtn) {
+            event.preventDefault();
+            toggleRoteiro(roteiroBtn.dataset.roteiroId);
+            return;
+        }
+
+        const listenBtn = event.target.closest('[data-listen-id]');
+        if (listenBtn) {
+            event.preventDefault();
+            if (isSpeechSupported() && speechSynthesis.speaking) {
+                stopSpeaking();
+            } else {
+                const space = allSpaces.find(s => s.id === listenBtn.dataset.listenId);
+                if (space) speakSpace(space);
+            }
+            return;
+        }
+
+        const checkinBtn = event.target.closest('[data-checkin-id]');
+        if (checkinBtn) {
+            event.preventDefault();
+            const space = allSpaces.find(s => s.id === checkinBtn.dataset.checkinId);
+            if (space) handleCheckin(space);
+            return;
+        }
+
+        const dicaBtn = event.target.closest('[data-dica-submit]');
+        if (dicaBtn) {
+            event.preventDefault();
+            const espacoId = dicaBtn.dataset.dicaSubmit;
+            const textarea = document.getElementById(`cmInput-${espacoId}`);
+            if (textarea) {
+                submitDica(espacoId, textarea.value);
+                textarea.value = '';
+            }
         }
     });
 }
@@ -1259,8 +1999,9 @@ function setupEventListeners() {
     // Painel de detalhes do espaço (substitui o popup do Leaflet)
     setupSpaceDetailPanel();
 
-    // Compartilhar (delegado, cobre os cards criados sob demanda)
-    setupShareDelegation();
+    // Ações do cartão (favoritar/compartilhar, e adiante: roteiro/ouvir/
+    // check-in) — delegado, cobre os cards recriados a cada abertura.
+    setupCardActionDelegation();
 
     // Ordenação
     const sortSelect = document.getElementById('sortSelect');
