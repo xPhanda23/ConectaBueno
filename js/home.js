@@ -1240,12 +1240,17 @@ function setupTimelineToggle() {
 // e o cartão exibe a tag visível "Exemplo ilustrativo".
 // ══════════════════════════════════════════════════════════
 
+// Fatos revisados com pesquisa (ago/2026) — fontes: Câmara Municipal de Bueno
+// Brandão (história), Iphan/imprensa (Arraiá do Zé Bagunça), O Tempo (Buenata),
+// Estado de Minas/Conheça Minas (queijos Serra das Antas), guias de turismo
+// (cachoeiras). Ver resumo das fontes na resposta que introduziu esta revisão.
 const CV_FACTS = [
-    { icon: '💧', title: 'Cidade das Cachoeiras', desc: 'Cerca de 30 quedas d’água, entre elas a Cachoeira dos Luiz, do Félix, do Cigano, de Santa Rita e do Davi.' },
-    { icon: '⛪', title: 'Arquitetura de Fé', desc: 'Aproximadamente 30 igrejas históricas erguidas com a torre única, marca registrada da arquitetura religiosa da região.' },
-    { icon: '⛰️', title: 'Picos da Serra', desc: 'Pedra da Torre (~1.750 m), Pico Dois Irmãos (~1.560 m) e Pedra Vermelha (~1.600 m) coroam a paisagem.' },
-    { icon: '🍇', title: 'Tradição Vinícola', desc: 'Herança dos colonizadores portugueses, viva até hoje na produção local de vinho.' },
-    { icon: '🐐', title: 'Queijos de Cabra', desc: 'Produção artesanal de laticínios caprinos, um saber-fazer passado de geração em geração.' }
+    { icon: '💧', title: 'Cidade das Cachoeiras', desc: 'Mais de 30 cachoeiras catalogadas na Serra da Mantiqueira, incluindo a Cachoeira dos Félix, com cerca de 40 metros de altura.' },
+    { icon: '🪗', title: 'Arraiá do Zé Bagunça', desc: 'Festa junina criada em 1982 por José Coutinho, o "Zé Bagunça". Virou Patrimônio Histórico Imaterial do Brasil pelo Iphan em 2017.' },
+    { icon: '🎶', title: 'Festival Buenata', desc: 'Festival gratuito na Praça da Matriz, com shows, projeções na fachada da Igreja Matriz e comida típica preparada em fogão a lenha.' },
+    { icon: '⛪', title: 'Igreja do Senhor Bom Jesus', desc: 'Inaugurada em 1899, é o cartão-postal da cidade — erguida onde ficava a capela que deu à cidade seu primeiro nome, Bom Jesus da Pedra Fria.' },
+    { icon: '🧀', title: 'Queijos Premiados', desc: 'O laticínio Serra das Antas, de Bueno Brandão, já venceu prêmios no World Cheese Awards e conquistou super ouro mundial com o queijo Lua Cheia.' },
+    { icon: '📜', title: 'Cinco Nomes, Uma História', desc: 'De Ribeirão das Antas a Campo Místico — a cidade só ganhou o nome Bueno Brandão em 1938, em homenagem ao ex-governador de Minas Júlio Bueno Brandão.' }
 ];
 
 // `foto`: caminho/URL da imagem da pessoa (ex.: 'assets/images/cultura-viva/monique-leite.jpg').
@@ -1305,9 +1310,9 @@ function renderCulturaViva() {
 // ══════════════════════════════════════════════════════════
 
 const TESTIMONIALS_DATA = [
-    { nome: 'Cida', papel: 'Moradora, Bairro Centro', texto: 'Aqui a gente ainda conhece o vizinho pelo nome. É esse acolhimento que faz Bueno Brandão ser especial.', placeholder: true },
-    { nome: 'João', papel: 'Produtor Rural', texto: 'Cresci ouvindo o som das cachoeiras. Hoje mostro esse mesmo som para meus filhos — e para quem vem nos visitar.', placeholder: true },
-    { nome: 'Helena', papel: 'Comerciante Local', texto: 'A gente vive do turismo com orgulho, porque cada visitante que chega se apaixona pela nossa serra como a gente.', placeholder: true }
+    { nome: 'Lívia Bueno Alves', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A cultura de Bueno dá uma sensação de acolhimento. Ir a esses lugares sabendo que minha família já passou por ali traz um sentimento muito bom.', placeholder: true },
+    { nome: 'Matheus Silvério Silva', papel: 'Aluno da EESOO - 3° ano EMTI', texto: 'Por conta das belas cachoeiras, das festas tradicionais que chamam a atenção e também por ser uma cidade muito calma e muito boa de se viver.', placeholder: true },
+    { nome: 'Alessandra V. Beghini da Silva', papel: 'Professora da EESOO', texto: 'A possibilidade de estar em contato com a natureza e também a diversidade de eventos que atendem a vários públicos.', placeholder: true }
 ];
 
 function renderTestimonials() {
@@ -1319,7 +1324,6 @@ function renderTestimonials() {
         const card = document.createElement('div');
         card.className = 'testimonial-card';
         card.innerHTML = `
-            ${t.placeholder ? '<span class="example-tag">Exemplo ilustrativo</span>' : ''}
             <span class="testimonial-quote-mark" aria-hidden="true">"</span>
             <p class="testimonial-text">${esc(t.texto)}</p>
             <div class="testimonial-footer">
