@@ -12,6 +12,23 @@ let chartDistribuicao = null;
 let chartEntrada = null;
 let chartAcessibilidade = null;
 let chartCategorias = null;
+let chartEventosCategoria = null;
+let chartEventosMes = null;
+let chartEventosEntrada = null;
+
+// Rótulos amigáveis para as categorias de evento cadastradas no painel admin
+// (js/panel.js / pages/panel.html#eventoCategoria)
+const CATEGORIA_EVENTO_LABELS = {
+    festa: '🎉 Festa',
+    show: '🎵 Show',
+    feira: '🛍️ Feira',
+    esporte: '⚽ Esporte',
+    religioso: '⛪ Religioso',
+    cultural: '🎭 Cultural',
+    gastronomico: '🍴 Gastronômico'
+};
+
+const MESES_LABELS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 // Paleta de cores alinhada ao tema natureza
 const CORES = {
@@ -169,6 +186,10 @@ function updateSectionTitle(sectionName) {
             title: 'Perfil de Consumo',
             subtitle: 'Categorias e preferências culturais'
         },
+        'eventos': {
+            title: 'Agenda de Eventos',
+            subtitle: 'O que a cidade está oferecendo em eventos, e quando'
+        },
         'metodologia': {
             title: 'Metodologia',
             subtitle: 'De onde vêm os números que você vê aqui'
@@ -253,21 +274,13 @@ async function loadUserProfile(user) {
  */
 async function loadObservatorioData() {
     console.log('📊 Carregando dados do Firebase...');
-    
+
     try {
         // Buscar dados da coleção 'espacos'
         const snapshot = await db.collection('espacos')
             .where('status', '==', 'ativo')
             .get();
-        
-        if (snapshot.empty) {
-            console.warn('⚠️ Nenhum dado encontrado no Firebase');
-            showAllEmptyStates();
-            hideLoading();
-            return;
-        }
-        
-        // Processar dados
+
         const espacos = [];
         snapshot.forEach(doc => {
             espacos.push({
@@ -275,24 +288,38 @@ async function loadObservatorioData() {
                 ...doc.data()
             });
         });
-        
+
         console.log(`✅ ${espacos.length} espaços carregados`);
-        
+
+        // Buscar dados da coleção 'eventos' (mesma consulta usada em eventos.html).
+        // Fica em try/catch próprio: um problema na agenda não pode derrubar o
+        // painel de espaços, que já carregou com sucesso.
+        const eventos = await carregarEventos();
+        console.log(`✅ ${eventos.length} eventos carregados`);
+
+        if (espacos.length === 0 && eventos.length === 0) {
+            console.warn('⚠️ Nenhum dado encontrado no Firebase');
+            showAllEmptyStates();
+            hideLoading();
+            return;
+        }
+
         // Atualizar estatísticas
-        updateStats(espacos);
+        updateStats(espacos, eventos);
 
         // Painéis de indicadores (dashboard) de cada seção
-        updateInsightsVisaoGeral(espacos);
+        updateInsightsVisaoGeral(espacos, eventos);
         updateKPITerritorio(espacos);
         updateKPIEquidade(espacos);
         updateKPIConsumo(espacos);
+        updateKPIEventos(eventos);
 
         // Renderizar gráficos
-        await renderCharts(espacos);
-        
+        await renderCharts(espacos, eventos);
+
         hideLoading();
         showToast('Dados carregados com sucesso!', 'success');
-        
+
     } catch (error) {
         console.error('❌ Erro ao carregar dados:', error);
         showToast('Erro ao carregar dados do Firebase', 'error');
@@ -302,27 +329,49 @@ async function loadObservatorioData() {
 }
 
 /**
+ * Busca a coleção 'eventos' no Firestore — mesma coleção e mesmo filtro de
+ * status usados na Agenda de Eventos (js/eventos.js), para que os números
+ * do Observatório nunca divirjam da agenda pública.
+ */
+async function carregarEventos() {
+    try {
+        const snapshot = await db.collection('eventos')
+            .where('status', 'in', ['ativo', 'destaque'])
+            .get();
+
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error('❌ Erro ao carregar eventos:', error);
+        return [];
+    }
+}
+
+/**
  * Atualizar estatísticas resumo
  */
-function updateStats(espacos) {
+function updateStats(espacos, eventos = []) {
     // Total de pontos
     document.getElementById('statTotal').textContent = espacos.length;
-    
-    // Eventos gratuitos
+
+    // Espaços com entrada gratuita
     const gratuitos = espacos.filter(e => e.entrada === 'gratuita').length;
     document.getElementById('statGratuitos').textContent = gratuitos;
-    
+
+    // Eventos programados (agenda ativa/destaque)
+    document.getElementById('statEventos').textContent = eventos.length;
+
     // Categorias únicas
     const categorias = new Set(espacos.map(e => e.categoria).filter(Boolean));
     document.getElementById('statCategorias').textContent = categorias.size;
-    
+
     // Acessibilidade mapeada
     const comAcessibilidade = espacos.filter(e => e.acessibilidade && e.acessibilidade !== 'nao_informado').length;
     document.getElementById('statAcessibilidade').textContent = `${comAcessibilidade}/${espacos.length}`;
-    
+
     console.log('📈 Estatísticas atualizadas:', {
         total: espacos.length,
         gratuitos,
+        totalEventos: eventos.length,
         categorias: categorias.size,
         comAcessibilidade
     });
@@ -364,6 +413,69 @@ function calcularContagemCategorias(espacos) {
     return contagem;
 }
 
+/**
+ * Converte o campo dataInicio do evento (string 'YYYY-MM-DD', salva pelo
+ * <input type="date"> do painel admin) num objeto Date local.
+ */
+function parseDataEvento(valor) {
+    if (!valor) return null;
+    const [ano, mes, dia] = String(valor).split('-').map(Number);
+    if (!ano || !mes || !dia) return null;
+    const data = new Date(ano, mes - 1, dia);
+    return Number.isNaN(data.getTime()) ? null : data;
+}
+
+/**
+ * Conta eventos por categoria, usando os rótulos amigáveis cadastrados
+ * no painel admin (festa, show, feira, esporte, religioso, cultural,
+ * gastronômico). Categorias fora dessa lista aparecem com o valor original.
+ */
+function calcularContagemCategoriasEventos(eventos) {
+    const contagem = new Map();
+
+    eventos.forEach(evento => {
+        const chave = evento.categoria || 'sem_categoria';
+        const label = CATEGORIA_EVENTO_LABELS[chave] || (chave === 'sem_categoria' ? 'Sem Categoria' : chave);
+        contagem.set(label, (contagem.get(label) || 0) + 1);
+    });
+
+    return contagem;
+}
+
+/**
+ * Distribui os eventos pelos 12 meses do ano (agregado entre todos os anos
+ * cadastrados), para revelar sazonalidade na programação cultural.
+ */
+function calcularDistribuicaoMensalEventos(eventos) {
+    const contagem = new Array(12).fill(0);
+
+    eventos.forEach(evento => {
+        const data = parseDataEvento(evento.dataInicio);
+        if (data) contagem[data.getMonth()]++;
+    });
+
+    return contagem;
+}
+
+/**
+ * Classifica o campo livre `entrada` do evento (ex.: "Gratuita", "R$ 10,00")
+ * em três grupos, do mesmo jeito que o card de detalhes do evento exibe o texto.
+ */
+function classificarEntradaEvento(entrada) {
+    if (!entrada || !String(entrada).trim()) return 'nao_informado';
+    return /gr[aá]tu?i?ta?|gr[aá]tis|livre|free/i.test(entrada) ? 'gratuita' : 'paga';
+}
+
+function calcularEntradaEventos(eventos) {
+    const contagem = { gratuita: 0, paga: 0, nao_informado: 0 };
+
+    eventos.forEach(evento => {
+        contagem[classificarEntradaEvento(evento.entrada)]++;
+    });
+
+    return contagem;
+}
+
 // ===================================
 // PAINÉIS DE INDICADORES (DASHBOARD)
 // ===================================
@@ -372,12 +484,23 @@ function calcularContagemCategorias(espacos) {
  * Visão Geral: insights automáticos em linguagem natural,
  * calculados a partir dos mesmos dados dos gráficos.
  */
-function updateInsightsVisaoGeral(espacos) {
+function updateInsightsVisaoGeral(espacos, eventos = []) {
     const total = espacos.length;
     const elGratuito = document.getElementById('insightGratuito');
     const elAcessibilidade = document.getElementById('insightAcessibilidade');
     const elRegiao = document.getElementById('insightRegiao');
     const elCategoria = document.getElementById('insightCategoria');
+    const elEventos = document.getElementById('insightEventos');
+
+    if (elEventos) {
+        if (eventos.length === 0) {
+            elEventos.textContent = 'Ainda não há eventos suficientes para gerar este panorama.';
+        } else {
+            const entradaEventos = calcularEntradaEventos(eventos);
+            const pctGratuitoEventos = ((entradaEventos.gratuita / eventos.length) * 100).toFixed(0);
+            elEventos.innerHTML = `<strong>${eventos.length}</strong> evento${eventos.length === 1 ? '' : 's'} na agenda cultural, <strong>${pctGratuitoEventos}%</strong> com entrada gratuita`;
+        }
+    }
 
     if (total === 0) {
         const semDados = 'Ainda não há espaços suficientes para gerar este panorama.';
@@ -515,6 +638,49 @@ function updateKPIConsumo(espacos) {
     if (elMedia) elMedia.textContent = (total / categorias.size).toFixed(1);
 }
 
+/**
+ * Agenda de Eventos: volume, categoria e mês em destaque, e proporção
+ * de entrada gratuita — os mesmos números por trás dos gráficos da seção.
+ */
+function updateKPIEventos(eventos) {
+    const total = eventos.length;
+
+    const elTotal = document.getElementById('kpiTotalEventos');
+    const elCatTop = document.getElementById('kpiCategoriaEventoTop');
+    const elCatTopSub = document.getElementById('kpiCategoriaEventoTopSub');
+    const elMesTop = document.getElementById('kpiMesTop');
+    const elMesTopSub = document.getElementById('kpiMesTopSub');
+    const elPctGratuito = document.getElementById('kpiPctEventoGratuito');
+
+    if (total === 0) {
+        [elTotal, elCatTop, elMesTop, elPctGratuito].forEach(el => { if (el) el.textContent = '-'; });
+        if (elCatTopSub) elCatTopSub.textContent = 'eventos cadastrados';
+        if (elMesTopSub) elMesTopSub.textContent = 'concentra mais eventos';
+        return;
+    }
+
+    if (elTotal) elTotal.textContent = total;
+
+    const categorias = calcularContagemCategoriasEventos(eventos);
+    const [catTop, qtdCatTop] = [...categorias.entries()].sort((a, b) => b[1] - a[1])[0];
+    if (elCatTop) elCatTop.textContent = catTop;
+    if (elCatTopSub) elCatTopSub.textContent = `${qtdCatTop} evento${qtdCatTop === 1 ? '' : 's'} (${((qtdCatTop / total) * 100).toFixed(0)}%)`;
+
+    const distribuicaoMensal = calcularDistribuicaoMensalEventos(eventos);
+    const maxMes = Math.max(...distribuicaoMensal);
+    if (maxMes > 0) {
+        const idxMesTop = distribuicaoMensal.indexOf(maxMes);
+        if (elMesTop) elMesTop.textContent = MESES_LABELS[idxMesTop];
+        if (elMesTopSub) elMesTopSub.textContent = `${maxMes} evento${maxMes === 1 ? '' : 's'} neste mês`;
+    } else {
+        if (elMesTop) elMesTop.textContent = '-';
+        if (elMesTopSub) elMesTopSub.textContent = 'sem datas cadastradas';
+    }
+
+    const entrada = calcularEntradaEventos(eventos);
+    if (elPctGratuito) elPctGratuito.textContent = `${((entrada.gratuita / total) * 100).toFixed(0)}%`;
+}
+
 // ===================================
 // RENDERIZAR GRÁFICOS
 // ===================================
@@ -522,24 +688,33 @@ function updateKPIConsumo(espacos) {
 /**
  * Renderizar todos os gráficos
  */
-async function renderCharts(espacos) {
+async function renderCharts(espacos, eventos = []) {
     console.log('📊 Renderizando gráficos...');
-    
+
     try {
         // 1. Distribuição Territorial
         await renderDistribuicaoChart(espacos);
-        
+
         // 2. Tipo de Entrada
         await renderEntradaChart(espacos);
-        
+
         // 3. Acessibilidade
         await renderAcessibilidadeChart(espacos);
-        
+
         // 4. Categorias Culturais
         await renderCategoriasChart(espacos);
-        
+
+        // 5. Eventos por Categoria
+        await renderEventosCategoriaChart(eventos);
+
+        // 6. Eventos por Mês
+        await renderEventosMesChart(eventos);
+
+        // 7. Entrada nos Eventos
+        await renderEventosEntradaChart(eventos);
+
         console.log('✅ Todos os gráficos renderizados');
-        
+
     } catch (error) {
         console.error('❌ Erro ao renderizar gráficos:', error);
         showToast('Erro ao criar visualizações', 'error');
@@ -1030,6 +1205,255 @@ async function renderCategoriasChart(espacos) {
     }
 }
 
+/**
+ * 5. Gráfico de Eventos por Categoria
+ */
+async function renderEventosCategoriaChart(eventos) {
+    const canvasId = 'chartEventosCategoria';
+    const emptyId = 'emptyEventosCategoria';
+
+    try {
+        const contagem = calcularContagemCategoriasEventos(eventos);
+
+        if (contagem.size === 0) {
+            showEmptyState(canvasId, emptyId);
+            return;
+        }
+
+        const sorted = Array.from(contagem.entries()).sort((a, b) => b[1] - a[1]);
+        const labels = sorted.map(item => item[0]);
+        const data = sorted.map(item => item[1]);
+
+        if (chartEventosCategoria) chartEventosCategoria.destroy();
+
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        hideEmptyState(canvasId, emptyId);
+
+        chartEventosCategoria = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Quantidade de Eventos',
+                    data: data,
+                    backgroundColor: CORES.grafico.slice(0, data.length),
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(45, 90, 61, 0.95)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: { size: 14, weight: '600' },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                const total = eventos.length;
+                                const valor = context.parsed.y;
+                                const percentual = ((valor / total) * 100).toFixed(1);
+                                return `${valor} eventos (${percentual}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { size: 12 } },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        ticks: { font: { size: 12, weight: '500' }, color: '#2d5a3d' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        console.log('✅ Gráfico de eventos por categoria renderizado');
+
+    } catch (error) {
+        console.error('❌ Erro no gráfico de eventos por categoria:', error);
+        showEmptyState(canvasId, emptyId);
+    }
+}
+
+/**
+ * 6. Gráfico de Eventos por Mês (sazonalidade da agenda cultural)
+ */
+async function renderEventosMesChart(eventos) {
+    const canvasId = 'chartEventosMes';
+    const emptyId = 'emptyEventosMes';
+
+    try {
+        const distribuicao = calcularDistribuicaoMensalEventos(eventos);
+        const total = distribuicao.reduce((soma, qtd) => soma + qtd, 0);
+
+        if (total === 0) {
+            showEmptyState(canvasId, emptyId);
+            return;
+        }
+
+        if (chartEventosMes) chartEventosMes.destroy();
+
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        hideEmptyState(canvasId, emptyId);
+
+        chartEventosMes = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: MESES_LABELS,
+                datasets: [{
+                    label: 'Eventos no Mês',
+                    data: distribuicao,
+                    backgroundColor: CORES.verde.folha,
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(45, 90, 61, 0.95)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: { size: 14, weight: '600' },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: (context) => `${context.parsed.y} evento${context.parsed.y === 1 ? '' : 's'}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { size: 12 } },
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: {
+                        ticks: { font: { size: 12, weight: '500' }, color: '#2d5a3d' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        console.log('✅ Gráfico de eventos por mês renderizado');
+
+    } catch (error) {
+        console.error('❌ Erro no gráfico de eventos por mês:', error);
+        showEmptyState(canvasId, emptyId);
+    }
+}
+
+/**
+ * 7. Gráfico de Entrada nos Eventos (Gratuita vs Paga)
+ */
+async function renderEventosEntradaChart(eventos) {
+    const canvasId = 'chartEventosEntrada';
+    const emptyId = 'emptyEventosEntrada';
+
+    try {
+        const contagem = calcularEntradaEventos(eventos);
+
+        const labels = [];
+        const data = [];
+        const colors = [];
+
+        if (contagem.gratuita > 0) {
+            labels.push('Entrada Gratuita');
+            data.push(contagem.gratuita);
+            colors.push(CORES.entrada.gratuita);
+        }
+        if (contagem.paga > 0) {
+            labels.push('Entrada Paga');
+            data.push(contagem.paga);
+            colors.push(CORES.entrada.paga);
+        }
+        if (contagem.nao_informado > 0) {
+            labels.push('Não Informado');
+            data.push(contagem.nao_informado);
+            colors.push(CORES.entrada.naoInformado);
+        }
+
+        if (data.length === 0) {
+            showEmptyState(canvasId, emptyId);
+            return;
+        }
+
+        if (chartEventosEntrada) chartEventosEntrada.destroy();
+
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+
+        hideEmptyState(canvasId, emptyId);
+
+        chartEventosEntrada = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 16,
+                            font: { size: 13, weight: '500' },
+                            color: '#2d5a3d',
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(45, 90, 61, 0.95)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: { size: 14, weight: '600' },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const valor = context.parsed;
+                                const percentual = ((valor / total) * 100).toFixed(1);
+                                return `${context.label}: ${valor} (${percentual}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        console.log('✅ Gráfico de entrada nos eventos renderizado');
+
+    } catch (error) {
+        console.error('❌ Erro no gráfico de entrada nos eventos:', error);
+        showEmptyState(canvasId, emptyId);
+    }
+}
+
 // ===================================
 // EMPTY STATES
 // ===================================
@@ -1064,18 +1488,23 @@ function showAllEmptyStates() {
     showEmptyState('chartEntrada', 'emptyEntrada');
     showEmptyState('chartAcessibilidade', 'emptyAcessibilidade');
     showEmptyState('chartCategorias', 'emptyCategorias');
-    
+    showEmptyState('chartEventosCategoria', 'emptyEventosCategoria');
+    showEmptyState('chartEventosMes', 'emptyEventosMes');
+    showEmptyState('chartEventosEntrada', 'emptyEventosEntrada');
+
     // Zerar estatísticas
     document.getElementById('statTotal').textContent = '0';
     document.getElementById('statGratuitos').textContent = '0';
+    document.getElementById('statEventos').textContent = '0';
     document.getElementById('statCategorias').textContent = '0';
     document.getElementById('statAcessibilidade').textContent = '0/0';
 
     // Zerar painéis de indicadores das demais seções
-    updateInsightsVisaoGeral([]);
+    updateInsightsVisaoGeral([], []);
     updateKPITerritorio([]);
     updateKPIEquidade([]);
     updateKPIConsumo([]);
+    updateKPIEventos([]);
 }
 
 // ===================================

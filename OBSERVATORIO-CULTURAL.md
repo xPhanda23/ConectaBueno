@@ -70,6 +70,23 @@ O Observatório alinha-se aos seguintes ODS da ONU:
 
 ---
 
+### 4. **Agenda e Programação de Eventos**
+
+**Objetivo:** Mostrar o que a cidade está oferecendo em eventos (além dos espaços fixos), quando esses eventos acontecem e se o acesso é gratuito ou pago.
+
+**Tipo de Gráfico:** Colunas (categoria e sazonalidade mensal) + Rosca (tipo de entrada)
+
+**Dados Analisados:**
+- Quantidade de eventos por categoria (festa, show, feira, esporte, religioso, cultural, gastronômico)
+- Distribuição dos eventos pelos 12 meses do ano (sazonalidade da agenda cultural)
+- Entrada gratuita vs. paga vs. não informado
+
+**Fonte de Dados:** `eventos.categoria`, `eventos.dataInicio`, `eventos.entrada` (Firebase Firestore)
+
+**Insight Gerado:** Revela meses sem programação cultural e o equilíbrio entre eventos gratuitos e pagos, complementando a análise de espaços fixos com a de eventos temporários.
+
+---
+
 ## 🔬 Metodologia Científica
 
 Os eixos analíticos foram estruturados seguindo parâmetros de:
@@ -124,9 +141,9 @@ d:\ConectaBueno\
 
 ## 🔥 Conexão com Firebase
 
-### Coleção Utilizada
+### Coleções Utilizadas
 
-**Nome:** `espacos` (ou `pontos_culturais`)
+**1. `espacos`** — pontos culturais fixos (cachoeiras, trilhas, teatros, museus etc.)
 
 **Campos Relevantes:**
 ```javascript
@@ -135,6 +152,7 @@ d:\ConectaBueno\
   nome: String,
   categoria: String,
   endereco: String,
+  bairro: String,
   entrada: "gratuita" | "paga" | "nao_informado",
   acessibilidade: "sim" | "nao" | "parcial" | "nao_informado",
   status: "ativo" | "inativo",
@@ -144,22 +162,52 @@ d:\ConectaBueno\
 }
 ```
 
-### Query Principal
-
 ```javascript
 const snapshot = await db.collection('espacos')
     .where('status', '==', 'ativo')
     .get();
 ```
 
+**2. `eventos`** — agenda de eventos temporários (a mesma coleção usada em `pages/eventos.html`)
+
+**Campos Relevantes:**
+```javascript
+{
+  id: String,
+  titulo: String,
+  categoria: "festa" | "show" | "feira" | "esporte" | "religioso" | "cultural" | "gastronomico",
+  descricao: String,
+  dataInicio: String,   // 'YYYY-MM-DD'
+  dataFim: String | null,
+  horario: String,
+  local: String,
+  organizador: String,
+  contato: String,
+  entrada: String,      // texto livre, ex.: "Gratuita" ou "R$ 10,00"
+  status: "ativo" | "inativo" | "destaque",
+  presencasCount: Number
+}
+```
+
+```javascript
+const snapshot = await db.collection('eventos')
+    .where('status', 'in', ['ativo', 'destaque'])
+    .get();
+```
+
+O Observatório busca as duas coleções em paralelo. Uma falha ao buscar `eventos`
+não derruba o painel de `espacos` (e vice-versa) — cada seção mostra seu próprio
+empty state quando não há dados, mantendo a regra de zero dados falsos.
+
 ---
 
 ## 📊 Estatísticas Resumo (Cards Superiores)
 
-1. **Total de Pontos Culturais:** Conta todos os documentos ativos
-2. **Eventos Gratuitos:** Filtra por `entrada === 'gratuita'`
-3. **Categorias Ativas:** Contagem única de `categoria`
-4. **Acessibilidade Mapeada:** Razão de pontos com `acessibilidade != 'nao_informado'`
+1. **Total de Pontos Culturais:** Conta todos os documentos ativos de `espacos`
+2. **Espaços Gratuitos:** Filtra `espacos` por `entrada === 'gratuita'`
+3. **Eventos Programados:** Conta todos os documentos de `eventos` com status `ativo`/`destaque`
+4. **Categorias Ativas:** Contagem única de `espacos.categoria`
+5. **Acessibilidade Mapeada:** Razão de pontos com `acessibilidade != 'nao_informado'`
 
 ---
 
@@ -273,11 +321,12 @@ try {
 
 ### Roadmap
 
-1. **v2.0:** Integração com API Mapa da Cultura (MinC)
-2. **v2.1:** Filtros interativos por período temporal
-3. **v2.2:** Exportação de relatórios (PDF/CSV)
-4. **v3.0:** Machine Learning para predição de demanda cultural
-5. **v3.1:** Comparação com outros municípios da Serra da Mantiqueira
+1. ~~**v1.1:** Análise da coleção `eventos` (categoria, sazonalidade mensal, tipo de entrada)~~ ✅ Concluído
+2. **v2.0:** Integração com API Mapa da Cultura (MinC)
+3. **v2.1:** Filtros interativos por período temporal
+4. **v2.2:** Exportação de relatórios (PDF/CSV)
+5. **v3.0:** Machine Learning para predição de demanda cultural
+6. **v3.1:** Comparação com outros municípios da Serra da Mantiqueira
 
 ---
 

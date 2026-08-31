@@ -128,6 +128,15 @@
                     <span>Perfil de Consumo</span>
                 </button>
 
+                <button class="nav-item" data-section="eventos">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="4" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M6.5 2.5V5.5M13.5 2.5V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Agenda de Eventos</span>
+                </button>
+
                 <button class="nav-item" data-section="metodologia">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <rect x="4" y="3" width="12" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -186,12 +195,27 @@
                             </svg>
                         </div>
                         <div class="stat-content">
-                            <span class="stat-label">Eventos Gratuitos</span>
+                            <span class="stat-label">Espaços Gratuitos</span>
                             <span class="stat-value" id="statGratuitos">-</span>
                             <span class="stat-description">Acessíveis sem custo</span>
                         </div>
                     </div>
-                    
+
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M3 9H21" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 2.5V5.5M16 2.5V5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-label">Eventos Programados</span>
+                            <span class="stat-value" id="statEventos">-</span>
+                            <span class="stat-description">Agenda cultural ativa</span>
+                        </div>
+                    </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -207,7 +231,7 @@
                             <span class="stat-description">Diversidade cultural</span>
                         </div>
                     </div>
-                    
+
                     <div class="stat-card">
                         <div class="stat-icon">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -247,6 +271,10 @@
                             <div class="insight-chip">
                                 <span class="insight-chip-icon" aria-hidden="true">🏷️</span>
                                 <span class="insight-chip-text" id="insightCategoria">Identificando a categoria mais frequente…</span>
+                            </div>
+                            <div class="insight-chip">
+                                <span class="insight-chip-icon" aria-hidden="true">📅</span>
+                                <span class="insight-chip-text" id="insightEventos">Calculando a agenda de eventos culturais…</span>
                             </div>
                         </div>
                     </div>
@@ -531,6 +559,115 @@
                 </div>
             </section>
 
+            <!-- Seção: Agenda de Eventos -->
+            <section id="section-eventos" class="section-content">
+                <div class="analysis-card">
+                    <div class="analysis-header">
+                        <div class="analysis-badge">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M3 9H21" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 2.5V5.5M16 2.5V5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span>Agenda Cultural</span>
+                        </div>
+                        <h3>Eventos e Programação Cultural</h3>
+                        <p>O que a cidade está oferecendo em eventos, quando acontece e para quem é acessível</p>
+                    </div>
+
+                    <div class="analysis-body">
+                        <div class="mini-kpi-grid">
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Eventos Cadastrados</span>
+                                <span class="mini-kpi-value" id="kpiTotalEventos">-</span>
+                                <span class="mini-kpi-sub">ativos na agenda</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Categoria em Destaque</span>
+                                <span class="mini-kpi-value" id="kpiCategoriaEventoTop">-</span>
+                                <span class="mini-kpi-sub" id="kpiCategoriaEventoTopSub">eventos cadastrados</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Mês Mais Movimentado</span>
+                                <span class="mini-kpi-value" id="kpiMesTop">-</span>
+                                <span class="mini-kpi-sub" id="kpiMesTopSub">concentra mais eventos</span>
+                            </div>
+                            <div class="mini-kpi-card">
+                                <span class="mini-kpi-label">Entrada Gratuita</span>
+                                <span class="mini-kpi-value" id="kpiPctEventoGratuito">-</span>
+                                <span class="mini-kpi-sub">dos eventos programados</span>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>🎪 Objetivo</h4>
+                            <p>
+                                Mostrar o que está programado na cidade além dos espaços fixos: festas, shows,
+                                feiras, eventos esportivos, religiosos e gastronômicos — quando acontecem e
+                                se o acesso é gratuito ou pago.
+                            </p>
+                        </div>
+
+                        <div class="chart-container">
+                            <h4 class="chart-title">Eventos por Categoria</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartEventosCategoria"></canvas>
+                                <div class="empty-state" id="emptyEventosCategoria" style="display: none;">
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                    </svg>
+                                    <p>Coletando dados da agenda...</p>
+                                    <span>Aguarde enquanto mapeamos os eventos culturais</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="charts-grid">
+                            <div class="chart-container-small">
+                                <h4 class="chart-title">Eventos por Mês</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="chartEventosMes"></canvas>
+                                    <div class="empty-state" id="emptyEventosMes" style="display: none;">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                            <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                        </svg>
+                                        <p>Coletando dados...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chart-container-small">
+                                <h4 class="chart-title">Entrada nos Eventos</h4>
+                                <div class="chart-wrapper">
+                                    <canvas id="chartEventosEntrada"></canvas>
+                                    <div class="empty-state" id="emptyEventosEntrada" style="display: none;">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+                                            <path d="M12 8V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                            <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+                                        </svg>
+                                        <p>Coletando dados...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>💡 O Que Isso Significa</h4>
+                            <p>
+                                Meses sem nenhum evento mostram períodos de vazio na programação cultural.
+                                Quando a maioria dos eventos é paga, parte da comunidade pode ficar de fora —
+                                acompanhar essa proporção ajuda a equilibrar a agenda com mais opções gratuitas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
 
             <!-- Seção: Metodologia -->
             <section id="section-metodologia" class="section-content">
@@ -642,6 +779,20 @@
                                 <li>se a entrada é gratuita ou paga</li>
                                 <li>se o local é acessível para pessoas com deficiência</li>
                                 <li>se o cadastro ainda está ativo</li>
+                            </ul>
+                        </div>
+
+                        <div class="doc-section">
+                            <h4>📅 O Que Guardamos de Cada Evento</h4>
+                            <p>Para cada evento da agenda cultural, guardamos:</p>
+                            <ul>
+                                <li>o título e a descrição do evento</li>
+                                <li>a categoria (festa, show, feira, esporte, religioso, cultural ou gastronômico)</li>
+                                <li>data de início, data de término e horário</li>
+                                <li>o local onde acontece</li>
+                                <li>o organizador e o contato</li>
+                                <li>se a entrada é gratuita ou paga</li>
+                                <li>se o cadastro ainda está ativo ou em destaque</li>
                             </ul>
                         </div>
 
