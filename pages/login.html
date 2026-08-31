@@ -32,9 +32,59 @@
                     <div class="logo-item">
                         <img class="logo-img-fixed" src="../assets/images/logo.png" alt="Logo Conecta Bueno">
                         <span class="logo-text-fixed">Conecta Bueno</span>
+<<<<<<< HEAD
                     </div>
                 </div>
 
+                <header class="auth-card__intro">
+                    <p class="auth-card__eyebrow">Observatório cultural</p>
+                    <h1>Acesse sua conta</h1>
+                    <p>Bem-vindo ao Conecta Bueno</p>
+                </header>
+
+                <!-- Tabs -->
+                <div class="card-tabs" role="tablist" aria-label="Modo de acesso">
+                    <button class="card-tab tab-button active"
+                        id="tab-login" role="tab"
+                        aria-selected="true" aria-controls="formLogin"
+                        data-tab="login">Entrar</button>
+                    <button class="card-tab tab-button"
+                        id="tab-register" role="tab"
+                        aria-selected="false" aria-controls="formRegister"
+                        data-tab="register">Criar conta</button>
+                    <span class="card-tabs__ink" id="tabsSlider" aria-hidden="true"></span>
+                </div>
+
+                <!-- ==================
+                     FORM: LOGIN
+                     ================== -->
+                <form id="formLogin" class="auth-form active"
+                    role="tabpanel" aria-labelledby="tab-login" novalidate>
+
+                    <div class="form-field">
+                        <label for="loginEmail">E-mail</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <path d="M1.5 4.5L7.5 8.5L13.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                                <rect x="1.5" y="3.5" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                            </svg>
+                            <input type="email" id="loginEmail" class="form-input"
+                                placeholder="seu@email.com" autocomplete="email" aria-label="E-mail">
+                        </div>
+                        <span class="field__error" id="loginEmailError" role="alert"></span>
+=======
+>>>>>>> 28a9029b659235a225f0ccf6b1b987a3c1859c8a
+                    </div>
+
+<<<<<<< HEAD
+                    <div class="form-field">
+                        <label for="loginPassword">Senha</label>
+                        <div class="field-wrap">
+                            <svg class="field-ico" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                                <rect x="2.5" y="6.5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.4"/>
+                                <path d="M4.5 6.5V5a3 3 0 016 0v1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                            </svg>
+=======
                 <header class="auth-card__intro">
                     <p class="auth-card__eyebrow">Observatório cultural</p>
                     <h1>Acesse sua conta</h1>
@@ -80,6 +130,7 @@
                                 <rect x="2.5" y="6.5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.4"/>
                                 <path d="M4.5 6.5V5a3 3 0 016 0v1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                             </svg>
+>>>>>>> 28a9029b659235a225f0ccf6b1b987a3c1859c8a
                             <input type="password" id="loginPassword" class="form-input"
                                 placeholder="Sua senha" autocomplete="current-password" aria-label="Senha">
                             <button type="button" class="toggle-password"
@@ -92,6 +143,7 @@
                             </button>
                         </div>
                         <span class="field__error" id="loginPasswordError" role="alert"></span>
+<<<<<<< HEAD
                     </div>
 
                     <div class="form-opts">
@@ -121,6 +173,40 @@
 
                 </form>
 
+=======
+                    </div>
+
+                    <div class="form-opts">
+                        <label class="cb-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="cb-box"></span>
+                            Lembrar de mim
+                        </label>
+                        <button type="button" class="text-link" onclick="switchTab('forgot')">
+                            Esqueceu a senha?
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btnLogin">
+                        <span>Entrar na Plataforma</span>
+                    </button>
+
+                    <div class="form-divider"><span>ou entre com</span></div>
+
+                    <button type="button" class="btn-social btn-google btn-full"
+                        id="btnGoogle" onclick="handleGoogleLogin(event)">
+                        <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden="true">
+                            <path fill="#4285F4" d="M14.5 7.7c0-.56-.05-1.02-.13-1.5H7.5v2.83h3.94c-.17.85-.68 1.57-1.45 2.05v1.7h2.34c1.37-1.27 2.17-3.14 2.17-5.08z"/>
+                            <path fill="#34A853" d="M7.5 15c1.97 0 3.62-.65 4.83-1.77l-2.34-1.7c-.65.43-1.49.68-2.49.68-1.91 0-3.53-1.29-4.11-3.02H1v1.75A7.5 7.5 0 007.5 15z"/>
+                            <path fill="#FBBC05" d="M3.39 9.19A4.5 4.5 0 013.13 7.5c0-.59.1-1.16.26-1.69V4.06H1A7.5 7.5 0 000 7.5c0 1.21.29 2.35.75 3.38l2.64-1.69z"/>
+                            <path fill="#EA4335" d="M7.5 2.98c1.08 0 2.05.37 2.81 1.1l2.1-2.1C11.11.74 9.46 0 7.5 0A7.5 7.5 0 00.75 4.06l2.64 1.75C3.97 4.27 5.59 2.98 7.5 2.98z"/>
+                        </svg>
+                        Google
+                    </button>
+
+                </form>
+
+>>>>>>> 28a9029b659235a225f0ccf6b1b987a3c1859c8a
                 <!-- ==================
                      FORM: CADASTRO
                      ================== -->
@@ -277,6 +363,10 @@
             <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
                 <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
                 <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+<<<<<<< HEAD
+=======
+                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
+>>>>>>> 28a9029b659235a225f0ccf6b1b987a3c1859c8a
                 <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
                 <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
             </div>

@@ -409,7 +409,11 @@ function initMap() {
     map = L.map('map', {
         center: [BUENO_CENTER.lat, BUENO_CENTER.lng],
         zoom: 14,
+<<<<<<< HEAD
         minZoom: 11,
+=======
+        minZoom: 12,
+>>>>>>> 28a9029b659235a225f0ccf6b1b987a3c1859c8a
         maxZoom: 21,
         maxBounds: BUENO_BOUNDS,
         maxBoundsViscosity: 1.0,
