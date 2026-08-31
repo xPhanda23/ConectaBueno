@@ -51,11 +51,32 @@ window.addEventListener('load', async () => {
             await loadUserProfile(user);
         }
         setupListeners();
+        trackFiltersHeight();
         hideLoading();
         await Promise.all([loadEventos(), window.Noticias?.carregar()]);
         openEventFromQuery();
     });
 });
+
+// A barra de filtros é sticky logo abaixo do header e muda de altura
+// conforme a largura (as linhas de período/categoria quebram). A sidebar
+// gruda logo abaixo dela, então precisa da altura REAL — não de um valor
+// fixo que só vale numa largura. Publicada como --filters-h para o CSS.
+function trackFiltersHeight() {
+    const bar = document.getElementById('filtersBar');
+    if (!bar) return;
+
+    const apply = () => {
+        document.documentElement.style.setProperty('--filters-h', `${Math.round(bar.offsetHeight)}px`);
+    };
+
+    apply();
+    if ('ResizeObserver' in window) {
+        new ResizeObserver(apply).observe(bar);
+    } else {
+        window.addEventListener('resize', apply);
+    }
+}
 
 function hideLoading() {
     const el = document.getElementById('loadingOverlay');
@@ -236,7 +257,7 @@ async function updateHeroStats() {
 
     const safeValue = eventosMes.length || 0;
     setTxt('heroAgendaValue', String(safeValue));
-    setTxt('heroAgendaLabel', safeValue === 1 ? 'evento em agenda' : 'eventos em agenda');
+    setTxt('heroAgendaLabel', safeValue === 1 ? 'evento este mês' : 'eventos este mês');
 
     const live = !!proximo && proximo._d <= hoje; // já começou e ainda não terminou
 

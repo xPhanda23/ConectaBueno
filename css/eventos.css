@@ -421,7 +421,7 @@ main { flex: 1; }
     background: white;
     border-bottom: 1px solid var(--grey-200);
     position: sticky;
-    top: 66px;
+    top: var(--header-h);
     /* Abaixo do .site-header (800) para nao cobrir o menu do usuario. */
     z-index: 700;
     box-shadow: 0 2px 10px rgba(0,0,0,.06);
@@ -573,10 +573,15 @@ main { flex: 1; }
     margin: 0 auto;
     padding: 0 24px;
     display: grid;
-    grid-template-columns: 268px 1fr;
+    grid-template-columns: 268px minmax(0, 1fr);
     gap: 28px;
     align-items: start;
 }
+
+/* Sem isto, o conteúdo mínimo de um card (título longo, tabela do
+   calendário) impede a coluna de encolher e a página ganha rolagem
+   horizontal em telas estreitas. */
+.ev-main-inner > * { min-width: 0; }
 
 /* ================================================================
    SIDEBAR
@@ -586,7 +591,10 @@ main { flex: 1; }
     flex-direction: column;
     gap: 16px;
     position: sticky;
-    top: 201px; /* 66px header + ~123px barra de filtros (2 linhas) + 12px folga */
+    /* --filters-h é medido em tempo real por js/eventos.js: a barra muda de
+       2 para 3 linhas conforme a largura, e o valor fixo antigo (201px)
+       deixava a sidebar entrar por baixo dela. */
+    top: calc(var(--header-h) + var(--filters-h, 123px) + 12px);
     min-width: 0;
 }
 
@@ -803,14 +811,20 @@ main { flex: 1; }
 /* ================================================================
    GRID DE CARDS
    ================================================================ */
+/* Mesmo raciocínio de home.css: com auto-fill a grade reservava 3 colunas
+   mesmo com 1 evento cadastrado e o card ficava sozinho encostado à
+   esquerda. Flex centralizado distribui o que existe. */
 .ev-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
 }
 
 /* ── Card de evento ─────────────────────────────────────────── */
 .ev-card {
+    flex: 1 1 260px;
+    max-width: 340px;
     background: white;
     border: 1px solid var(--grey-200);
     border-radius: var(--r16);
@@ -1061,18 +1075,74 @@ main { flex: 1; }
 
 /* RESPONSIVIDADE */
 @media (max-width: 900px) {
-    .ev-main-inner { grid-template-columns: 1fr; padding: 0 16px; }
-    .ev-sidebar { position: static; top: auto; order: 2; }
-    .ev-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+    .ev-main-inner { grid-template-columns: minmax(0, 1fr); padding: 0 16px; }
+    /* Empilhada abaixo dos eventos: sem o teto de largura o mini-calendário
+       esticava para os ~780px da coluna e as células ficavam ridiculamente
+       espaçadas. */
+    .ev-sidebar {
+        position: static;
+        top: auto;
+        order: 2;
+        width: 100%;
+        max-width: 520px;
+        margin: 0 auto;
+    }
+    /* 210px espremia demais o card (data + foto + texto). */
+    .ev-card { flex-basis: 240px; }
 }
 
 @media (max-width: 480px) {
     .ev-filters-inner { padding: 10px 14px; gap: 8px; }
     .ev-tab, .ev-cat { min-height: 44px; padding: 10px 14px; font-size: calc(14px * var(--a11y-text-scale, 1)); }
     .ev-search-bar { max-width: 100%; padding: 10px 14px; }
-    .ev-agenda-strip-inner { gap: 14px 20px; }
-    .ev-agenda-divider { display: none; }
-    .ev-summary-pill { margin-left: auto; }
+}
+
+/* ================================================================
+   CELULAR — barra de filtros e faixa da agenda
+   Duas correções de organização:
+   1) os 6 botões de período + as categorias quebravam em 3-4 linhas e a
+      barra sticky comia metade da tela; viram uma faixa de rolagem
+      horizontal, o padrão de filtro em app de celular;
+   2) a faixa de números do hero ficava com a busca, o contador e a pill
+      espalhados em alturas diferentes.
+   ================================================================ */
+@media (max-width: 700px) {
+    /* Busca ocupa a linha inteira; período rola na horizontal logo abaixo. */
+    .ev-filters-row-primary { flex-direction: column; align-items: stretch; gap: 8px; }
+    .ev-filter-sep { display: none; }
+    /* flex-basis: 280px vira ALTURA quando a linha passa a ser coluna —
+       sem zerar isso a barra de busca vira um oval de 280px de altura. */
+    .ev-search-bar { flex: 0 0 auto; max-width: none; width: 100%; }
+
+    .ev-tabs,
+    .ev-cats {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        /* O padding negativo alinha o primeiro chip à margem do container
+           sem cortar a sombra do chip ativo durante a rolagem. */
+        margin: 0 -14px;
+        padding: 2px 14px;
+        scroll-snap-type: x proximity;
+    }
+    .ev-tabs::-webkit-scrollbar,
+    .ev-cats::-webkit-scrollbar { display: none; }
+    .ev-tab, .ev-cat { flex-shrink: 0; scroll-snap-align: start; }
+
+    .ev-filters-row-secondary { align-items: center; gap: 8px; }
+    .ev-filters-row-end { gap: 8px; }
+
+    /* Faixa da agenda: rótulo e número em bloco único, pill na mesma linha. */
+    .ev-agenda-strip-inner  { padding: 12px 16px; gap: 10px 14px; align-items: flex-start; }
+    .ev-agenda-strip-stats  { gap: 10px; flex: 1 1 auto; }
+    .ev-agenda-divider      { display: none; }
+    .ev-agenda-stat         { flex-direction: column; align-items: flex-start; gap: 0; }
+    .ev-agenda-stat strong  { font-size: calc(19px * var(--a11y-text-scale, 1)); line-height: 1.2; }
+    .ev-agenda-stat span    { white-space: normal; }
+    .ev-summary-pill        { margin-left: auto; align-self: flex-start; }
+    .ev-agenda-strip-meta-row { padding: 0 16px 12px; gap: 8px 12px; }
+    .ev-agenda-strip-meta   { min-width: 0; }
 }
 
 .ev-card-link {
@@ -1288,6 +1358,8 @@ main { flex: 1; }
 
 .ev-grid-loading {
     grid-column: 1/-1;
+    flex: 1 1 100%;
+    max-width: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1474,7 +1546,7 @@ main { flex: 1; }
 /* ================================================================
    RESPONSIVO
    ================================================================ */
-@media (max-width: 1024px) {
+@media (min-width: 901px) and (max-width: 1024px) {
     .ev-main-inner { grid-template-columns: 240px 1fr; gap: 20px; }
 }
 
@@ -1483,6 +1555,14 @@ main { flex: 1; }
    uma regra anterior forçava flex-direction:row nessa faixa, o que
    esticava o mini-calendário a ~500px de largura por falta de um
    segundo item ao lado para dividir a linha. Removida. */
+
+@media (max-width: 760px) {
+    /* Cabeçalho da Sala de Notícias: título e barra de busca deixavam de
+       caber lado a lado e a busca ficava colada na borda direita. */
+    .ev-sec-header { flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 28px; }
+    .nw-toolbar    { justify-content: space-between; }
+    .nw-search     { width: 100%; }
+}
 
 @media (max-width: 640px) {
     .ev-hero-content  { padding: 84px 20px 32px; gap: 12px; }
@@ -1495,7 +1575,8 @@ main { flex: 1; }
     .ev-main   { padding: 24px 0 52px; }
     .container { padding: 0 16px; }
 
-    .ev-grid { grid-template-columns: 1fr; gap: 16px; }
+    .ev-grid { gap: 16px; }
+    .ev-card { flex: 1 1 100%; max-width: 100%; }
 
     .ev-modal-info-grid { grid-template-columns: 1fr; }
 

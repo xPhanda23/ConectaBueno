@@ -87,7 +87,10 @@ function renderHeaderAuthState(user, wrap) {
             cta = document.createElement('a');
             cta.id = 'btnAuthCta';
             cta.className = 'hd-auth-cta';
-            cta.textContent = 'Entrar / Criar Conta';
+            // Em telas estreitas o rótulo longo empurrava a marca e o
+            // hambúrguer para fora do header — o sufixo some via CSS
+            // (.hd-auth-cta-long) e sobra só "Entrar".
+            cta.innerHTML = 'Entrar<span class="hd-auth-cta-long"> / Criar Conta</span>';
             wrap.appendChild(cta);
         }
         cta.href = wrap.dataset.loginHref || 'login.html';

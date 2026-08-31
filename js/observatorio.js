@@ -335,26 +335,15 @@ function updateStats(espacos) {
 // ===================================
 
 /**
- * Extrai região/bairro de cada endereço e conta ocorrências.
- * Ex: "Rua X, Centro, Bueno Brandão" → "Centro"
+ * Conta espaços por bairro (campo dedicado, preenchido no painel admin).
+ * Espaços sem bairro cadastrado entram em "Não especificado" — evita que
+ * cada endereço vire uma barra própria no gráfico.
  */
 function calcularDistribuicaoRegional(espacos) {
     const distribuicao = new Map();
 
     espacos.forEach(espaco => {
-        if (!espaco.endereco) return;
-
-        const partes = espaco.endereco.split(',').map(p => p.trim());
-        let regiao = 'Não especificado';
-
-        if (partes.length >= 2) {
-            regiao = partes[1]; // Segunda parte geralmente é o bairro
-        } else if (partes.length === 1) {
-            regiao = partes[0];
-        }
-
-        regiao = regiao.replace(/^(Rua|Av|Avenida|Travessa)\s+/i, '');
-
+        const regiao = (espaco.bairro && espaco.bairro.trim()) || 'Não especificado';
         distribuicao.set(regiao, (distribuicao.get(regiao) || 0) + 1);
     });
 

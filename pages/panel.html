@@ -752,6 +752,12 @@
                         <input type="text" id="lugarEndereco" class="form-control">
                     </div>
 
+                    <div class="form-group">
+                        <label>Bairro</label>
+                        <input type="text" id="lugarBairro" class="form-control" placeholder="Ex: Centro, Vila Nova...">
+                        <p class="help-text">Usado só nas estatísticas do Observatório — não aparece no cartão do mapa.</p>
+                    </div>
+
                     <!-- Novos campos expandidos -->
                     <div class="form-row">
                         <div class="form-group">
@@ -777,6 +783,17 @@
                                 <option value="nao_informado">Não informado</option>
                             </select>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>♿ Acessibilidade</label>
+                        <select id="lugarAcessibilidade" class="form-control">
+                            <option value="nao_informado">Não informado</option>
+                            <option value="sim">Acessível</option>
+                            <option value="parcial">Parcialmente acessível</option>
+                            <option value="nao">Não acessível</option>
+                        </select>
+                        <p class="help-text">Aparece no cartão do mapa e alimenta o indicador de acessibilidade do Observatório.</p>
                     </div>
 
                     <div class="form-group">
