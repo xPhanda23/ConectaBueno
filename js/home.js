@@ -571,6 +571,10 @@ const AMENITY_VISIBLE_MAX = 4;
 let todosHospedagens = [];
 const hospFiltros = { tipo: 'all', preco: 'all', comodidades: [], soFavoritos: false };
 
+// Tela inicial é só uma vitrine — mostra no máximo essa quantidade,
+// mesmo que existam mais hospedagens ativas cadastradas.
+const HOSPEDAGENS_HOME_MAX = 6;
+
 // Favoritos ficam só no navegador do visitante — sem conta, sem Firestore.
 // Mesmo padrão de persistência do "Meu roteiro" em map.js.
 const HOSP_FAV_KEY = 'cb_hospedagens_favoritos';
@@ -742,7 +746,7 @@ function renderHospedagens() {
         return;
     }
 
-    filtradas.forEach(h => {
+    filtradas.slice(0, HOSPEDAGENS_HOME_MAX).forEach(h => {
         try {
             grid.appendChild(buildHospedagemCard(h));
         } catch (err) {
