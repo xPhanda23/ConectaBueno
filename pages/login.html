@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/auth.css">
     <link rel="stylesheet" href="../css/accessibility.css">
+    <link rel="stylesheet" href="../css/legal-modal.css">
 </head>
 <body class="auth-page">
     <!-- =====================================================
@@ -188,9 +189,9 @@
                             <span class="cb-box"></span>
                             <span class="terms-copy">
                                 Aceito os
-                                <button type="button" class="text-link" onclick="openModal('modalTermos')">Termos de Uso</button>
+                                <button type="button" class="text-link" onclick="openLegalModal(event, 'termos-de-uso.html', 'Termos de Uso')">Termos de Uso</button>
                                 e a
-                                <button type="button" class="text-link" onclick="openModal('modalPrivacidade')">Política de Privacidade</button>
+                                <button type="button" class="text-link" onclick="openLegalModal(event, 'politica-de-privacidade.html', 'Política de Privacidade')">Política de Privacidade</button>
                             </span>
                         </label>
                         <span class="field__error" id="termsError" role="alert"></span>
@@ -277,7 +278,6 @@
             <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
                 <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
                 <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
-                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
                 <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
                 <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
             </div>
@@ -311,82 +311,17 @@
         </div>
     </aside>
 
-    <!-- =====================================================
-         MODAL — TERMOS DE USO
-         ===================================================== -->
-    <div id="modalTermos" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTermosTitle">
-        <div class="modal-box modal-box--lg">
-            <div class="modal-head">
-                <h3 id="modalTermosTitle">Termos de Uso</h3>
-                <button class="btn-close-modal" onclick="closeModal('modalTermos')" aria-label="Fechar">&times;</button>
+    <!-- Card de Termos de Uso / Política de Privacidade — carrega o
+         conteúdo direto de pages/termos-de-uso.html e
+         pages/politica-de-privacidade.html, então nunca fica
+         desatualizado em relação à página completa. -->
+    <div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+        <div class="legal-modal__box">
+            <div class="legal-modal__header">
+                <h2 id="legalModalTitle">Termos de Uso</h2>
+                <button type="button" class="legal-modal__close" onclick="closeLegalModal()" aria-label="Fechar">&times;</button>
             </div>
-            <div class="modal-body">
-                <div class="legal">
-                    <p><strong>Última atualização:</strong> Janeiro de 2024</p>
-                    <h4>1. Aceite dos Termos</h4>
-                    <p>Ao acessar a plataforma Conecta Bueno, você concorda com estes termos.</p>
-                    <h4>2. Uso da Plataforma</h4>
-                    <ul>
-                        <li>Acesso gratuito a eventos, lugares e patrimônio cultural</li>
-                        <li>Criação de conta para recursos personalizados</li>
-                        <li>Respeito às diretrizes da comunidade</li>
-                    </ul>
-                    <h4>3. Responsabilidades do Usuário</h4>
-                    <ul>
-                        <li>Fornecer informações verdadeiras no cadastro</li>
-                        <li>Manter a confidencialidade de sua senha</li>
-                        <li>Usar a plataforma de forma ética e legal</li>
-                    </ul>
-                    <h4>4. Propriedade Intelectual</h4>
-                    <p>O conteúdo é de propriedade da Prefeitura de Bueno Brandão e seus parceiros.</p>
-                    <h4>5. Contato</h4>
-                    <p>Dúvidas: <a href="mailto:cultura@buenobrando.mg.gov.br">cultura@buenobrando.mg.gov.br</a></p>
-                </div>
-            </div>
-            <div class="modal-foot">
-                <button class="btn-modal-sec" onclick="closeModal('modalTermos')">Fechar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- =====================================================
-         MODAL — POLÍTICA DE PRIVACIDADE
-         ===================================================== -->
-    <div id="modalPrivacidade" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPrivacidadeTitle">
-        <div class="modal-box modal-box--lg">
-            <div class="modal-head">
-                <h3 id="modalPrivacidadeTitle">Política de Privacidade</h3>
-                <button class="btn-close-modal" onclick="closeModal('modalPrivacidade')" aria-label="Fechar">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="legal">
-                    <p><strong>Última atualização:</strong> Janeiro de 2024</p>
-                    <h4>1. Coleta de Dados</h4>
-                    <ul>
-                        <li>Nome e e-mail para criação de conta</li>
-                        <li>Dados de navegação anônimos para melhorias</li>
-                        <li>Localização aproximada (opcional) para o mapa</li>
-                    </ul>
-                    <h4>2. Uso dos Dados</h4>
-                    <ul>
-                        <li>Personalizar sua experiência na plataforma</li>
-                        <li>Notificações sobre eventos (opcional)</li>
-                        <li>Melhoria contínua dos serviços</li>
-                    </ul>
-                    <h4>3. Compartilhamento</h4>
-                    <p>Não vendemos nem compartilhamos seus dados pessoais com terceiros.</p>
-                    <h4>4. Seus Direitos</h4>
-                    <ul>
-                        <li>Acessar e corrigir seus dados</li>
-                        <li>Solicitar exclusão da conta</li>
-                    </ul>
-                    <h4>5. Segurança</h4>
-                    <p>Utilizamos Firebase (Google Cloud) para proteção dos seus dados.</p>
-                </div>
-            </div>
-            <div class="modal-foot">
-                <button class="btn-modal-sec" onclick="closeModal('modalPrivacidade')">Fechar</button>
-            </div>
+            <div class="legal-modal__body" id="legalModalBody"></div>
         </div>
     </div>
 
@@ -404,6 +339,7 @@
     <script src="../js/auth.js"></script>
     <script src="../js/login-immersive.js"></script>
     <script src="../js/accessibility.js"></script>
+    <script src="../js/legal.js"></script>
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
         <div vw-plugin-wrapper>

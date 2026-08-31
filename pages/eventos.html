@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="../css/temporada.css">
     <link rel="stylesheet" href="../css/noticias.css">
     <link rel="stylesheet" href="../css/passport.css">
+    <link rel="stylesheet" href="../css/legal-modal.css">
 </head>
 <body>
 
@@ -428,12 +429,12 @@
                     </a>
                     <p class="ft-desc">Democratizando o acesso à cultura e ao turismo de Bueno Brandão, Serra da Mantiqueira, MG.</p>
                     <div class="ft-social">
-                        <a href="mailto:contato@conectabueno.com.br" class="ft-social-icon" aria-label="Enviar e-mail para o suporte do Conecta Bueno">
+                        <a href="mailto:joaogabrieldacostarochabb@gmail.com" class="ft-social-icon" aria-label="Enviar e-mail para o suporte do Conecta Bueno">
                             <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 5l6 4.5L15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </a>
-                        <span class="ft-social-icon ft-social-icon--soon" title="Instagram em breve" aria-label="Instagram — em breve">
+                        <a href="https://www.instagram.com/conecta_bueno/" class="ft-social-icon" target="_blank" rel="noopener noreferrer" aria-label="Conecta Bueno no Instagram (@conecta_bueno)">
                             <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>
-                        </span>
+                        </a>
                     </div>
                 </div>
                 <div class="ft-col">
@@ -445,19 +446,19 @@
                 </div>
                 <div class="ft-col">
                     <strong>Legal</strong>
-                    <a href="termos-de-uso.html">Termos de Uso</a>
-                    <a href="politica-de-privacidade.html">Privacidade</a>
+                    <a href="termos-de-uso.html" onclick="openLegalModal(event, this.href, 'Termos de Uso')">Termos de Uso</a>
+                    <a href="politica-de-privacidade.html" onclick="openLegalModal(event, this.href, 'Política de Privacidade')">Privacidade</a>
                 </div>
                 <div class="ft-col">
                     <strong>Contato</strong>
-                    <a href="mailto:contato@conectabueno.com.br">
+                    <a href="mailto:joaogabrieldacostarochabb@gmail.com">
                         <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 5l6 4.5L15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        contato@conectabueno.com.br
+                        joaogabrieldacostarochabb@gmail.com
                     </a>
-                    <span class="ft-col-soon" title="Em breve">
+                    <a href="https://www.instagram.com/conecta_bueno/" target="_blank" rel="noopener noreferrer">
                         <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>
-                        Instagram <small>em breve</small>
-                    </span>
+                        @conecta_bueno
+                    </a>
                     <span class="ft-col-static">
                         <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 16S3 9.5 3 6.2A6 6 0 1115 6.2C15 9.5 9 16 9 16z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9" cy="6.3" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
                         Bueno Brandão, MG
@@ -492,7 +493,6 @@
             <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
                 <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
                 <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
-                <button type="button" data-a11y="readable-font" aria-pressed="false">Fonte legível <small>Leitura facilitada</small></button>
                 <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
                 <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
             </div>
@@ -541,6 +541,17 @@
         </div>
     </div>
 
+    <!-- Card de Termos de Uso / Política de Privacidade -->
+    <div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+        <div class="legal-modal__box">
+            <div class="legal-modal__header">
+                <h2 id="legalModalTitle">Termos de Uso</h2>
+                <button type="button" class="legal-modal__close" onclick="closeLegalModal()" aria-label="Fechar">&times;</button>
+            </div>
+            <div class="legal-modal__body" id="legalModalBody"></div>
+        </div>
+    </div>
+
     <div vw class="enabled">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
@@ -573,6 +584,7 @@
     <script src="../js/noticias.js"></script>
 
     <script src="../js/eventos.js"></script>
+    <script src="../js/legal.js"></script>
 
 </body>
 </html>

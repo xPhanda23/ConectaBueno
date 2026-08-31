@@ -1,0 +1,159 @@
+/* ============================================
+   LEGAL-MODAL.CSS — card de Termos de Uso e
+   Política de Privacidade, aberto sem sair da
+   página (index, eventos, login).
+
+   Classes prefixadas com "legal-modal" de
+   propósito — cada página aqui já carrega seu
+   próprio sistema de modal (auth.css, eventos.css,
+   global.css etc.) com nomes genéricos como
+   .modal-box/.modal-content, então este arquivo
+   evita colidir com eles.
+   ============================================ */
+
+.legal-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 36, 25, .72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 3000;
+}
+
+.legal-modal.active {
+    display: flex;
+    animation: legalModalFade .2s ease;
+}
+
+@keyframes legalModalFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.legal-modal__box {
+    width: 100%;
+    max-width: 720px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    color: #2c3e50;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    animation: legalModalUp .2s ease;
+}
+
+@keyframes legalModalUp {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.legal-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #0f2419 0%, #2d5a3d 100%);
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.legal-modal__header h2 {
+    margin: 0;
+    font-size: calc(1.2rem * var(--a11y-text-scale, 1));
+    font-weight: 700;
+}
+
+.legal-modal__close {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,.18);
+    color: #fff;
+    font-size: calc(20px * var(--a11y-text-scale, 1));
+    line-height: 1;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.legal-modal__close:hover { background: rgba(255,255,255,.32); }
+
+.legal-modal__body {
+    padding: 26px 28px;
+    overflow-y: auto;
+}
+
+.legal-modal__body .update-date {
+    margin-bottom: 20px;
+    color: #6b7c75;
+    font-size: calc(.82rem * var(--a11y-text-scale, 1));
+    font-style: italic;
+}
+
+.legal-modal__body section { margin-bottom: 26px; }
+.legal-modal__body section:last-child { margin-bottom: 0; }
+
+.legal-modal__body h2 {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    color: #2d5a3d;
+    font-size: calc(1.1rem * var(--a11y-text-scale, 1));
+    border-bottom: 2px solid #d4e3db;
+}
+
+.legal-modal__body h3 {
+    margin: 16px 0 8px;
+    color: #0f2419;
+    font-size: calc(1rem * var(--a11y-text-scale, 1));
+}
+
+.legal-modal__body p {
+    margin-bottom: 12px;
+    font-size: calc(.95rem * var(--a11y-text-scale, 1));
+    line-height: 1.6;
+}
+
+.legal-modal__body ul {
+    margin: 8px 0 16px 18px;
+    list-style: none;
+}
+
+.legal-modal__body ul li {
+    position: relative;
+    margin-bottom: 8px;
+    padding-left: 20px;
+    font-size: calc(.95rem * var(--a11y-text-scale, 1));
+    line-height: 1.55;
+}
+
+.legal-modal__body ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #2d5a3d;
+    font-weight: bold;
+}
+
+.legal-modal__body strong { color: #0f2419; }
+.legal-modal__body a { color: #2d5a3d; }
+
+.legal-modal__loading,
+.legal-modal__error {
+    color: #6b7c75;
+    font-size: calc(.95rem * var(--a11y-text-scale, 1));
+}
+
+@media (max-width: 640px) {
+    .legal-modal__box { max-height: 90vh; border-radius: 12px; }
+    .legal-modal__header { padding: 16px 18px; }
+    .legal-modal__header h2 { font-size: calc(1.05rem * var(--a11y-text-scale, 1)); }
+    .legal-modal__body { padding: 20px; }
+}
