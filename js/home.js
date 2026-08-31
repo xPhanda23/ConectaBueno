@@ -102,6 +102,7 @@ function setupVisitorMode(user) {
     setupRevealAnimations();
     renderTimeline();
     setupTimelineToggle();
+    setupHospMoreToggle();
     renderCulturaViva();
     renderTestimonials();
 });
@@ -571,6 +572,12 @@ const AMENITY_VISIBLE_MAX = 4;
 let todosHospedagens = [];
 const hospFiltros = { tipo: 'all', preco: 'all', comodidades: [], soFavoritos: false };
 
+// Com filtro em "Todos" a lista pode ter dezenas de cartões — mostra só os
+// primeiros e deixa "Mostrar mais" revelar o resto, em vez de despejar tudo
+// de uma vez (mesmo tratamento de "Ver linha do tempo completa").
+const HOSP_VISIBLE_STEP = 6;
+let hospExpandido = false;
+
 // Favoritos ficam só no navegador do visitante — sem conta, sem Firestore.
 // Mesmo padrão de persistência do "Meu roteiro" em map.js.
 const HOSP_FAV_KEY = 'cb_hospedagens_favoritos';
@@ -675,6 +682,7 @@ function buildHospedagemFilters(lista) {
                 else hospFiltros.comodidades.splice(idx, 1);
                 btn.classList.toggle('cat-filter-active');
                 btn.setAttribute('aria-pressed', String(idx === -1));
+                hospExpandido = false;
                 renderHospedagens();
             });
         });
@@ -685,6 +693,7 @@ function buildHospedagemFilters(lista) {
             tipoWrap.querySelectorAll('button').forEach(b => b.classList.remove('cat-filter-active'));
             btn.classList.add('cat-filter-active');
             hospFiltros.tipo = btn.dataset.value;
+            hospExpandido = false;
             renderHospedagens();
         });
     });
@@ -694,6 +703,7 @@ function buildHospedagemFilters(lista) {
             precoWrap.querySelectorAll('button[data-value]').forEach(b => b.classList.remove('cat-filter-active'));
             btn.classList.add('cat-filter-active');
             hospFiltros.preco = btn.dataset.value;
+            hospExpandido = false;
             renderHospedagens();
         });
     });
@@ -701,6 +711,7 @@ function buildHospedagemFilters(lista) {
     document.getElementById('hospFavFilterBtn')?.addEventListener('click', () => {
         hospFiltros.soFavoritos = !hospFiltros.soFavoritos;
         atualizarBotaoFavoritosFiltro();
+        hospExpandido = false;
         renderHospedagens();
     });
 
@@ -718,6 +729,8 @@ function atualizarBotaoFavoritosFiltro() {
 function renderHospedagens() {
     const grid = document.getElementById('hospedagensGrid');
     if (!grid) return;
+
+    const moreWrap = document.getElementById('hospMoreWrap');
 
     const filtradas = todosHospedagens.filter(h => {
         if (hospFiltros.tipo !== 'all' && h.tipo !== hospFiltros.tipo) return false;
@@ -739,14 +752,43 @@ function renderHospedagens() {
             </svg>
             <p>${hospFiltros.soFavoritos ? 'Você ainda não favoritou nenhuma hospedagem' : 'Nenhuma hospedagem encontrada com esses filtros'}</p>
         </div>`;
+        if (moreWrap) moreWrap.hidden = true;
         return;
     }
 
-    filtradas.forEach(h => {
+    const visiveis = hospExpandido ? filtradas : filtradas.slice(0, HOSP_VISIBLE_STEP);
+
+    visiveis.forEach(h => {
         try {
             grid.appendChild(buildHospedagemCard(h));
         } catch (err) {
             console.error('Erro ao renderizar card de hospedagem', h && h.id, err);
+        }
+    });
+
+    if (moreWrap) {
+        const restantes = filtradas.length - visiveis.length;
+        const btn = document.getElementById('btnHospMore');
+        if (restantes > 0 || (hospExpandido && filtradas.length > HOSP_VISIBLE_STEP)) {
+            moreWrap.hidden = false;
+            const label = btn?.querySelector('span');
+            if (label) label.textContent = hospExpandido ? 'Mostrar menos' : `Mostrar mais hospedagens (${restantes})`;
+            btn?.classList.toggle('is-expanded', hospExpandido);
+            btn?.setAttribute('aria-expanded', String(hospExpandido));
+        } else {
+            moreWrap.hidden = true;
+        }
+    }
+}
+
+function setupHospMoreToggle() {
+    const btn = document.getElementById('btnHospMore');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        hospExpandido = !hospExpandido;
+        renderHospedagens();
+        if (!hospExpandido) {
+            document.getElementById('secHospedagens')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     });
 }

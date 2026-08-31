@@ -860,6 +860,13 @@ body.visitor-mode #menuAdminPanel {
     transform: translateY(-2px);
 }
 
+/* O preenchimento claro do ::before (pensado só para o hover do estado
+   branco/inativo) não pode ligar quando o chip já está ativo — senão ele
+   pinta por cima do gradiente escuro no hover e "lava" a cor do botão. */
+.cat-filter-active::before {
+    content: none;
+}
+
 /* ================================================================
    EMPTY STATE
    ================================================================ */

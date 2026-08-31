@@ -301,11 +301,34 @@
                     <p>Hotéis, pousadas e chalés para sua estadia em Bueno Brandão</p>
                 </div>
             </div>
+
+            <div class="hosp-filters-bar" id="hospedagensFilters" hidden>
+                <div class="hosp-filter-group">
+                    <span class="hosp-filter-label">Tipo</span>
+                    <div class="category-filters" id="hospTipoFilters"></div>
+                </div>
+                <div class="hosp-filter-group">
+                    <span class="hosp-filter-label">Preço</span>
+                    <div class="category-filters" id="hospPrecoFilters"></div>
+                </div>
+                <div class="hosp-filter-group" id="hospAmenityGroup" hidden>
+                    <span class="hosp-filter-label">Comodidades</span>
+                    <div class="category-filters" id="hospAmenityFilters"></div>
+                </div>
+            </div>
+
             <div class="hospedagens-grid" id="hospedagensGrid">
                 <div class="loading-content">
                     <div class="spinner"></div>
                     <span>Carregando hospedagens…</span>
                 </div>
+            </div>
+
+            <div class="timeline-cta" id="hospMoreWrap" hidden>
+                <button type="button" class="timeline-more-btn" id="btnHospMore" aria-expanded="false">
+                    <span>Mostrar mais hospedagens</span>
+                    <svg class="timeline-toggle-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
             </div>
         </div>
     </section>
