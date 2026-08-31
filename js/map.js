@@ -750,7 +750,8 @@ const PC_ICON = {
     roteiroCheck: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.2L7.8 11.5L12.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     listen: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M3 7V11H6L10 14.5V3.5L6 7H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 6.2C13.3 7 13.8 8 13.8 9C13.8 10 13.3 11 12.5 11.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14.5 4C15.9 5.4 16.7 7.1 16.7 9C16.7 10.9 15.9 12.6 14.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".55"/></svg>',
     stop: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="4" width="10" height="10" rx="2" fill="currentColor"/></svg>',
-    accessible: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="11" cy="3.2" r="1.4" fill="currentColor"/><path d="M10.4 6.3L9.6 9.8H13.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.6 9.8L6.4 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.2 8.1H6.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="13" r="3.4" stroke="currentColor" stroke-width="1.4"/></svg>'
+    accessible: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="11" cy="3.2" r="1.4" fill="currentColor"/><path d="M10.4 6.3L9.6 9.8H13.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.6 9.8L6.4 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.2 8.1H6.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="13" r="3.4" stroke="currentColor" stroke-width="1.4"/></svg>',
+    trash: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M3.5 5.5H14.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M7 5.5V3.8C7 3.36 7.36 3 7.8 3H10.2C10.64 3 11 3.36 11 3.8V5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 5.5L6.1 14C6.15 14.55 6.6 15 7.16 15H10.84C11.4 15 11.85 14.55 11.9 14L12.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 8V12M10.5 8V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
 };
 
 /**
@@ -972,7 +973,7 @@ function createImmersiveCard(space) {
             </button>
             <button type="button" class="pc-fav${inRoteiro ? ' is-fav' : ''}" data-roteiro-id="${esc(space.id)}"
                     aria-label="${inRoteiro ? 'Remover do roteiro' : 'Adicionar ao roteiro'}">
-                ${inRoteiro ? PC_ICON.roteiroCheck : PC_ICON.roteiroAdd}<span>${inRoteiro ? 'No roteiro ✓' : 'Adicionar ao roteiro'}</span>
+                ${inRoteiro ? PC_ICON.roteiroCheck : PC_ICON.roteiroAdd}<span>${inRoteiro ? 'No roteiro' : 'Roteiro'}</span>
             </button>
             ${listenHTML}
             <button type="button" class="pc-share" data-share-id="${esc(space.id)}"
@@ -1054,87 +1055,6 @@ function renderDetailContent(space) {
     renderDicasSection(space);
 }
 
-// ===================================
-// MORPH: o pino "vira" o cartão
-// ===================================
-
-function shouldReduceMotion() {
-    return document.documentElement.classList.contains('a11y-reduce-motion') ||
-        (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-}
-
-// Anima o pino clicado até virar o cartão de detalhes. Puramente
-// decorativo — o #spaceDetail real mantém sua própria transição de
-// slide (translateX no desktop, translateY no mobile), inalterada;
-// o seed só dá a sensação de que ela "nasceu" do marcador.
-function playCardMorph(marker, space) {
-    const seed = document.getElementById('sdMorphSeed');
-    const panel = document.getElementById('spaceDetail');
-    if (!panel) return;
-
-    const markerEl = marker?.getElement();
-    const pinEl = markerEl?.querySelector('.marker-pin') || markerEl;
-    const pinRect = pinEl?.getBoundingClientRect();
-
-    // Sem seed, sem retângulo do pino (marcador fora da tela por algum
-    // motivo) ou com "reduzir movimento" ativo: abre direto, sem show.
-    if (!seed || !pinRect || shouldReduceMotion()) {
-        panel.classList.add('is-open');
-        return;
-    }
-
-    const color = categoryColors[space.categoria] || '#2d5a3d';
-    const mobile = isMobileDetailLayout();
-
-    seed.hidden = false;
-    seed.style.transition = 'none';
-    seed.style.background = color;
-    seed.style.borderRadius = '50%';
-    seed.style.opacity = '1';
-    seed.style.left = `${pinRect.left}px`;
-    seed.style.top = `${pinRect.top}px`;
-    seed.style.width = `${pinRect.width}px`;
-    seed.style.height = `${pinRect.height}px`;
-
-    // Força o navegador a "commitar" o estado inicial antes de mudar
-    // para o estado final — sem isso as duas mudanças se fundem numa
-    // só e a transição nunca é percebida.
-    void seed.offsetHeight;
-    seed.style.transition = '';
-
-    if (mobile) {
-        // "Pop and fade" no lugar do pino — percorrer a tela toda (de
-        // um círculo pequeno até uma faixa larga no rodapé) muda de
-        // forma bruscamente demais numa tela pequena. A gaveta real já
-        // sobe do rodapé sozinha, com sua própria transição.
-        const grown = pinRect.width * 2.4;
-        seed.style.left = `${pinRect.left - (grown - pinRect.width) / 2}px`;
-        seed.style.top = `${pinRect.top - (grown - pinRect.height) / 2}px`;
-        seed.style.width = `${grown}px`;
-        seed.style.height = `${grown}px`;
-        seed.style.opacity = '0';
-    } else {
-        // Desktop: cresce até um retângulo arredondado, ainda centrado
-        // sobre o pino — o painel real desliza por cima logo em seguida.
-        const targetW = 120;
-        const targetH = 72;
-        seed.style.left = `${pinRect.left + pinRect.width / 2 - targetW / 2}px`;
-        seed.style.top = `${pinRect.top + pinRect.height / 2 - targetH / 2}px`;
-        seed.style.width = `${targetW}px`;
-        seed.style.height = `${targetH}px`;
-        seed.style.borderRadius = '16px';
-        seed.style.opacity = '0';
-    }
-
-    const finalizeSeed = () => { seed.hidden = true; };
-    seed.addEventListener('transitionend', finalizeSeed, { once: true });
-    setTimeout(finalizeSeed, 420);
-
-    // O painel real "chega" perto do fim do crescimento do seed, não
-    // no instante do clique — é o que faz o gesto parecer uma coisa só.
-    setTimeout(() => panel.classList.add('is-open'), 120);
-}
-
 // Evita o marcador clicado ficar escondido atrás do painel lateral no
 // desktop (o painel sobrepõe o mapa em vez de redimensioná-lo).
 function panMapForDesktopPanel(latlng) {
@@ -1173,11 +1093,7 @@ function openSpaceDetail(space, marker) {
         requestAnimationFrame(() => backdrop.classList.add('is-visible'));
     }
 
-    if (wasClosed) {
-        playCardMorph(marker, space);
-    } else {
-        panel.classList.add('is-open');
-    }
+    panel.classList.add('is-open');
 
     setActiveMarker(marker);
     currentDetailSpaceId = space.id;
@@ -1667,11 +1583,20 @@ function formatDicaDate(timestamp) {
 }
 
 function buildDicasHTML(space, dicas) {
+    const myUid = firebase.auth().currentUser?.uid;
     const listHTML = dicas.length
         ? dicas.map(d => `
             <div class="cm-tip">
                 <p class="cm-tip__text">${esc(tidyText(d.texto))}</p>
-                <p class="cm-tip__author">${esc(d.autorNome || 'Visitante')} · ${formatDicaDate(d.createdAt)}</p>
+                <div class="cm-tip__meta">
+                    <p class="cm-tip__author">${esc(d.autorNome || 'Visitante')} · ${formatDicaDate(d.createdAt)}</p>
+                    ${d.autorUid && d.autorUid === myUid ? `
+                        <button type="button" class="cm-tip__delete" data-dica-delete="${esc(d.id)}" data-dica-space="${esc(space.id)}"
+                                aria-label="Apagar sua dica">
+                            ${PC_ICON.trash}
+                        </button>
+                    ` : ''}
+                </div>
             </div>
         `).join('')
         : `<p class="cm-empty">Seja o primeiro a deixar uma dica sobre este lugar!</p>`;
@@ -1728,6 +1653,25 @@ async function submitDica(espacoId, texto) {
         console.error('❌ Publicar dica:', error);
         showToast(
             error?.code === 'permission-denied' ? 'Sem permissão para publicar.' : 'Não foi possível publicar a dica agora.',
+            'error'
+        );
+    }
+}
+
+// Só o autor apaga a própria dica (ou admin, pelo painel) — regra
+// espelhada em firestore.rules (allow delete na subcoleção dicas).
+async function deleteDica(espacoId, dicaId) {
+    if (!confirm('Apagar esta dica? Essa ação não pode ser desfeita.')) return;
+
+    try {
+        await window.db.collection('espacos').doc(espacoId).collection('dicas').doc(dicaId).delete();
+        showToast('Dica apagada.', 'success');
+        const space = allSpaces.find(s => s.id === espacoId);
+        if (space) renderDicasSection(space);
+    } catch (error) {
+        console.error('❌ Apagar dica:', error);
+        showToast(
+            error?.code === 'permission-denied' ? 'Sem permissão para apagar.' : 'Não foi possível apagar a dica agora.',
             'error'
         );
     }
@@ -1829,6 +1773,13 @@ function setupCardActionDelegation() {
                 submitDica(espacoId, textarea.value);
                 textarea.value = '';
             }
+            return;
+        }
+
+        const dicaDeleteBtn = event.target.closest('[data-dica-delete]');
+        if (dicaDeleteBtn) {
+            event.preventDefault();
+            deleteDica(dicaDeleteBtn.dataset.dicaSpace, dicaDeleteBtn.dataset.dicaDelete);
         }
     });
 }

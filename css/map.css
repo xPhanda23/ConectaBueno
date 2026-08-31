@@ -1092,8 +1092,7 @@ body {
 
 /* ================================================================
    CARTÃO IMERSIVO DO PONTO TURÍSTICO
-   Componente próprio, prefixo .ic-*, estética editorial — o cartão
-   nasce do próprio marcador (ver .ic-morph-seed mais abaixo).
+   Componente próprio, prefixo .ic-*, estética editorial.
    ================================================================ */
 
 /* ── Casca do painel de detalhes (ver bloco .sd-* mais abaixo) ──── */
@@ -1268,11 +1267,51 @@ body {
     color: var(--grey-900);
 }
 
+.cm-tip__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
 .cm-tip__author {
     margin: 0;
     font-size: calc(11px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--grey-500);
+}
+
+/* Só aparece na própria dica (checagem de autoria em buildDicasHTML) —
+   discreto até o hover, para não competir com o texto da dica. */
+.cm-tip__delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: var(--grey-400);
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.cm-tip__delete .pc-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.cm-tip__delete:hover {
+    background: rgba(198, 40, 40, .1);
+    color: #c62828;
+}
+
+.cm-tip__delete:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
 }
 
 .cm-empty {
@@ -1306,18 +1345,18 @@ body {
     border-color: var(--clay-400);
 }
 
-/* Ações secundárias (favoritar, compartilhar, e adiante: roteiro/
-   ouvir/check-in): flex-wrap em vez do grid fixo de 2 colunas — cada
-   fase nova soma um botão sem precisar tocar neste CSS. */
+/* Ações secundárias (favoritar, roteiro, ouvir, compartilhar): grid
+   fixo de 2 colunas — com flex-wrap, 3 ou 4 botões de larguras
+   variadas "sobravam" um item sozinho numa linha própria, torto em
+   relação ao resto; o grid sempre fecha em pares (2x2 ou 2x1). */
 .ic-actions-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
 }
 
 .ic-actions-row > * {
-    flex: 1 1 100px;
-    min-width: 100px;
+    min-width: 0;
 }
 
 /* Check-in do passaporte cultural — estilo reservado aqui, botão
@@ -1407,6 +1446,17 @@ body {
 .pc-fav .pc-icon {
     width: 15px;
     height: 15px;
+    flex-shrink: 0;
+}
+
+/* Nunca quebra em duas linhas dentro da célula do grid — encurta com
+   reticências se faltar espaço (mesmo tratamento de .pc-btn span). */
+.pc-fav span,
+.pc-share span {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pc-fav:hover {
@@ -1517,15 +1567,18 @@ body {
     gap: 8px;
 }
 
-/* Apoio: ocupa a linha inteira quando é um só, divide quando são dois */
+/* Apoio: ocupa a linha inteira quando é um só, divide quando são dois.
+   Flexbox em vez de grid + :has() — cada botão já divide o espaço
+   igualmente sozinho, sem depender de suporte a :has() (inconsistente
+   em navegadores/WebViews mais antigos, incluindo alguns Android). */
 .pc-links {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
     gap: 8px;
 }
 
-.pc-links:has(> :nth-child(2)) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+.pc-links > * {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .pc-btn {
@@ -1605,7 +1658,6 @@ body {
     gap: 7px;
     min-height: 44px;
     padding: 8px 12px;
-    margin-top: 2px;
     background: none;
     border: none;
     border-radius: 10px;
@@ -1619,6 +1671,7 @@ body {
 .pc-share .pc-icon {
     width: 15px;
     height: 15px;
+    flex-shrink: 0;
 }
 
 .pc-share:hover {
@@ -1818,7 +1871,10 @@ body {
         padding: 12px 16px 14px;
     }
 
-    .pc-routes:has(> :nth-child(2)) {
+    /* routesHTML só é gerado com Google Maps + Waze juntos (ver
+       createImmersiveCard em map.js) — sempre 2 colunas aqui, sem
+       depender de :has() para contar filhos. */
+    .pc-routes {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
@@ -1833,29 +1889,6 @@ body {
 .marker-selected .marker-pin {
     transform: scale(1.22);
     box-shadow: 0 0 0 5px rgba(47, 158, 82, .32), 0 8px 20px rgba(0, 0, 0, .38);
-}
-
-/* ================================================================
-   MORPH SEED — o pino "vira" o cartão
-   Elemento decorativo (aria-hidden), controlado via estilo inline
-   por playCardMorph() em map.js: nasce do tamanho/posição exatos do
-   pino clicado e cresce até um retângulo arredondado, sumindo no
-   fim. Só usa `transition`, então tanto prefers-reduced-motion
-   quanto .a11y-reduce-motion colapsam a animação pra ~0ms sem
-   nenhum branch de JS (só a pausa artificial do stagger em
-   setTimeout precisa de um check em JS — ver shouldReduceMotion()).
-   ================================================================ */
-.ic-morph-seed {
-    position: fixed;
-    pointer-events: none;
-    z-index: 1055;
-    opacity: 0;
-    transition: left .38s cubic-bezier(.16, 1, .3, 1),
-                top .38s cubic-bezier(.16, 1, .3, 1),
-                width .38s cubic-bezier(.16, 1, .3, 1),
-                height .38s cubic-bezier(.16, 1, .3, 1),
-                border-radius .38s cubic-bezier(.16, 1, .3, 1),
-                opacity .18s ease .2s;
 }
 
 /* ================================================================
@@ -2083,10 +2116,6 @@ body {
 }
 .a11y-high-contrast .search-input,
 .a11y-high-contrast .map-control-btn { border-color: #000 !important; }
-
-/* Decorativo (aria-hidden) — some sob alto contraste em vez de tentar
-   se adequar à paleta flat de preto/branco. */
-.a11y-high-contrast .ic-morph-seed { display: none !important; }
 
 /* A foto de capa continua visível em alto contraste — nenhuma foto real
    deve sumir só porque o modo está ligado. O véu escuro (.ic-hero__scrim)
