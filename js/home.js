@@ -1313,9 +1313,9 @@ const TESTIMONIALS_DATA = [
     { nome: 'Lívia Bueno Alves', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A cultura de Bueno dá uma sensação de acolhimento. Ir a esses lugares sabendo que minha família já passou por ali traz um sentimento muito bom.', placeholder: true },
     { nome: 'Matheus Silvério Silva', papel: 'Aluno da EESOO - 3° ano EMTI', texto: 'Por conta das belas cachoeiras, das festas tradicionais que chamam a atenção e também por ser uma cidade muito calma e muito boa de se viver.', placeholder: true },
     { nome: 'Alessandra V. Beghini da Silva', papel: 'Professora da EESOO', texto: 'A possibilidade de estar em contato com a natureza e também a diversidade de eventos que atendem a vários públicos.', placeholder: true },
-    { nome: 'Lívia Bueno Alves', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A cultura de Bueno dá uma sensação de acolhimento. Ir a esses lugares sabendo que minha família já passou por ali traz um sentimento muito bom.', placeholder: true },
-    { nome: 'Matheus Silvério Silva', papel: 'Aluno da EESOO - 3° ano EMTI', texto: 'Por conta das belas cachoeiras, das festas tradicionais que chamam a atenção e também por ser uma cidade muito calma e muito boa de se viver.', placeholder: true },
-    { nome: 'Alessandra V. Beghini da Silva', papel: 'Professora da EESOO', texto: 'A possibilidade de estar em contato com a natureza e também a diversidade de eventos que atendem a vários públicos.', placeholder: true }
+    { nome: 'Luiza Mariana Lopes', papel: 'Aluna da EESOO - 3° ano EMTI', texto: 'Gosto das tradições como o Arraiá do Zé Bagunça, que é natural da nossa cidade, e da Buenata, que traz grande visibilidade para os vendedores da feira do produtor.', placeholder: true },
+    { nome: 'Estephane Fróes de Paula', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A forma em que mostramos nossa cultura, através da cultura artística, da infraestrutura antiga, da culinária e principalmente da nossa hospitalidade.', placeholder: true },
+    { nome: 'Vanessa Marques Ribeiro', papel: 'Professora da EESOO', texto: 'A variedade de opções culturais durante o ano.', placeholder: true }
 ];
 
 function renderTestimonials() {

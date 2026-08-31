@@ -1018,37 +1018,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ===================================
-   LOADING & TOAST
+   TOAST
 =================================== */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--off-white);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    z-index: 9999;
-    transition: opacity 0.3s ease;
-}
-
-.loading-spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--verde-suave);
-    border-top-color: var(--verde-floresta);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
+/* .loading-overlay / .loading-spinner / @keyframes spin vêm do panel.css
+   importado no topo deste arquivo — mesmo visual (fundo verde-escuro,
+   spinner branco) usado no resto do site. Não redeclarar aqui. */
 .toast-container {
     position: fixed;
     top: 24px;
