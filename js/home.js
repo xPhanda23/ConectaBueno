@@ -1312,6 +1312,9 @@ function renderCulturaViva() {
 const TESTIMONIALS_DATA = [
     { nome: 'Lívia Bueno Alves', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A cultura de Bueno dá uma sensação de acolhimento. Ir a esses lugares sabendo que minha família já passou por ali traz um sentimento muito bom.', placeholder: true },
     { nome: 'Matheus Silvério Silva', papel: 'Aluno da EESOO - 3° ano EMTI', texto: 'Por conta das belas cachoeiras, das festas tradicionais que chamam a atenção e também por ser uma cidade muito calma e muito boa de se viver.', placeholder: true },
+    { nome: 'Alessandra V. Beghini da Silva', papel: 'Professora da EESOO', texto: 'A possibilidade de estar em contato com a natureza e também a diversidade de eventos que atendem a vários públicos.', placeholder: true },
+    { nome: 'Lívia Bueno Alves', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A cultura de Bueno dá uma sensação de acolhimento. Ir a esses lugares sabendo que minha família já passou por ali traz um sentimento muito bom.', placeholder: true },
+    { nome: 'Matheus Silvério Silva', papel: 'Aluno da EESOO - 3° ano EMTI', texto: 'Por conta das belas cachoeiras, das festas tradicionais que chamam a atenção e também por ser uma cidade muito calma e muito boa de se viver.', placeholder: true },
     { nome: 'Alessandra V. Beghini da Silva', papel: 'Professora da EESOO', texto: 'A possibilidade de estar em contato com a natureza e também a diversidade de eventos que atendem a vários públicos.', placeholder: true }
 ];
 
@@ -1327,7 +1330,6 @@ function renderTestimonials() {
             <span class="testimonial-quote-mark" aria-hidden="true">"</span>
             <p class="testimonial-text">${esc(t.texto)}</p>
             <div class="testimonial-footer">
-                <div class="testimonial-avatar" aria-hidden="true">${esc(initialsOf(t.nome))}</div>
                 <div>
                     <div class="testimonial-name">${esc(t.nome)}</div>
                     <div class="testimonial-role">${esc(t.papel)}</div>

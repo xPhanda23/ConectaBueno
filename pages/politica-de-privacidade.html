@@ -22,188 +22,110 @@
     <div class="legal-container">
         <header class="legal-header">
             <h1>🔒 Política de Privacidade</h1>
-            <p class="subtitle">Conecta Bueno - Mapa Cultural de Bueno Brandão</p>
-            <p class="update-date">Última atualização: Janeiro de 2025</p>
+            <p class="subtitle">Conecta Bueno - Plataforma Cultural de Bueno Brandão</p>
+            <p class="update-date">Última atualização: Agosto de 2026</p>
         </header>
 
         <div class="legal-content">
-            
+
             <section>
                 <h2>1. Introdução</h2>
-                <p>A privacidade dos nossos usuários é extremamente importante para nós. Esta Política de Privacidade explica como coletamos, usamos, compartilhamos e protegemos suas informações pessoais quando você usa o <strong>Conecta Bueno</strong>.</p>
-                <p>Esta política está em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018)</strong>.</p>
+                <p>Esta política explica, de forma simples, quais dados o <strong>Conecta Bueno</strong> coleta e como eles são usados. Seguimos a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018).</p>
             </section>
 
             <section>
-                <h2>2. Informações que Coletamos</h2>
-                
-                <h3>2.1 Informações Fornecidas por Você</h3>
-                <p><strong>Ao criar uma conta permanente:</strong></p>
+                <h2>2. Modo visitante (sem conta)</h2>
+                <p>Você pode usar o mapa, os eventos e as hospedagens sem se cadastrar. Nesse modo, criamos automaticamente uma sessão anônima — sem nome, e-mail ou qualquer outro dado pessoal — só para o site funcionar com nosso banco de dados. Essa sessão não te identifica de forma alguma.</p>
+            </section>
+
+            <section>
+                <h2>3. Se você cria uma conta</h2>
+                <p>Ao se cadastrar com e-mail e senha, coletamos:</p>
                 <ul>
                     <li>Nome completo</li>
-                    <li>Endereço de e-mail</li>
-                    <li>Senha (armazenada de forma criptografada)</li>
+                    <li>E-mail</li>
+                    <li>Senha (gerenciada pelo Firebase Authentication, do Google — nós nunca vemos sua senha em texto puro)</li>
                 </ul>
-
-                <p><strong>Ao usar login social (Google):</strong></p>
-                <ul>
-                    <li>Nome e foto de perfil pública</li>
-                    <li>Endereço de e-mail</li>
-                </ul>
-
-                <p><strong>Ao criar conteúdo:</strong></p>
-                <ul>
-                    <li>Avaliações e comentários sobre pontos culturais</li>
-                    <li>Roteiros personalizados criados</li>
-                    <li>Lista de favoritos</li>
-                </ul>
-
-                <h3>2.2 Informações Coletadas Automaticamente</h3>
-                <ul>
-                    <li><strong>Dados de uso:</strong> páginas visitadas, tempo de navegação, cliques</li>
-                    <li><strong>Informações do dispositivo:</strong> tipo de navegador, sistema operacional, resolução de tela</li>
-                    <li><strong>Localização aproximada:</strong> derivada do endereço IP (não coletamos localização precisa sem sua permissão)</li>
-                    <li><strong>Cookies e tecnologias semelhantes</strong> (veja seção específica)</li>
-                </ul>
-
-                <h3>2.3 Visitantes Anônimos</h3>
-                <p>Se você usa o modo visitante:</p>
-                <ul>
-                    <li>Não coletamos informações pessoais identificáveis</li>
-                    <li>Armazenamos apenas um ID anônimo temporário</li>
-                    <li>Suas preferências não são salvas permanentemente</li>
-                </ul>
+                <p>Ao entrar com sua conta Google, recebemos seu nome, e-mail e foto de perfil pública associados a essa conta.</p>
+                <p>Se quiser, você também pode enviar uma foto de perfil própria em Configurações.</p>
             </section>
 
             <section>
-                <h2>3. Como Usamos Suas Informações</h2>
-                <p>Usamos suas informações para:</p>
+                <h2>4. O que fica salvo na sua conta</h2>
+                <p>Quando você está logado, guardamos, vinculados à sua conta:</p>
                 <ul>
-                    <li><strong>Fornecer o serviço:</strong> autenticação, salvar preferências, sincronizar dados</li>
-                    <li><strong>Personalizar experiência:</strong> recomendações baseadas em seus interesses</li>
-                    <li><strong>Melhorar o serviço:</strong> análises de uso, identificação de problemas técnicos</li>
-                    <li><strong>Comunicação:</strong> notificações importantes, atualizações do serviço (apenas se você permitir)</li>
-                    <li><strong>Segurança:</strong> prevenir fraudes, abuso e atividades maliciosas</li>
-                    <li><strong>Cumprimento legal:</strong> atender requisições legais quando necessário</li>
+                    <li>Seu <strong>Passaporte Cultural</strong> — os lugares que você marcou como visitados</li>
+                    <li>Seus lugares e eventos favoritos</li>
                 </ul>
+                <p>Esses dados ficam no Firestore (banco de dados do Firebase/Google Cloud) e sincronizam entre os dispositivos onde você faz login.</p>
             </section>
 
             <section>
-                <h2>4. Compartilhamento de Informações</h2>
-                <p><strong>Nós NÃO vendemos suas informações pessoais.</strong></p>
-                
-                <p>Compartilhamos informações apenas nas seguintes situações:</p>
+                <h2>5. O que fica salvo só no seu navegador</h2>
+                <p>Algumas informações não vão para nossos servidores — ficam apenas no armazenamento local (localStorage) do navegador que você está usando:</p>
                 <ul>
-                    <li><strong>Conteúdo público:</strong> avaliações e roteiros que você escolher tornar públicos</li>
-                    <li><strong>Provedores de serviço:</strong> Firebase (Google) para autenticação e banco de dados</li>
-                    <li><strong>Requisições legais:</strong> quando exigido por lei ou ordem judicial</li>
-                    <li><strong>Proteção de direitos:</strong> para proteger nossos direitos legais ou segurança</li>
-                    <li><strong>Com seu consentimento:</strong> em qualquer outra situação com sua permissão explícita</li>
+                    <li>Hospedagens favoritadas, quando você não está logado</li>
+                    <li>Meu Roteiro — a lista de lugares que você quer visitar</li>
+                    <li>Suas preferências de acessibilidade (alto contraste, tamanho de texto etc.)</li>
                 </ul>
+                <p>Se você limpar os dados do navegador ou trocar de dispositivo, essas informações somem — elas não estão vinculadas à sua conta.</p>
             </section>
 
             <section>
-                <h2>5. Firebase e Google Cloud</h2>
-                <p>Usamos o <strong>Firebase</strong> (Google) para:</p>
+                <h2>6. Localização</h2>
+                <p>No mapa, se você autorizar quando o navegador pedir, usamos sua localização apenas para calcular a distância até os lugares e mostrar quais estão mais perto de você. Esse dado é usado na hora, no seu próprio dispositivo, e não fica guardado em nossos servidores.</p>
+            </section>
+
+            <section>
+                <h2>7. Cookies</h2>
+                <p>O Conecta Bueno não usa cookies para rastrear sua navegação nem para publicidade. Usamos apenas o armazenamento local do navegador (localStorage), descrito no item 5, para lembrar suas preferências.</p>
+            </section>
+
+            <section>
+                <h2>8. Com quem compartilhamos seus dados</h2>
+                <p><strong>Não vendemos nem compartilhamos seus dados com terceiros para fins comerciais.</strong> Usamos o Firebase (Google Cloud) apenas como infraestrutura técnica de autenticação e armazenamento — seus dados ficam hospedados em servidores do Google. Só compartilhamos informações se exigido por lei.</p>
+                <p>Política de Privacidade do Firebase: <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener noreferrer">firebase.google.com/support/privacy</a></p>
+            </section>
+
+            <section>
+                <h2>9. Seus direitos</h2>
+                <p>De acordo com a LGPD, a qualquer momento você pode:</p>
                 <ul>
-                    <li>Autenticação de usuários</li>
-                    <li>Armazenamento de dados no Firestore</li>
-                    <li>Hospedagem de arquivos</li>
+                    <li><strong>Exportar seus dados</strong> — em Configurações → Exportar Dados, você baixa um arquivo com o que temos sobre sua conta</li>
+                    <li><strong>Excluir sua conta</strong> — em Configurações → Excluir Conta, você apaga permanentemente seu perfil, favoritos e passaporte cultural</li>
+                    <li><strong>Corrigir seus dados</strong> — edite seu nome e sua foto quando quiser em Configurações</li>
                 </ul>
-                <p>O Firebase está em conformidade com LGPD, GDPR e possui certificações de segurança internacionais. Seus dados são armazenados em servidores na região da América do Sul (São Paulo).</p>
-                <p>Política de Privacidade do Firebase: <a href="https://firebase.google.com/support/privacy" target="_blank">https://firebase.google.com/support/privacy</a></p>
+                <p>Ou, se preferir, escreva pra gente pelo e-mail no final desta página.</p>
             </section>
 
             <section>
-                <h2>6. Cookies e Tecnologias de Rastreamento</h2>
-                <p>Usamos cookies para:</p>
+                <h2>10. Segurança</h2>
+                <p>Usamos conexão criptografada (HTTPS) e o sistema de autenticação do Firebase/Google para proteger seu login. Nenhum sistema é 100% infalível, então também recomendamos usar uma senha forte e não compartilhá-la com ninguém.</p>
+            </section>
+
+            <section>
+                <h2>11. Menores de idade</h2>
+                <p>O Conecta Bueno é um projeto educacional aberto ao público em geral. Menores de 18 anos devem criar uma conta com orientação de um responsável.</p>
+            </section>
+
+            <section>
+                <h2>12. Links para sites externos</h2>
+                <p>O site pode conter links para sites de terceiros (redes sociais, sites de estabelecimentos). Não somos responsáveis pelas práticas de privacidade desses sites.</p>
+            </section>
+
+            <section>
+                <h2>13. Alterações nesta política</h2>
+                <p>Podemos atualizar este texto conforme o projeto evolui. A data no topo desta página sempre mostra a versão mais recente.</p>
+            </section>
+
+            <section>
+                <h2>14. Fale com a gente</h2>
+                <p>Dúvidas sobre seus dados ou sobre esta política:</p>
                 <ul>
-                    <li><strong>Cookies essenciais:</strong> manter você conectado, preferências básicas</li>
-                    <li><strong>Cookies de funcionalidade:</strong> lembrar suas escolhas (tema, idioma)</li>
-                    <li><strong>Cookies analíticos:</strong> entender como você usa o serviço</li>
+                    <li><strong>E-mail:</strong> <a href="mailto:joaogabrieldacostarochabb@gmail.com">joaogabrieldacostarochabb@gmail.com</a></li>
+                    <li><strong>Instagram:</strong> <a href="https://www.instagram.com/conecta_bueno/" target="_blank" rel="noopener noreferrer">@conecta_bueno</a></li>
                 </ul>
-                <p>Você pode desabilitar cookies nas configurações do seu navegador, mas isso pode afetar a funcionalidade do site.</p>
-            </section>
-
-            <section>
-                <h2>7. Segurança dos Dados</h2>
-                <p>Implementamos medidas de segurança para proteger suas informações:</p>
-                <ul>
-                    <li>Criptografia SSL/TLS para transmissão de dados</li>
-                    <li>Senhas armazenadas com hash criptográfico (bcrypt)</li>
-                    <li>Autenticação de dois fatores disponível (opcional)</li>
-                    <li>Acesso restrito aos dados por nossa equipe</li>
-                    <li>Backups regulares e redundância de dados</li>
-                </ul>
-                <p><strong>Importante:</strong> Nenhum sistema é 100% seguro. Você também é responsável por manter sua senha segura.</p>
-            </section>
-
-            <section>
-                <h2>8. Retenção de Dados</h2>
-                <p>Mantemos suas informações enquanto sua conta estiver ativa ou conforme necessário para fornecer o serviço.</p>
-                <ul>
-                    <li><strong>Contas ativas:</strong> dados mantidos indefinidamente</li>
-                    <li><strong>Contas excluídas:</strong> dados pessoais deletados em até 30 dias</li>
-                    <li><strong>Contas anônimas:</strong> dados deletados após 90 dias de inatividade</li>
-                    <li><strong>Logs do sistema:</strong> mantidos por até 1 ano para segurança</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>9. Seus Direitos (LGPD)</h2>
-                <p>De acordo com a LGPD, você tem direito a:</p>
-                <ul>
-                    <li><strong>Acesso:</strong> confirmar se processamos seus dados e obter uma cópia</li>
-                    <li><strong>Correção:</strong> atualizar dados incompletos ou incorretos</li>
-                    <li><strong>Exclusão:</strong> solicitar a remoção de seus dados</li>
-                    <li><strong>Portabilidade:</strong> exportar seus dados em formato estruturado</li>
-                    <li><strong>Revogação:</strong> retirar consentimento a qualquer momento</li>
-                    <li><strong>Oposição:</strong> opor-se ao processamento de seus dados</li>
-                    <li><strong>Informação:</strong> saber com quem compartilhamos seus dados</li>
-                </ul>
-                <p>Para exercer esses direitos, entre em contato: <strong>privacidade@conectabueno.com.br</strong></p>
-            </section>
-
-            <section>
-                <h2>10. Menores de Idade</h2>
-                <p>O Conecta Bueno é destinado a usuários maiores de 13 anos. Se você tem entre 13 e 18 anos, deve usar o serviço com supervisão de um responsável legal.</p>
-                <p>Não coletamos intencionalmente dados de crianças menores de 13 anos. Se você acredita que coletamos dados de uma criança, entre em contato imediatamente.</p>
-            </section>
-
-            <section>
-                <h2>11. Links para Sites Externos</h2>
-                <p>Nosso serviço pode conter links para sites de terceiros (redes sociais, sites de estabelecimentos). Não somos responsáveis pelas práticas de privacidade desses sites. Recomendamos que você leia as políticas de privacidade de todos os sites que visita.</p>
-            </section>
-
-            <section>
-                <h2>12. Alterações nesta Política</h2>
-                <p>Podemos atualizar esta política periodicamente. Notificaremos sobre mudanças significativas através de:</p>
-                <ul>
-                    <li>Aviso na página de login</li>
-                    <li>E-mail (se você tiver uma conta)</li>
-                    <li>Atualização da data no topo desta página</li>
-                </ul>
-                <p>O uso continuado após as mudanças constitui aceitação da nova política.</p>
-            </section>
-
-            <section>
-                <h2>13. Contato e Encarregado de Dados</h2>
-                <p>Para questões sobre privacidade e proteção de dados:</p>
-                <ul>
-                    <li><strong>E-mail:</strong> privacidade@conectabueno.com.br</li>
-                    <li><strong>Encarregado de Dados (DPO):</strong> dpo@conectabueno.com.br</li>
-                    <li><strong>Endereço:</strong> Bueno Brandão, Minas Gerais, Brasil</li>
-                </ul>
-                <p>Responderemos sua solicitação em até 15 dias úteis.</p>
-            </section>
-
-            <section>
-                <h2>14. Autoridade Nacional de Proteção de Dados (ANPD)</h2>
-                <p>Você tem o direito de apresentar uma reclamação à ANPD:</p>
-                <ul>
-                    <li><strong>Site:</strong> <a href="https://www.gov.br/anpd" target="_blank">www.gov.br/anpd</a></li>
-                    <li><strong>E-mail:</strong> cidadao@anpd.gov.br</li>
-                </ul>
+                <p>Você também pode registrar uma reclamação na Autoridade Nacional de Proteção de Dados: <a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer">gov.br/anpd</a>.</p>
             </section>
 
         </div>
@@ -212,6 +134,8 @@
             <a href="../index.html" class="btn-back">← Voltar para o início</a>
             <nav class="legal-footer-nav" aria-label="Links legais">
                 <a href="termos-de-uso.html">Termos de Uso</a>
+                <span>·</span>
+                <a href="https://www.instagram.com/conecta_bueno/" target="_blank" rel="noopener noreferrer">Instagram</a>
                 <span>·</span>
                 <a href="mailto:joaogabrieldacostarochabb@gmail.com">Fale conosco</a>
             </nav>
