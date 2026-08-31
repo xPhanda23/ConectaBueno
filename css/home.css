@@ -193,7 +193,7 @@ body.visitor-mode #menuAdminPanel {
 .hero-content {
     position: relative;
     z-index: 2;
-    max-width: 720px;
+    max-width: 860px;
     text-align: center;
     padding: 96px 24px 40px;
     color: white;
@@ -429,7 +429,10 @@ body.visitor-mode #menuAdminPanel {
    SECTIONS
    ================================================================ */
 .section {
-    padding: 104px 0;
+    padding: clamp(64px, 7vw, 104px) 0;
+    /* O header é fixed: sem isto, links de âncora param com o título
+       escondido atrás dele. */
+    scroll-margin-top: 80px;
     position: relative;
     z-index: 10;
     background: white;
@@ -518,10 +521,14 @@ body.visitor-mode #menuAdminPanel {
    EVENT CARDS
    ================================================================ */
 .eventos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
+    margin-bottom: 32px;
 }
+
+.event-card { flex: 1 1 300px; max-width: 380px; }
 
 .event-card {
     background: white;
@@ -670,10 +677,13 @@ body.visitor-mode #menuAdminPanel {
    PLACE CARDS
    ================================================================ */
 .places-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
 }
+
+.place-card { flex: 1 1 260px; max-width: 340px; }
 
 .place-card {
     background: white;
@@ -718,6 +728,7 @@ body.visitor-mode #menuAdminPanel {
 
 .place-content {
     flex: 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -752,11 +763,15 @@ body.visitor-mode #menuAdminPanel {
 .place-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     font-size: calc(13px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--leaf-700);
-    margin-top: 8px;
+    /* auto (e não 8px) para o link encostar no rodapé do card, alinhado
+       com o dos cards vizinhos mesmo com títulos de alturas diferentes. */
+    margin-top: auto;
+    padding-top: 8px;
     transition: gap 0.15s, color 0.15s;
     text-decoration: none;
 }
@@ -850,6 +865,8 @@ body.visitor-mode #menuAdminPanel {
    ================================================================ */
 .empty-state {
     grid-column: 1 / -1;
+    flex: 1 1 100%;
+    max-width: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -882,6 +899,8 @@ body.visitor-mode #menuAdminPanel {
 
 .loading-content {
     grid-column: 1 / -1;
+    flex: 1 1 100%;
+    max-width: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1382,7 +1401,7 @@ body.visitor-mode #menuAdminPanel {
    ================================================================ */
 .cv-facts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
     margin-bottom: 56px;
 }
@@ -1437,10 +1456,13 @@ body.visitor-mode #menuAdminPanel {
 }
 
 .cv-profiles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
 }
+
+.cv-profile-card { flex: 1 1 280px; max-width: 360px; }
 
 .cv-profile-card {
     background: white;
@@ -1516,10 +1538,13 @@ body.visitor-mode #menuAdminPanel {
    DEPOIMENTOS
    ================================================================ */
 .testimonials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
 }
+
+.testimonial-card { flex: 1 1 300px; max-width: 400px; }
 
 .testimonial-card {
     background: white;
@@ -1594,10 +1619,13 @@ body.visitor-mode #menuAdminPanel {
    HOSPEDAGENS
    ================================================================ */
 .hospedagens-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
 }
+
+.hospedagem-card { flex: 1 1 300px; max-width: 380px; }
 
 .hospedagem-card {
     background: white;
@@ -1690,6 +1718,14 @@ body.visitor-mode #menuAdminPanel {
     border-radius: 999px;
 }
 
+/* Contador "+N" no card — as comodidades além da 4ª só aparecem em
+   "Ver detalhes", pra não empurrar os botões de ação pra baixo de uma
+   parede de chips. */
+.hosp-amenity-more {
+    color: var(--grey-500);
+    background: var(--grey-100);
+}
+
 .hosp-actions {
     display: flex;
     gap: 8px;
@@ -1719,6 +1755,11 @@ body.visitor-mode #menuAdminPanel {
     background: var(--green-50);
 }
 
+.hosp-action-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(47, 158, 82, 0.35);
+}
+
 .hosp-action-btn-primary {
     background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
     border-color: var(--leaf-900);
@@ -1729,6 +1770,184 @@ body.visitor-mode #menuAdminPanel {
     color: white;
     background: linear-gradient(135deg, var(--leaf-500), var(--leaf-900));
     filter: brightness(1.08);
+}
+
+/* ── Filtros (tipo, preço, comodidades) ─────────────────────────── */
+.hosp-filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 32px;
+    margin-bottom: 28px;
+}
+
+.hosp-filter-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.hosp-filter-label {
+    font-size: calc(11px * var(--a11y-text-scale, 1));
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--grey-500);
+    flex-shrink: 0;
+}
+
+.hosp-filter-group .category-filters {
+    margin-bottom: 0;
+    gap: 8px;
+}
+
+.cat-filter-sm {
+    padding: 6px 14px;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+}
+
+.hosp-fav-filter { margin-left: 4px; }
+
+.hosp-fav-filter.cat-filter-active {
+    background: linear-gradient(135deg, #ef5c78, #c8324f);
+}
+
+/* ── Favoritar — coração sobre a foto, salvo no navegador ───────── */
+.hosp-fav-btn {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--grey-500);
+    cursor: pointer;
+    transition: color .2s, transform .2s;
+}
+
+.hosp-fav-btn:hover {
+    color: #e1385a;
+    transform: scale(1.08);
+}
+
+.hosp-fav-btn.is-favorito { color: #e1385a; }
+.hosp-fav-btn.is-favorito svg path { fill: currentColor; }
+
+.hosp-fav-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(225, 56, 90, .4);
+}
+
+@keyframes hospFavPop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+.hosp-fav-btn.hosp-fav-pop { animation: hospFavPop .3s cubic-bezier(.4,0,.2,1); }
+
+/* ── Detalhes expansíveis (inline, sem modal) ────────────────────
+   Endereço, telefone, nº de quartos e capacidade já ficam salvos no
+   painel, mas o cartão nunca mostrava. Em vez de inflar o cartão por
+   padrão, ficam atrás de "Ver detalhes" — mesmo tratamento inline da
+   linha do tempo completa (ver setupTimelineToggle em home.js). */
+.hospedagem-card.has-details { cursor: pointer; }
+
+.hosp-details-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2px;
+    padding: 8px;
+    border: none;
+    border-top: 1px dashed var(--grey-200);
+    background: none;
+    font: inherit;
+    font-size: calc(12.5px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    color: var(--leaf-700);
+    cursor: pointer;
+}
+
+.hosp-details-toggle:hover {
+    color: var(--leaf-900);
+    background: var(--green-50);
+}
+
+.hosp-details-toggle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(47, 158, 82, 0.35);
+}
+
+.hosp-details-toggle svg { transition: transform .3s cubic-bezier(.4,0,.2,1); }
+.hosp-details-toggle.is-expanded svg { transform: rotate(180deg); }
+
+.hosp-details {
+    max-height: 0;
+    overflow: hidden;
+    /* Cancela o gap de flex de .hosp-content (10px) reservado acima deste
+       item mesmo com max-height:0 — sem isso sobrava um respiro fantasma
+       abaixo de "Ver detalhes" no estado recolhido. O respiro visível no
+       estado aberto vem só do padding-top de .hosp-details-inner. */
+    margin-top: -10px;
+    transition: max-height .45s cubic-bezier(.22,1,.36,1);
+}
+
+.hosp-details-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 12px;
+}
+
+.hosp-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--green-50);
+    font-size: calc(13px * var(--a11y-text-scale, 1));
+    color: var(--grey-700);
+}
+
+.hosp-detail-row svg { flex-shrink: 0; color: var(--leaf-700); }
+
+.hosp-detail-link {
+    text-decoration: none;
+    transition: background .2s, color .2s;
+}
+
+.hosp-detail-link:hover {
+    background: var(--green-100);
+    color: var(--leaf-900);
+}
+
+.hosp-detail-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(47, 158, 82, 0.35);
+}
+
+.hosp-detail-link span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hosp-detail-cta {
+    flex-shrink: 0;
+    font-weight: 800;
+    color: var(--leaf-900);
 }
 
 /* ================================================================
@@ -1744,10 +1963,12 @@ body.visitor-mode #menuAdminPanel {
         order: -1;
     }
     
-    .eventos-grid,
-    .places-grid {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    }
+    .event-card,
+    .hospedagem-card,
+    .testimonial-card,
+    .cv-profile-card { flex-basis: 260px; }
+
+    .place-card { flex-basis: 230px; }
 
     .timeline::before {
         left: 20px;
@@ -1830,17 +2051,36 @@ body.visitor-mode #menuAdminPanel {
         font-size: calc(14px * var(--a11y-text-scale, 1));
     }
     
+    /* Uma coluna: o card ocupa a largura inteira em vez de ficar
+       centralizado com sobra dos dois lados. */
     .eventos-grid,
-    .places-grid {
-        grid-template-columns: 1fr;
+    .places-grid,
+    .hospedagens-grid,
+    .testimonials-grid,
+    .cv-profiles-grid {
         gap: 16px;
     }
-    
+
     .event-card,
-    .place-card {
+    .place-card,
+    .hospedagem-card,
+    .testimonial-card,
+    .cv-profile-card {
+        flex: 1 1 100%;
+        max-width: 100%;
         margin: 0;
     }
-    
+
+    /* Rótulo sempre numa linha própria — em vez de disputar espaço com
+       o primeiro chip e deixar a fileira toda desalinhada. */
+    .hosp-filter-label { flex-basis: 100%; }
+
+    /* Alvo de toque maior no coração de favoritos em telas pequenas. */
+    .hosp-fav-btn {
+        width: 40px;
+        height: 40px;
+    }
+
     .about-text h2 {
         font-size: calc(26px * var(--a11y-text-scale, 1));
         margin-bottom: 16px;
@@ -1857,9 +2097,9 @@ body.visitor-mode #menuAdminPanel {
     }
 
     .about-highlights {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
         margin: 24px 0;
-        gap: 12px;
+        gap: 10px;
     }
 
     .highlight-item {
@@ -1890,16 +2130,34 @@ body.visitor-mode #menuAdminPanel {
         font-size: calc(13px * var(--a11y-text-scale, 1));
     }
     
+    /* No celular o card centralizado (ícone grande em cima, texto embaixo)
+       gastava ~230px de altura por lugar. Em linha, o ícone vira uma
+       miniatura à esquerda e a lista fica varrível com o polegar. */
+    .place-card {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 14px;
+        padding: 16px;
+    }
+
     .place-icon {
-        width: 70px;
-        height: 70px;
+        width: 52px;
+        height: 52px;
+        flex-shrink: 0;
     }
-    
+
     .place-icon svg {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
     }
-    
+
+    .place-link {
+        justify-content: flex-start;
+        margin-top: 4px;
+        padding-top: 0;
+    }
+
     .place-name {
         font-size: calc(16px * var(--a11y-text-scale, 1));
     }
@@ -2003,7 +2261,10 @@ body.visitor-mode #menuAdminPanel {
 .a11y-high-contrast .timeline-dot,
 .a11y-high-contrast .news-card,
 .a11y-high-contrast .hosp-price-badge,
-.a11y-high-contrast .hosp-action-btn { border: 1px solid #000 !important; }
+.a11y-high-contrast .hosp-action-btn,
+.a11y-high-contrast .hosp-fav-btn,
+.a11y-high-contrast .hosp-details-toggle,
+.a11y-high-contrast .hosp-detail-link { border: 1px solid #000 !important; }
 .a11y-high-contrast .cat-filter-active {
     background: #000 !important;
     color: #fff !important;
@@ -2019,6 +2280,9 @@ body.visitor-mode #menuAdminPanel {
 .a11y-reduce-motion .hero-scroll-indicator,
 .a11y-reduce-motion .about-slider { animation: none !important; }
 .a11y-reduce-motion .about-slide { transition: none !important; }
+.a11y-reduce-motion .hosp-fav-btn.hosp-fav-pop { animation: none !important; }
+.a11y-reduce-motion .hosp-details,
+.a11y-reduce-motion .hosp-details-toggle svg { transition: none !important; }
 
 .a11y-underline-links .hero-btn,
 .a11y-underline-links .section-link { text-decoration: none !important; }

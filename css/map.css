@@ -1491,6 +1491,13 @@ body {
 .pc-info__item--paid { color: var(--clay-800); font-weight: 600; }
 .pc-info__item--paid .pc-icon { color: var(--clay-600); }
 
+.pc-info__item--accessible { color: var(--leaf-700); font-weight: 600; }
+.pc-info__item--accessible .pc-icon { color: var(--leaf-700); }
+.pc-info__item--partial { color: var(--clay-800); font-weight: 600; }
+.pc-info__item--partial .pc-icon { color: var(--clay-600); }
+.pc-info__item--not-accessible { color: var(--grey-500); }
+.pc-info__item--not-accessible .pc-icon { color: var(--grey-500); }
+
 /* ── Ações ────────────────────────────────────────────────────── */
 .pc-actions {
     flex-shrink: 0;

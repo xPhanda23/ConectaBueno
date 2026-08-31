@@ -269,14 +269,12 @@
 }
 
 @media (max-width: 420px) {
-    /* Espaço demais disputado na primeira linha: o medidor desce e o
-       título fica com a largura inteira. Com o bloco de texto alto, o
-       selo centralizado descolava da primeira linha — daí o start. */
-    .tp-top {
-        grid-template-columns: auto 1fr;
-        align-items: start;
-    }
+    /* Espaço demais disputado na primeira linha para orb + título + medidor.
+       O medidor é só reforço visual do nível (que já está no ícone, na cor
+       e no texto) — em vez de empurrá-lo para uma linha própria e deixar
+       espaço vazio sobrando ao lado das barrinhas, ele soma no selo. */
+    .tp-top { grid-template-columns: auto 1fr; }
 
-    .tp-gauge { grid-column: 1 / -1; }
+    .tp-gauge { display: none; }
     .tp-agenda-names { display: none; }
 }

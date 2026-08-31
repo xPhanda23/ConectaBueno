@@ -559,13 +559,60 @@ const PRECO_LABELS = {
     alto_padrao: '$$$'
 };
 
+const TIPO_LABELS = {
+    Hotel: 'Hotel', Pousada: 'Pousada', Chale: 'Chalé', Camping: 'Camping', Hostel: 'Hostel'
+};
+
+// Além dessa quantidade, o resto das comodidades some para dentro de
+// "Ver detalhes" — mostrar todas no card empurra os botões de ação
+// (WhatsApp/Site) pra baixo de uma parede de chips.
+const AMENITY_VISIBLE_MAX = 4;
+
+let todosHospedagens = [];
+const hospFiltros = { tipo: 'all', preco: 'all', comodidades: [], soFavoritos: false };
+
+// Favoritos ficam só no navegador do visitante — sem conta, sem Firestore.
+// Mesmo padrão de persistência do "Meu roteiro" em map.js.
+const HOSP_FAV_KEY = 'cb_hospedagens_favoritos';
+let hospedagensFavoritas = [];
+
+function carregarFavoritosHospedagem() {
+    try {
+        const raw = localStorage.getItem(HOSP_FAV_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        hospedagensFavoritas = Array.isArray(parsed) ? parsed : [];
+    } catch {
+        hospedagensFavoritas = [];
+    }
+}
+
+function salvarFavoritosHospedagem() {
+    try {
+        localStorage.setItem(HOSP_FAV_KEY, JSON.stringify(hospedagensFavoritas));
+    } catch {
+        // localStorage indisponível (modo privado etc.) — segue sem persistir
+    }
+}
+
+function ehFavoritaHospedagem(id) {
+    return hospedagensFavoritas.includes(id);
+}
+
+function alternarFavoritaHospedagem(id) {
+    hospedagensFavoritas = ehFavoritaHospedagem(id)
+        ? hospedagensFavoritas.filter(fid => fid !== id)
+        : [...hospedagensFavoritas, id];
+    salvarFavoritosHospedagem();
+}
+
 async function loadHospedagens() {
     const grid = document.getElementById('hospedagensGrid');
     if (!grid) return;
 
+    carregarFavoritosHospedagem();
+
     try {
-        const snap = await db.collection('hospedagens').where('status', '==', 'ativo').limit(9).get();
-        grid.innerHTML = '';
+        const snap = await db.collection('hospedagens').where('status', '==', 'ativo').limit(30).get();
 
         if (!snap || snap.empty) {
             grid.innerHTML = `<div class="empty-state">
@@ -577,9 +624,9 @@ async function loadHospedagens() {
             return;
         }
 
-        snap.docs.forEach(doc => {
-            grid.appendChild(buildHospedagemCard({ id: doc.id, ...doc.data() }));
-        });
+        todosHospedagens = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        buildHospedagemFilters(todosHospedagens);
+        renderHospedagens();
 
     } catch (err) {
         console.error('❌ Hospedagens:', err);
@@ -589,33 +636,249 @@ async function loadHospedagens() {
     }
 }
 
+function chipFiltro(value, label, active, small) {
+    return `<button type="button" class="cat-filter${small ? ' cat-filter-sm' : ''}${active ? ' cat-filter-active' : ''}" data-value="${esc(value)}" aria-pressed="${active}">${label}</button>`;
+}
+
+function buildHospedagemFilters(lista) {
+    const bar = document.getElementById('hospedagensFilters');
+    const tipoWrap = document.getElementById('hospTipoFilters');
+    const precoWrap = document.getElementById('hospPrecoFilters');
+    const amenityGroup = document.getElementById('hospAmenityGroup');
+    const amenityWrap = document.getElementById('hospAmenityFilters');
+    if (!bar || !tipoWrap || !precoWrap) return;
+
+    // Filtro só faz sentido quando há o que comparar.
+    if (lista.length < 2) { bar.hidden = true; return; }
+    bar.hidden = false;
+
+    const tipos = [...new Set(lista.map(h => h.tipo).filter(Boolean))].sort();
+    const amenidades = [...new Set(lista.flatMap(h => Array.isArray(h.comodidades) ? h.comodidades : []))];
+
+    tipoWrap.innerHTML = chipFiltro('all', 'Todos', true) +
+        tipos.map(t => chipFiltro(t, `${getCatIcon(t)} ${esc(TIPO_LABELS[t] || t)}`, false)).join('');
+
+    precoWrap.innerHTML = chipFiltro('all', 'Todos', true) +
+        Object.entries(PRECO_LABELS).map(([key, label]) => chipFiltro(key, label, false)).join('') +
+        `<button type="button" class="cat-filter hosp-fav-filter" id="hospFavFilterBtn" aria-pressed="false"></button>`;
+
+    if (amenityGroup && amenityWrap) {
+        amenityGroup.hidden = amenidades.length === 0;
+        amenityWrap.innerHTML = amenidades
+            .map(a => chipFiltro(a, esc(AMENITY_LABELS[a] || a), false, true))
+            .join('');
+        amenityWrap.querySelectorAll('button[data-value]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = btn.dataset.value;
+                const idx = hospFiltros.comodidades.indexOf(val);
+                if (idx === -1) hospFiltros.comodidades.push(val);
+                else hospFiltros.comodidades.splice(idx, 1);
+                btn.classList.toggle('cat-filter-active');
+                btn.setAttribute('aria-pressed', String(idx === -1));
+                renderHospedagens();
+            });
+        });
+    }
+
+    tipoWrap.querySelectorAll('button[data-value]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            tipoWrap.querySelectorAll('button').forEach(b => b.classList.remove('cat-filter-active'));
+            btn.classList.add('cat-filter-active');
+            hospFiltros.tipo = btn.dataset.value;
+            renderHospedagens();
+        });
+    });
+
+    precoWrap.querySelectorAll('button[data-value]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            precoWrap.querySelectorAll('button[data-value]').forEach(b => b.classList.remove('cat-filter-active'));
+            btn.classList.add('cat-filter-active');
+            hospFiltros.preco = btn.dataset.value;
+            renderHospedagens();
+        });
+    });
+
+    document.getElementById('hospFavFilterBtn')?.addEventListener('click', () => {
+        hospFiltros.soFavoritos = !hospFiltros.soFavoritos;
+        atualizarBotaoFavoritosFiltro();
+        renderHospedagens();
+    });
+
+    atualizarBotaoFavoritosFiltro();
+}
+
+function atualizarBotaoFavoritosFiltro() {
+    const btn = document.getElementById('hospFavFilterBtn');
+    if (!btn) return;
+    btn.classList.toggle('cat-filter-active', hospFiltros.soFavoritos);
+    btn.setAttribute('aria-pressed', String(hospFiltros.soFavoritos));
+    btn.textContent = `❤ Favoritos${hospedagensFavoritas.length ? ` (${hospedagensFavoritas.length})` : ''}`;
+}
+
+function renderHospedagens() {
+    const grid = document.getElementById('hospedagensGrid');
+    if (!grid) return;
+
+    const filtradas = todosHospedagens.filter(h => {
+        if (hospFiltros.tipo !== 'all' && h.tipo !== hospFiltros.tipo) return false;
+        if (hospFiltros.preco !== 'all' && h.faixaPreco !== hospFiltros.preco) return false;
+        if (hospFiltros.soFavoritos && !ehFavoritaHospedagem(h.id)) return false;
+        if (hospFiltros.comodidades.length) {
+            const lista = Array.isArray(h.comodidades) ? h.comodidades : [];
+            if (!hospFiltros.comodidades.every(c => lista.includes(c))) return false;
+        }
+        return true;
+    });
+
+    grid.innerHTML = '';
+
+    if (!filtradas.length) {
+        grid.innerHTML = `<div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <path d="M5 40V17L24 6L43 17V40H27V27H21V40H5Z" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>
+            <p>${hospFiltros.soFavoritos ? 'Você ainda não favoritou nenhuma hospedagem' : 'Nenhuma hospedagem encontrada com esses filtros'}</p>
+        </div>`;
+        return;
+    }
+
+    filtradas.forEach(h => {
+        try {
+            grid.appendChild(buildHospedagemCard(h));
+        } catch (err) {
+            console.error('Erro ao renderizar card de hospedagem', h && h.id, err);
+        }
+    });
+}
+
 function buildHospedagemCard(h) {
     const imgStyle = h.imagem ? ` style="background-image:url('${esc(h.imagem)}')"` : '';
     const precoTag = PRECO_LABELS[h.faixaPreco] || '';
-    const amenities = Array.isArray(h.comodidades) ? h.comodidades.slice(0, 4) : [];
+    const amenities = Array.isArray(h.comodidades) ? h.comodidades : [];
+    const amenitiesVisiveis = amenities.slice(0, AMENITY_VISIBLE_MAX);
+    const amenitiesExtra = amenities.slice(AMENITY_VISIBLE_MAX);
+    const favorita = ehFavoritaHospedagem(h.id);
+
+    // Campos que já ficam salvos no painel mas o card antigo nunca mostrava.
+    const detalhes = [];
+
+    if (h.endereco) {
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(h.endereco + ', Bueno Brandão, MG')}`;
+        detalhes.push(`
+            <a class="hosp-detail-row hosp-detail-link" href="${esc(mapsUrl)}" target="_blank" rel="noopener" title="${esc(h.endereco)}">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.5C5.2 1.5 3 3.7 3 6.4c0 3.6 5 8.1 5 8.1s5-4.5 5-8.1c0-2.7-2.2-4.9-5-4.9Z" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="6.3" r="1.8" stroke="currentColor" stroke-width="1.4"/></svg>
+                <span>${esc(h.endereco)}</span>
+                <span class="hosp-detail-cta">Ver rota</span>
+            </a>`);
+    }
+
+    if (h.telefone) {
+        detalhes.push(`
+            <a class="hosp-detail-row hosp-detail-link" href="tel:${esc(String(h.telefone).replace(/\D/g, ''))}">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 2h2.2l1 3-1.4 1.1a8 8 0 0 0 3.6 3.6l1.1-1.4 3 1v2.2c0 .7-.6 1.2-1.3 1.1C7.4 12.2 3.8 8.6 3.4 4.3 3.3 3.6 3.8 3 4.5 3" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                <span>${esc(h.telefone)}</span>
+                <span class="hosp-detail-cta">Ligar</span>
+            </a>`);
+    }
+
+    if (h.numQuartos || h.capacidade) {
+        const partes = [];
+        if (h.numQuartos) partes.push(`${h.numQuartos} ${h.numQuartos === 1 ? 'quarto' : 'quartos'}`);
+        if (h.capacidade) partes.push(`até ${h.capacidade} hóspedes`);
+        detalhes.push(`
+            <div class="hosp-detail-row">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1.5 12.5V4.5a1 1 0 0 1 1-1H8v3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M1.5 9.5h12.2a.8.8 0 0 1 .8.8v2.2M1.5 12.5h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="4.3" cy="7" r="1.1" stroke="currentColor" stroke-width="1.2"/></svg>
+                <span>${esc(partes.join(' · '))}</span>
+            </div>`);
+    }
+
+    if (amenitiesExtra.length) {
+        detalhes.push(`<div class="hosp-amenities">${amenitiesExtra.map(a => `<span class="hosp-amenity">${esc(AMENITY_LABELS[a] || a)}</span>`).join('')}</div>`);
+    }
 
     const card = document.createElement('article');
     card.className = 'hospedagem-card';
+    card.dataset.id = h.id;
     card.innerHTML = `
         <div class="hosp-img"${imgStyle}>
             ${!h.imagem ? `<svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M5 30V13L18 5L31 13V30H20V20H16V30H5Z" stroke="currentColor" stroke-width="2"/></svg>` : ''}
+            <button type="button" class="hosp-fav-btn${favorita ? ' is-favorito' : ''}" aria-pressed="${favorita}" aria-label="${favorita ? 'Remover dos favoritos' : 'Favoritar'} ${esc(h.nome || 'hospedagem')}">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 15.8s-6.3-3.9-6.3-8.4c0-2.2 1.8-3.9 4-3.9 1.2 0 2.3.6 3 1.5.7-.9 1.8-1.5 3-1.5 2.2 0 4 1.7 4 3.9 0 4.5-6.3 8.4-6.3 8.4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </button>
             ${precoTag ? `<span class="hosp-price-badge">${precoTag}</span>` : ''}
         </div>
         <div class="hosp-content">
-            <span class="hosp-type">${getCatIcon(h.tipo)} ${esc(h.tipo || 'Hospedagem')}</span>
+            <span class="hosp-type">${getCatIcon(h.tipo)} ${esc(TIPO_LABELS[h.tipo] || h.tipo || 'Hospedagem')}</span>
             <h3 class="hosp-name">${esc(h.nome || 'Hospedagem')}</h3>
             ${h.descricao ? `<p class="hosp-desc">${esc(h.descricao)}</p>` : ''}
-            ${amenities.length ? `<div class="hosp-amenities">${amenities.map(a => `<span class="hosp-amenity">${esc(AMENITY_LABELS[a] || a)}</span>`).join('')}</div>` : ''}
+            ${amenitiesVisiveis.length ? `<div class="hosp-amenities">${amenitiesVisiveis.map(a => `<span class="hosp-amenity">${esc(AMENITY_LABELS[a] || a)}</span>`).join('')}${amenitiesExtra.length ? `<span class="hosp-amenity hosp-amenity-more">+${amenitiesExtra.length}</span>` : ''}</div>` : ''}
             <div class="hosp-actions">
-                ${h.whatsapp ? `<a class="hosp-action-btn hosp-action-btn-primary" href="https://wa.me/${esc(h.whatsapp.replace(/\D/g, ''))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+                ${h.whatsapp ? `<a class="hosp-action-btn hosp-action-btn-primary" href="https://wa.me/${esc(String(h.whatsapp).replace(/\D/g, ''))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
                 ${h.website ? `<a class="hosp-action-btn" href="${esc(h.website)}" target="_blank" rel="noopener">Site</a>` : ''}
             </div>
+            ${detalhes.length ? `
+                <button type="button" class="hosp-details-toggle" aria-expanded="false">
+                    <span>Ver detalhes</span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="hosp-details"><div class="hosp-details-inner">${detalhes.join('')}</div></div>
+            ` : ''}
         </div>
     `;
+
+    const favBtn = card.querySelector('.hosp-fav-btn');
+    favBtn.addEventListener('click', () => {
+        alternarFavoritaHospedagem(h.id);
+        const nowFav = ehFavoritaHospedagem(h.id);
+        favBtn.classList.toggle('is-favorito', nowFav);
+        favBtn.setAttribute('aria-pressed', String(nowFav));
+        favBtn.setAttribute('aria-label', `${nowFav ? 'Remover dos favoritos' : 'Favoritar'} ${h.nome || 'hospedagem'}`);
+        favBtn.classList.remove('hosp-fav-pop');
+        void favBtn.offsetWidth; // reinicia a animação mesmo em cliques seguidos
+        favBtn.classList.add('hosp-fav-pop');
+        atualizarBotaoFavoritosFiltro();
+        if (hospFiltros.soFavoritos && !nowFav) renderHospedagens();
+    });
+
+    const toggleBtn = card.querySelector('.hosp-details-toggle');
+    if (toggleBtn) {
+        const detailsWrap = card.querySelector('.hosp-details');
+        card.classList.add('has-details');
+
+        const toggleDetalhes = () => {
+            const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+            detailsWrap.style.maxHeight = detailsWrap.scrollHeight + 'px';
+            if (expanded) {
+                // setTimeout (não requestAnimationFrame): só precisa de um tick para o
+                // navegador aplicar a altura travada antes de animar para 0.
+                setTimeout(() => { detailsWrap.style.maxHeight = '0px'; }, 10);
+            }
+            toggleBtn.setAttribute('aria-expanded', String(!expanded));
+            toggleBtn.classList.toggle('is-expanded', !expanded);
+            card.classList.toggle('is-expanded', !expanded);
+        };
+
+        toggleBtn.addEventListener('click', toggleDetalhes);
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('a, button')) return;
+            toggleDetalhes();
+        });
+    }
 
     observeReveal(card);
     return card;
 }
+
+// Painéis de detalhes ficam com maxHeight travado em px (para animar);
+// recalcula os que estiverem abertos ao redimensionar/girar a tela, senão
+// o conteúdo fica cortado ou sobra espaço vazio. Um único listener (em vez
+// de um por card) evita acumular listeners presos a cards antigos toda vez
+// que renderHospedagens() reconstrói a grade.
+window.addEventListener('resize', () => {
+    document.querySelectorAll('.hospedagem-card.is-expanded .hosp-details').forEach(wrap => {
+        wrap.style.maxHeight = wrap.scrollHeight + 'px';
+    });
+});
 
 async function loadWeather() {
     const weatherWidget = document.getElementById('weatherWidget');
@@ -806,7 +1069,7 @@ const TIMELINE_DATA = [
     { date: '4 de novembro de 1880', tag: 'Administração', icon: '🏛️', title: 'Transferido para Ouro Fino', desc: 'A Lei Provincial nº 2.658 vincula o distrito ao município de Ouro Fino.' },
     { date: '17 de dezembro de 1938', tag: 'Emancipação', icon: '🎉', title: 'Emancipação: nasce Bueno Brandão', desc: 'O Decreto-Lei nº 148 cria o município, rebatizado em homenagem ao ex-governador de Minas Gerais Júlio Bueno Brandão.', fact: 'O nome homenageado no decreto é o mesmo do monumento inaugurado décadas depois, em 2013.', featured: true, preview: true },
     { date: '2013', tag: 'Marco Histórico', icon: '📍', title: 'Monumento a Júlio Bueno Brandão', desc: 'Inaugurado na Praça Virgílio de Melo Franco, no centro da cidade.' },
-    { date: 'Hoje', tag: 'Hoje', icon: '💧', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.', fact: 'Isso dá uma densidade de só ~31 habitantes por km² — uma cidade pequena, cercada de natureza.', preview: true }
+    { date: 'Hoje', tag: 'Identidade', icon: '💧', title: 'Cidade das Cachoeiras', desc: 'Cerca de 11,2 mil habitantes (IBGE) e por volta de 30 quedas d’água — um símbolo vivo da identidade de Bueno Brandão.', fact: 'Isso dá uma densidade de só ~31 habitantes por km² — uma cidade pequena, cercada de natureza.', preview: true }
 ];
 
 function buildTimelineItem(item) {
@@ -1057,5 +1320,6 @@ function esc(str) {
         .replace(/&/g,'&amp;')
         .replace(/</g,'&lt;')
         .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;');
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
 }

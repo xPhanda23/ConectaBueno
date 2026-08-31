@@ -472,6 +472,7 @@ async function loadLugarData(lugarId) {
             document.getElementById('lugarDescricao').value = data.descricao || '';
             document.getElementById('lugarCuriosidades').value = data.curiosidades || '';
             document.getElementById('lugarEndereco').value = data.endereco || '';
+            document.getElementById('lugarBairro').value = data.bairro || '';
             document.getElementById('lugarStatus').value = data.status || 'ativo';
             
             // Novos campos
@@ -479,6 +480,7 @@ async function loadLugarData(lugarId) {
             document.getElementById('lugarWebsite').value = data.website || '';
             document.getElementById('lugarHorario').value = data.horario || '';
             document.getElementById('lugarEntrada').value = data.entrada || 'nao_informado';
+            document.getElementById('lugarAcessibilidade').value = data.acessibilidade || 'nao_informado';
             document.getElementById('lugarGoogleLink').value = data.googleLink || '';
             document.getElementById('lugarFoto').value = data.foto || '';
             document.getElementById('lugarGaleria').value = data.galeria ? data.galeria.join(', ') : '';
@@ -547,10 +549,12 @@ async function saveLugar(e) {
         descricao: document.getElementById('lugarDescricao').value,
         curiosidades: document.getElementById('lugarCuriosidades').value,
         endereco: document.getElementById('lugarEndereco').value,
+        bairro: document.getElementById('lugarBairro').value.trim(),
         telefone: document.getElementById('lugarTelefone').value,
         website: document.getElementById('lugarWebsite').value,
         horario: document.getElementById('lugarHorario').value,
         entrada: document.getElementById('lugarEntrada').value,
+        acessibilidade: document.getElementById('lugarAcessibilidade').value,
         googleLink: document.getElementById('lugarGoogleLink').value,
         foto: document.getElementById('lugarFoto').value,
         galeria: galeria,

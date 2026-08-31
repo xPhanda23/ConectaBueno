@@ -138,7 +138,9 @@ function renderMapAuthState(user) {
             cta = document.createElement('a');
             cta.id = 'btnAuthCta';
             cta.className = 'hd-auth-cta';
-            cta.textContent = 'Entrar / Criar Conta';
+            // Mesmo rótulo em duas partes de shared-components.js: em
+            // telas estreitas o CSS esconde o sufixo e sobra "Entrar".
+            cta.innerHTML = 'Entrar<span class="hd-auth-cta-long"> / Criar Conta</span>';
             wrap.appendChild(cta);
         }
         cta.href = wrap.dataset.loginHref || 'login.html';
@@ -747,7 +749,8 @@ const PC_ICON = {
     roteiroAdd: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="4" cy="4" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="14" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 5C10 5 8 13 12 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.5 2"/></svg>',
     roteiroCheck: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 9.2L7.8 11.5L12.5 6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     listen: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><path d="M3 7V11H6L10 14.5V3.5L6 7H3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12.5 6.2C13.3 7 13.8 8 13.8 9C13.8 10 13.3 11 12.5 11.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14.5 4C15.9 5.4 16.7 7.1 16.7 9C16.7 10.9 15.9 12.6 14.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".55"/></svg>',
-    stop: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="4" width="10" height="10" rx="2" fill="currentColor"/></svg>'
+    stop: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><rect x="4" y="4" width="10" height="10" rx="2" fill="currentColor"/></svg>',
+    accessible: '<svg class="pc-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true" focusable="false"><circle cx="11" cy="3.2" r="1.4" fill="currentColor"/><path d="M10.4 6.3L9.6 9.8H13.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.6 9.8L6.4 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.2 8.1H6.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="13" r="3.4" stroke="currentColor" stroke-width="1.4"/></svg>'
 };
 
 /**
@@ -841,6 +844,16 @@ function createImmersiveCard(space) {
     const entrada = entradaConfig[space.entrada];
     if (entrada) {
         infoItems.push(`<li class="pc-info__item ${entrada.className}">${PC_ICON.ticket}<span>${entrada.text}</span></li>`);
+    }
+
+    const acessibilidadeConfig = {
+        sim: { text: 'Acessível', className: 'pc-info__item--accessible' },
+        parcial: { text: 'Parcialmente acessível', className: 'pc-info__item--partial' },
+        nao: { text: 'Sem acessibilidade', className: 'pc-info__item--not-accessible' }
+    };
+    const acessibilidade = acessibilidadeConfig[space.acessibilidade];
+    if (acessibilidade) {
+        infoItems.push(`<li class="pc-info__item ${acessibilidade.className}">${PC_ICON.accessible}<span>${acessibilidade.text}</span></li>`);
     }
 
     const infoHTML = infoItems.length ? `<ul class="pc-info">${infoItems.join('')}</ul>` : '';
