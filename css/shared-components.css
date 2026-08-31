@@ -94,11 +94,6 @@ body {
     transition: transform 0.2s;
 }
 
-.hd-brand-seal--front {
-    margin-left: -12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.22), 0 0 0 2px #163a28;
-}
-
 .hd-brand:hover .hd-brand-seal {
     transform: translateY(-1px);
 }

@@ -150,16 +150,15 @@ body {
 
 /* Logos institucionais — grid fixo, nunca distorce */
 .header-logos-fixed {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    align-items: start;
+    display: flex;
+    justify-content: center;
     padding: 2px 0 20px;
     margin-bottom: 20px;
     border-bottom: 1px solid rgba(20, 45, 30, 0.12);
 }
 
 .logo-item {
+    width: 80px;
     min-width: 0;
     display: flex;
     flex-direction: column;
