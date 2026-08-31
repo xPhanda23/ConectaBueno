@@ -509,12 +509,55 @@ body {
     border-color: var(--leaf-500);
 }
 
+.space-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
 .space-card .category {
     font-size: calc(10.5px * var(--a11y-text-scale, 1));
     font-weight: 700;
     color: var(--clay-600);
     text-transform: uppercase;
     letter-spacing: .4px;
+}
+
+.space-card-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    margin: -5px -5px 0 0;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: var(--grey-400);
+    cursor: pointer;
+    transition: background .16s ease, color .16s ease;
+}
+
+.space-card-fav svg {
+    width: 15px;
+    height: 15px;
+}
+
+.space-card-fav:hover {
+    background: var(--grey-100);
+    color: var(--danger-color, #ef4444);
+}
+
+.space-card-fav.is-fav {
+    color: var(--danger-color, #ef4444);
+}
+
+.space-card-fav:focus-visible {
+    outline: 3px solid var(--leaf-400);
+    outline-offset: 2px;
 }
 
 .space-card h4 {
@@ -1559,11 +1602,13 @@ body {
     border-top: 1px solid var(--grey-200);
 }
 
-/* Rotas empilhadas em largura total — uma ação por linha, alvo de
-   toque generoso e sem competir por espaço com o rótulo do botão. */
+/* Google Maps + Waze lado a lado — mesmo tratamento de .pc-links,
+   poupando altura pro conteúdo de informações acima no corpo do
+   cartão. routesHTML só é gerado com os dois juntos (ver
+   createImmersiveCard em map.js), então não precisa de :has(). */
 .pc-routes {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 8px;
 }
 
@@ -1863,19 +1908,12 @@ body {
     }
 
     /* A gaveta tem altura limitada e cada botão empilhado no rodapé
-       rouba espaço da área rolável de informações (.ic-body) — rotas e
-       links de apoio dividem a linha em vez de empilhar, e o rodapé
-       ganha respiro mais enxuto. Ainda dentro do alvo de toque de 44px. */
+       rouba espaço da área rolável de informações (.ic-body) — o
+       rodapé ganha respiro mais enxuto. Ainda dentro do alvo de
+       toque de 44px. */
     .pc-actions {
         gap: 6px;
         padding: 12px 16px 14px;
-    }
-
-    /* routesHTML só é gerado com Google Maps + Waze juntos (ver
-       createImmersiveCard em map.js) — sempre 2 colunas aqui, sem
-       depender de :has() para contar filhos. */
-    .pc-routes {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
     .ic-body {

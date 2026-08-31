@@ -16,6 +16,7 @@ let userLocation = null;
 let activeCategory = 'todas';
 let searchQuery = '';
 let sortMode = 'nome';
+let showFavoritesOnly = false;
 
 // Favoritos de locais (IDs salvos no Firestore por usuário — só para
 // contas permanentes; visitantes veem o convite de login ao tentar).
@@ -195,6 +196,7 @@ async function loadUserLugaresFavoritos(uid) {
         userLugaresFavoritos = new Set();
     }
     paintFavButton(currentDetailSpaceId);
+    updateFavFilterCount();
 }
 
 /* ===================================
@@ -246,13 +248,23 @@ document.addEventListener('cbpassport:loaded', (event) => {
 
 function paintFavButton(spaceId) {
     if (!spaceId) return;
-    const btn = document.querySelector(`[data-fav-id="${CSS.escape(spaceId)}"]`);
-    if (!btn) return;
     const isFav = userLugaresFavoritos.has(spaceId);
-    btn.classList.toggle('is-fav', isFav);
-    btn.setAttribute('aria-label', isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
-    const path = btn.querySelector('svg path');
-    if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
+    // querySelectorAll: o mesmo lugar pode ter um botão no cartão da lista
+    // E outro no painel de detalhes aberto — os dois precisam refletir o estado.
+    document.querySelectorAll(`[data-fav-id="${CSS.escape(spaceId)}"]`).forEach(btn => {
+        btn.classList.toggle('is-fav', isFav);
+        btn.setAttribute('aria-label', isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+        btn.setAttribute('aria-pressed', String(isFav));
+        const path = btn.querySelector('svg path');
+        if (path) path.setAttribute('fill', isFav ? 'currentColor' : 'none');
+    });
+}
+
+function updateFavFilterCount() {
+    const option = document.getElementById('sortOptionFavoritos');
+    if (!option) return;
+    const count = userLugaresFavoritos.size;
+    option.textContent = count > 0 ? `Favoritos` : 'Favoritos';
 }
 
 async function toggleLugarFavorite(spaceId) {
@@ -261,6 +273,8 @@ async function toggleLugarFavorite(spaceId) {
     const wasFav = userLugaresFavoritos.has(spaceId);
     wasFav ? userLugaresFavoritos.delete(spaceId) : userLugaresFavoritos.add(spaceId);
     paintFavButton(spaceId);
+    updateFavFilterCount();
+    if (showFavoritesOnly) applyFilters({ focusMap: false });
 
     try {
         await window.db.collection('users').doc(currentUser.uid)
@@ -269,6 +283,8 @@ async function toggleLugarFavorite(spaceId) {
     } catch (error) {
         wasFav ? userLugaresFavoritos.add(spaceId) : userLugaresFavoritos.delete(spaceId);
         paintFavButton(spaceId);
+        updateFavFilterCount();
+        if (showFavoritesOnly) applyFilters({ focusMap: false });
         console.error('❌ Favorito de local:', error);
         showToast(
             error?.code === 'permission-denied'
@@ -574,6 +590,10 @@ function applyFilters({ focusMap = true } = {}) {
         ? allSpaces
         : allSpaces.filter(space => space.categoria === activeCategory);
 
+    if (showFavoritesOnly) {
+        filtered = filtered.filter(space => userLugaresFavoritos.has(space.id));
+    }
+
     if (searchQuery) {
         const q = searchQuery;
         filtered = filtered.filter(space =>
@@ -675,8 +695,17 @@ function createSpaceCard(space) {
     card.dataset.id = space.id;
     card.style.borderLeftColor = categoryColors[space.categoria] || '#2f9e52';
 
+    const isFav = userLugaresFavoritos.has(space.id);
+    const heartIcon = PC_ICON.heart.replace('<path ', `<path fill="${isFav ? 'currentColor' : 'none'}" `);
+
     card.innerHTML = `
-        <div class="category">${esc(space.categoria || 'Sem categoria')}</div>
+        <div class="space-card-top">
+            <div class="category">${esc(space.categoria || 'Sem categoria')}</div>
+            <button type="button" class="space-card-fav${isFav ? ' is-fav' : ''}" data-fav-id="${esc(space.id)}"
+                    aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}" aria-pressed="${isFav}">
+                ${heartIcon}
+            </button>
+        </div>
         <h4>${esc(space.nome || 'Local')}</h4>
         <div class="address">
             <svg width="13" height="13" viewBox="0 0 14 14" fill="currentColor">
@@ -687,6 +716,10 @@ function createSpaceCard(space) {
     `;
 
     card.addEventListener('click', () => focusOnSpace(space));
+    card.querySelector('[data-fav-id]').addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleLugarFavorite(space.id);
+    });
 
     return card;
 }
@@ -1965,11 +1998,27 @@ function setupEventListeners() {
     // check-in) — delegado, cobre os cards recriados a cada abertura.
     setupCardActionDelegation();
 
-    // Ordenação
+    // Ordenação — "Favoritos" mora na mesma lista de opções em vez de um
+    // botão à parte: é um modo de visualização (filtra por favoritos),
+    // os demais são critérios de ordenação; escolher um dos outros sai
+    // do modo favoritos.
     const sortSelect = document.getElementById('sortSelect');
     if (sortSelect) {
         sortSelect.addEventListener('change', () => {
             const mode = sortSelect.value;
+
+            if (mode === 'favoritos') {
+                if (!requireAccount('Ver favoritos')) {
+                    sortSelect.value = showFavoritesOnly ? 'favoritos' : sortMode;
+                    return;
+                }
+                showFavoritesOnly = true;
+                applyFilters({ focusMap: false });
+                return;
+            }
+
+            showFavoritesOnly = false;
+
             if (mode === 'distancia' && !userLocation) {
                 requestLocationThenSort(sortSelect);
                 return;
@@ -1980,7 +2029,13 @@ function setupEventListeners() {
     }
 
     // Limpar filtros
-    document.getElementById('btnClearFilters')?.addEventListener('click', () => filterByCategory('todas'));
+    document.getElementById('btnClearFilters')?.addEventListener('click', () => {
+        if (showFavoritesOnly) {
+            showFavoritesOnly = false;
+            if (sortSelect) sortSelect.value = sortMode;
+        }
+        filterByCategory('todas');
+    });
 
     // Busca
     setupSearch();
