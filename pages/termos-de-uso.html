@@ -4,159 +4,420 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#0f2419">
-    <title>Termos de Uso - Conecta Bueno</title>
+    <meta name="description" content="Regras de uso do Conecta Bueno — tipos de conta, conduta esperada e responsabilidades.">
+    <title>Termos de Uso — Conecta Bueno</title>
     <link rel="icon" href="../assets/images/logo.png" type="image/png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/shared-components.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/legal.css">
 </head>
 <body>
-    <a href="../index.html" class="legal-topbar" aria-label="Conecta Bueno — voltar para a página inicial">
-        <span class="legal-topbar-seals">
-            <img src="../assets/images/bueno.png" alt="" class="legal-topbar-seal">
-            <img src="../assets/images/logo.png" alt="Conecta Bueno" class="legal-topbar-seal legal-topbar-seal--front">
-        </span>
-        <span class="legal-topbar-name">Conecta Bueno</span>
-        <span class="legal-topbar-back">← Início</span>
-    </a>
+    <div id="loadingOverlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-spinner"></div>
+        <p>Carregando…</p>
+    </div>
 
-    <div class="legal-container">
-        <header class="legal-header">
-            <h1>📜 Termos de Uso</h1>
-            <p class="subtitle">Conecta Bueno - Mapa Cultural de Bueno Brandão</p>
-            <p class="update-date">Última atualização: Janeiro de 2025</p>
-        </header>
+    <!-- ═══════════════════════════
+         HEADER
+         ═══════════════════════════ -->
+    <header class="site-header" id="siteHeader">
+        <div class="hd-inner">
 
-        <div class="legal-content">
-            
-            <section>
-                <h2>1. Aceitação dos Termos</h2>
-                <p>Ao acessar e usar o <strong>Conecta Bueno</strong>, você concorda em cumprir e ficar vinculado aos seguintes termos e condições de uso. Se você não concordar com qualquer parte destes termos, não deve usar nosso serviço.</p>
-            </section>
+            <a href="../index.html" class="hd-brand" aria-label="Conecta Bueno — página inicial">
+                <span class="hd-brand-seals">
+                    <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                    <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                </span>
+                <span class="hd-brand-name">Conecta Bueno</span>
+            </a>
 
-            <section>
-                <h2>2. Descrição do Serviço</h2>
-                <p>O Conecta Bueno é uma plataforma digital que oferece:</p>
-                <ul>
-                    <li>Mapa interativo dos pontos culturais, históricos e turísticos de Bueno Brandão - MG</li>
-                    <li>Informações sobre patrimônio cultural, gastronomia e ecoturismo</li>
-                    <li>Sistema de favoritos e roteiros personalizados (para usuários cadastrados)</li>
-                    <li>Acesso como visitante com recursos limitados</li>
-                </ul>
-            </section>
+            <nav class="hd-nav" aria-label="Navegação principal">
+                <a href="../index.html"     class="hd-nav-link">Início</a>
+                <a href="mapa.html"         class="hd-nav-link">Mapa</a>
+                <a href="eventos.html"      class="hd-nav-link">Eventos</a>
+                <a href="observatorio.html" class="hd-nav-link">Observatório</a>
+            </nav>
 
-            <section>
-                <h2>3. Tipos de Conta</h2>
-                <h3>3.1 Conta de Visitante (Anônima)</h3>
-                <p>Você pode acessar o mapa como visitante sem criar uma conta. Neste modo:</p>
-                <ul>
-                    <li>Você pode visualizar todos os pontos culturais</li>
-                    <li>Não é possível salvar favoritos ou criar roteiros</li>
-                    <li>Suas preferências não serão salvas</li>
-                    <li>A qualquer momento você pode converter sua conta em permanente</li>
-                </ul>
+            <button class="hd-menu-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
 
-                <h3>3.2 Conta Permanente</h3>
-                <p>Ao criar uma conta com email e senha, você terá acesso completo:</p>
-                <ul>
-                    <li>Salvar lugares favoritos</li>
-                    <li>Criar e compartilhar roteiros personalizados</li>
-                    <li>Avaliar e comentar pontos culturais</li>
-                    <li>Receber recomendações personalizadas</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>4. Cadastro e Segurança</h2>
-                <p>Ao criar uma conta, você se compromete a:</p>
-                <ul>
-                    <li>Fornecer informações verdadeiras e completas</li>
-                    <li>Manter seus dados atualizados</li>
-                    <li>Manter a confidencialidade da sua senha</li>
-                    <li>Notificar-nos imediatamente sobre qualquer uso não autorizado da sua conta</li>
-                </ul>
-                <p>Você é responsável por todas as atividades que ocorrem em sua conta.</p>
-            </section>
-
-            <section>
-                <h2>5. Uso Aceitável</h2>
-                <p>Você concorda em NÃO:</p>
-                <ul>
-                    <li>Usar o serviço para qualquer propósito ilegal ou não autorizado</li>
-                    <li>Publicar conteúdo ofensivo, difamatório ou inadequado</li>
-                    <li>Tentar acessar áreas restritas do sistema</li>
-                    <li>Interferir ou interromper o funcionamento do serviço</li>
-                    <li>Fazer engenharia reversa ou tentar extrair código-fonte</li>
-                    <li>Usar automação (bots, scrapers) sem autorização</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>6. Conteúdo do Usuário</h2>
-                <p>Ao publicar avaliações, comentários ou roteiros, você:</p>
-                <ul>
-                    <li>Garante que possui os direitos sobre o conteúdo</li>
-                    <li>Concede ao Conecta Bueno uma licença não exclusiva para usar, exibir e distribuir seu conteúdo</li>
-                    <li>Concorda que podemos moderar e remover conteúdo inadequado</li>
-                </ul>
-            </section>
-
-            <section>
-                <h2>7. Propriedade Intelectual</h2>
-                <p>Todo o conteúdo do Conecta Bueno (textos, imagens, logos, código) é protegido por direitos autorais e outras leis de propriedade intelectual. É proibido copiar, modificar ou distribuir sem autorização.</p>
-            </section>
-
-            <section>
-                <h2>8. Limitação de Responsabilidade</h2>
-                <p>O Conecta Bueno é fornecido "como está". Não garantimos que:</p>
-                <ul>
-                    <li>O serviço será ininterrupto ou livre de erros</li>
-                    <li>As informações sobre os pontos culturais estão 100% atualizadas</li>
-                    <li>Os horários de funcionamento dos estabelecimentos estão corretos</li>
-                </ul>
-                <p><strong>Importante:</strong> Sempre confirme informações importantes diretamente com os estabelecimentos antes de visitá-los.</p>
-            </section>
-
-            <section>
-                <h2>9. Links de Terceiros</h2>
-                <p>Nosso serviço pode conter links para sites externos. Não somos responsáveis pelo conteúdo ou práticas de privacidade de sites de terceiros.</p>
-            </section>
-
-            <section>
-                <h2>10. Modificações dos Termos</h2>
-                <p>Reservamos o direito de modificar estes termos a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação. O uso continuado do serviço após mudanças constitui aceitação dos novos termos.</p>
-            </section>
-
-            <section>
-                <h2>11. Encerramento</h2>
-                <p>Podemos suspender ou encerrar sua conta se você violar estes termos. Você pode encerrar sua conta a qualquer momento através das configurações ou enviando um email.</p>
-            </section>
-
-            <section>
-                <h2>12. Lei Aplicável</h2>
-                <p>Estes termos são regidos pelas leis da República Federativa do Brasil. Quaisquer disputas serão resolvidas nos tribunais de Bueno Brandão - MG.</p>
-            </section>
-
-            <section>
-                <h2>13. Contato</h2>
-                <p>Para questões sobre estes termos, entre em contato:</p>
-                <ul>
-                    <li><strong>Email:</strong> contato@conectabueno.com.br</li>
-                    <li><strong>Endereço:</strong> Bueno Brandão, Minas Gerais, Brasil</li>
-                </ul>
-            </section>
+            <div class="hd-user-wrap" id="hdUserWrap" data-login-href="login.html">
+                <button class="hd-avatar" id="btnUserMenu" aria-label="Menu do usuário" aria-expanded="false">
+                    <span id="userInitials">CB</span>
+                </button>
+                <div class="hd-dropdown" id="userDropdown" role="menu">
+                    <div class="hd-dd-profile">
+                        <div class="hd-dd-avatar"><span id="userInitialsLarge">CB</span></div>
+                        <div class="hd-dd-info">
+                            <strong id="userName">…</strong>
+                            <span id="userEmail">…</span>
+                        </div>
+                    </div>
+                    <div class="hd-dd-divider"></div>
+                    <a href="../index.html"     class="hd-dd-item" role="menuitem">Início</a>
+                    <a href="mapa.html"         class="hd-dd-item" role="menuitem">Mapa Interativo</a>
+                    <a href="eventos.html"      class="hd-dd-item" role="menuitem">Agenda de Eventos</a>
+                    <a href="observatorio.html" class="hd-dd-item" role="menuitem">Observatório</a>
+                    <div class="hd-dd-divider"></div>
+                    <a href="settings.html"     class="hd-dd-item" role="menuitem">Configurações</a>
+                    <a href="panel.html"        class="hd-dd-item" id="menuAdminPanel" style="display:none" role="menuitem">Painel Admin</a>
+                    <div class="hd-dd-divider"></div>
+                    <a href="#" class="hd-dd-item hd-dd-danger" id="btnLogout" role="menuitem">Sair</a>
+                </div>
+            </div>
 
         </div>
+    </header>
 
-        <footer class="legal-footer">
-            <a href="../index.html" class="btn-back">← Voltar para o início</a>
-            <nav class="legal-footer-nav" aria-label="Links legais">
-                <a href="politica-de-privacidade.html">Política de Privacidade</a>
-                <span>·</span>
-                <a href="mailto:contato@conectabueno.com.br">Fale conosco</a>
+    <div class="lg-progress" id="lgProgress"></div>
+
+    <main class="lg-page">
+
+        <!-- ═══════════════════════════
+             INTRO
+             ═══════════════════════════ -->
+        <section class="lg-intro">
+            <span class="lg-intro-icon">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 3h8l4 4v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="M15 3v4h4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                    <path d="M9 12.5h6M9 15.5h6M9 9.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+            </span>
+            <span class="lg-eyebrow">Conecta Bueno</span>
+            <h1>Termos de Uso</h1>
+            <p class="lg-intro-subtitle">As regras que organizam sua experiência no Mapa Cultural de Bueno Brandão — leia antes de criar sua conta.</p>
+
+            <div class="lg-intro-meta">
+                <span class="lg-pill">
+                    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M9 5v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Atualizados em janeiro de 2025
+                </span>
+                <a href="politica-de-privacidade.html" class="lg-pill lg-pill--ghost">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="14" height="14"><path d="M12 3l7 3v6c0 5-3.5 8.5-7 9.5C8.5 20.5 5 17 5 12V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                    Ver Política de Privacidade
+                </a>
+                <button type="button" class="lg-pill lg-pill--action" id="lgPrintBtn">
+                    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M5 6V2.5h8V6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="2.5" y="6" width="13" height="6.5" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5 12v3.5h8V12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                    Imprimir
+                </button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════
+             SUMÁRIO + CONTEÚDO
+             ═══════════════════════════ -->
+        <div class="lg-layout">
+
+            <nav class="lg-toc" id="lgToc" aria-label="Sumário">
+                <button type="button" class="lg-toc-toggle" id="lgTocToggle" aria-expanded="false" aria-controls="lgTocList">
+                    <span>Sumário</span>
+                    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4.5 6.5L9 11l4.5-4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <p class="lg-toc-title">Sumário</p>
+                <ol class="lg-toc-list" id="lgTocList">
+                    <li><a href="#s1">Aceitação dos Termos</a></li>
+                    <li><a href="#s2">Descrição do Serviço</a></li>
+                    <li><a href="#s3">Tipos de Conta</a></li>
+                    <li><a href="#s4">Cadastro e Segurança</a></li>
+                    <li><a href="#s5">Uso Aceitável</a></li>
+                    <li><a href="#s6">Conteúdo do Usuário</a></li>
+                    <li><a href="#s7">Propriedade Intelectual</a></li>
+                    <li><a href="#s8">Limitação de Responsabilidade</a></li>
+                    <li><a href="#s9">Links de Terceiros</a></li>
+                    <li><a href="#s10">Modificações dos Termos</a></li>
+                    <li><a href="#s11">Encerramento</a></li>
+                    <li><a href="#s12">Lei Aplicável</a></li>
+                    <li><a href="#s13">Contato</a></li>
+                </ol>
+                <div class="lg-toc-divider"></div>
+                <a href="politica-de-privacidade.html" class="lg-toc-sibling">
+                    Ler Política de Privacidade
+                    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
             </nav>
-            <p>&copy; 2026 Conecta Bueno - Todos os direitos reservados</p>
-        </footer>
-    </div>
+
+            <div class="lg-main">
+                <div class="lg-content" id="lgContent">
+
+                    <section class="lg-section" id="s1">
+                        <h2>Aceitação dos Termos</h2>
+                        <p>Ao acessar e usar o <strong>Conecta Bueno</strong>, você concorda em cumprir e ficar vinculado aos seguintes termos e condições de uso. Se você não concordar com qualquer parte destes termos, não deve usar nosso serviço.</p>
+                    </section>
+
+                    <section class="lg-section" id="s2">
+                        <h2>Descrição do Serviço</h2>
+                        <p>O Conecta Bueno é uma plataforma digital que oferece:</p>
+                        <ul>
+                            <li>Mapa interativo dos pontos culturais, históricos e turísticos de Bueno Brandão - MG</li>
+                            <li>Informações sobre patrimônio cultural, gastronomia e ecoturismo</li>
+                            <li>Sistema de favoritos e roteiros personalizados (para usuários cadastrados)</li>
+                            <li>Acesso como visitante com recursos limitados</li>
+                        </ul>
+                    </section>
+
+                    <section class="lg-section" id="s3">
+                        <h2>Tipos de Conta</h2>
+
+                        <h3>Conta de Visitante (Anônima)</h3>
+                        <p>Você pode acessar o mapa como visitante sem criar uma conta. Neste modo:</p>
+                        <ul>
+                            <li>Você pode visualizar todos os pontos culturais</li>
+                            <li>Não é possível salvar favoritos ou criar roteiros</li>
+                            <li>Suas preferências não serão salvas</li>
+                            <li>A qualquer momento você pode converter sua conta em permanente</li>
+                        </ul>
+
+                        <h3>Conta Permanente</h3>
+                        <p>Ao criar uma conta com email e senha, você terá acesso completo:</p>
+                        <ul>
+                            <li>Salvar lugares favoritos</li>
+                            <li>Criar e compartilhar roteiros personalizados</li>
+                            <li>Avaliar e comentar pontos culturais</li>
+                            <li>Receber recomendações personalizadas</li>
+                        </ul>
+                    </section>
+
+                    <section class="lg-section" id="s4">
+                        <h2>Cadastro e Segurança</h2>
+                        <p>Ao criar uma conta, você se compromete a:</p>
+                        <ul>
+                            <li>Fornecer informações verdadeiras e completas</li>
+                            <li>Manter seus dados atualizados</li>
+                            <li>Manter a confidencialidade da sua senha</li>
+                            <li>Notificar-nos imediatamente sobre qualquer uso não autorizado da sua conta</li>
+                        </ul>
+                        <p>Você é responsável por todas as atividades que ocorrem em sua conta.</p>
+                    </section>
+
+                    <section class="lg-section" id="s5">
+                        <h2>Uso Aceitável</h2>
+                        <p>Você concorda em <strong>NÃO</strong>:</p>
+                        <ul class="lg-list--x">
+                            <li>Usar o serviço para qualquer propósito ilegal ou não autorizado</li>
+                            <li>Publicar conteúdo ofensivo, difamatório ou inadequado</li>
+                            <li>Tentar acessar áreas restritas do sistema</li>
+                            <li>Interferir ou interromper o funcionamento do serviço</li>
+                            <li>Fazer engenharia reversa ou tentar extrair código-fonte</li>
+                            <li>Usar automação (bots, scrapers) sem autorização</li>
+                        </ul>
+                    </section>
+
+                    <section class="lg-section" id="s6">
+                        <h2>Conteúdo do Usuário</h2>
+                        <p>Ao publicar avaliações, comentários ou roteiros, você:</p>
+                        <ul>
+                            <li>Garante que possui os direitos sobre o conteúdo</li>
+                            <li>Concede ao Conecta Bueno uma licença não exclusiva para usar, exibir e distribuir seu conteúdo</li>
+                            <li>Concorda que podemos moderar e remover conteúdo inadequado</li>
+                        </ul>
+                    </section>
+
+                    <section class="lg-section" id="s7">
+                        <h2>Propriedade Intelectual</h2>
+                        <p>Todo o conteúdo do Conecta Bueno (textos, imagens, logos, código) é protegido por direitos autorais e outras leis de propriedade intelectual. É proibido copiar, modificar ou distribuir sem autorização.</p>
+                    </section>
+
+                    <section class="lg-section" id="s8">
+                        <h2>Limitação de Responsabilidade</h2>
+                        <p>O Conecta Bueno é fornecido "como está". Não garantimos que:</p>
+                        <ul>
+                            <li>O serviço será ininterrupto ou livre de erros</li>
+                            <li>As informações sobre os pontos culturais estão 100% atualizadas</li>
+                            <li>Os horários de funcionamento dos estabelecimentos estão corretos</li>
+                        </ul>
+
+                        <div class="lg-callout">
+                            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 8v4.5M9 5.5v.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                            <p><strong>Importante:</strong> sempre confirme informações importantes diretamente com os estabelecimentos antes de visitá-los.</p>
+                        </div>
+                    </section>
+
+                    <section class="lg-section" id="s9">
+                        <h2>Links de Terceiros</h2>
+                        <p>Nosso serviço pode conter links para sites externos. Não somos responsáveis pelo conteúdo ou práticas de privacidade de sites de terceiros.</p>
+                    </section>
+
+                    <section class="lg-section" id="s10">
+                        <h2>Modificações dos Termos</h2>
+                        <p>Reservamos o direito de modificar estes termos a qualquer momento. As alterações entrarão em vigor imediatamente após a publicação. O uso continuado do serviço após mudanças constitui aceitação dos novos termos.</p>
+                    </section>
+
+                    <section class="lg-section" id="s11">
+                        <h2>Encerramento</h2>
+                        <p>Podemos suspender ou encerrar sua conta se você violar estes termos. Você pode encerrar sua conta a qualquer momento através das configurações ou enviando um email.</p>
+                    </section>
+
+                    <section class="lg-section" id="s12">
+                        <h2>Lei Aplicável</h2>
+                        <p>Estes termos são regidos pelas leis da República Federativa do Brasil. Quaisquer disputas serão resolvidas nos tribunais de Bueno Brandão - MG.</p>
+                    </section>
+
+                    <section class="lg-section" id="s13">
+                        <h2>Contato</h2>
+                        <p>Para questões sobre estes termos, entre em contato:</p>
+                        <ul>
+                            <li><strong>Email:</strong> <a href="mailto:contato@conectabueno.com.br">contato@conectabueno.com.br</a></li>
+                            <li><strong>Endereço:</strong> Bueno Brandão, Minas Gerais, Brasil</li>
+                        </ul>
+                    </section>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <button type="button" class="lg-top-btn" id="lgTopBtn" aria-label="Voltar ao topo">
+        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 14V4M4.5 8.5L9 4l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <!-- ═══════════════════════════
+         FOOTER
+         ═══════════════════════════ -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="ft-grid">
+                <div class="ft-brand-col">
+                    <a href="../index.html" class="ft-brand" aria-label="Conecta Bueno — página inicial">
+                        <span class="hd-brand-seals">
+                            <img src="../assets/images/bueno.png" alt="Prefeitura de Bueno Brandão" class="hd-brand-seal">
+                            <img src="../assets/images/logo.png" alt="Conecta Bueno" class="hd-brand-seal hd-brand-seal--front">
+                        </span>
+                        <div>
+                            <strong>Conecta Bueno</strong>
+                            <span>Plataforma Cultural Oficial</span>
+                        </div>
+                    </a>
+                    <p class="ft-desc">Democratizando o acesso à cultura e ao turismo de Bueno Brandão, Serra da Mantiqueira, MG.</p>
+                    <div class="ft-social">
+                        <a href="mailto:contato@conectabueno.com.br" class="ft-social-icon" aria-label="Enviar e-mail para o suporte do Conecta Bueno">
+                            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 5l6 4.5L15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </a>
+                        <span class="ft-social-icon ft-social-icon--soon" title="Instagram em breve" aria-label="Instagram — em breve">
+                            <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="ft-col">
+                    <strong>Explorar</strong>
+                    <a href="../index.html">Início</a>
+                    <a href="mapa.html">Mapa Interativo</a>
+                    <a href="eventos.html">Agenda Cultural</a>
+                    <a href="observatorio.html">Observatório</a>
+                </div>
+                <div class="ft-col">
+                    <strong>Legal</strong>
+                    <a href="termos-de-uso.html" aria-current="page">Termos de Uso</a>
+                    <a href="politica-de-privacidade.html">Privacidade</a>
+                </div>
+                <div class="ft-col">
+                    <strong>Contato</strong>
+                    <a href="mailto:contato@conectabueno.com.br">
+                        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 5l6 4.5L15 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        contato@conectabueno.com.br
+                    </a>
+                    <span class="ft-col-soon" title="Em breve">
+                        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><rect x="2" y="2" width="14" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="13" cy="5" r="0.6" fill="currentColor"/></svg>
+                        Instagram <small>em breve</small>
+                    </span>
+                    <span class="ft-col-static">
+                        <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 16S3 9.5 3 6.2A6 6 0 1115 6.2C15 9.5 9 16 9 16z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9" cy="6.3" r="2" stroke="currentColor" stroke-width="1.5"/></svg>
+                        Bueno Brandão, MG
+                    </span>
+                </div>
+            </div>
+            <div class="ft-bottom">
+                <span>© 2026 Conecta Bueno</span>
+                <span>Uma iniciativa cultural para Bueno Brandão — Serra da Mantiqueira, MG</span>
+            </div>
+        </div>
+    </footer>
+
+    <aside class="a11y-tools" aria-label="Opções de acessibilidade">
+        <button class="a11y-fab" id="a11yToggle" type="button" aria-expanded="false" aria-controls="a11yMenu" aria-label="Abrir opções de acessibilidade" title="Acessibilidade">
+            <svg class="a11y-fab-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="5" r="2.2" fill="currentColor"/>
+                <path d="M12 9v6M12 9l-5 2M12 9l5 2M12 15l-3.5 6M12 15l3.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <div class="a11y-menu" id="a11yMenu" hidden>
+            <div class="a11y-menu__head">
+                <div>
+                    <p class="a11y-menu__eyebrow">Conecta Bueno</p>
+                    <p class="a11y-menu__title">Acessibilidade</p>
+                </div>
+                <button class="a11y-menu__close" type="button" aria-label="Fechar opções de acessibilidade">×</button>
+            </div>
+            <p class="a11y-menu__hint">Personalize sua experiência de visita.</p>
+
+            <p class="a11y-menu__subtitle">Leitura e navegação</p>
+            <div class="a11y-menu__group" role="group" aria-label="Leitura e navegação">
+                <button type="button" data-a11y="focus" aria-pressed="false">Modo foco <small>Mais concentração</small></button>
+                <button type="button" data-a11y="contrast" aria-pressed="false">Alto contraste <small>Mais definição</small></button>
+                <button type="button" data-a11y="spacing" aria-pressed="false">Espaçamento de texto <small>Mais respiro entre linhas</small></button>
+                <button type="button" data-a11y="underline" aria-pressed="false">Sublinhar links <small>Identifica links no texto</small></button>
+            </div>
+
+            <p class="a11y-menu__subtitle">Daltonismo</p>
+            <div class="a11y-menu__group a11y-menu__group--select" role="group" aria-label="Modo para daltonismo">
+                <label class="a11y-select-label" for="a11yColorblind">Ajuste de cores</label>
+                <select id="a11yColorblind" class="a11y-select">
+                    <option value="none">Desativado</option>
+                    <option value="protanopia">Protanopia (vermelho-verde)</option>
+                    <option value="deuteranopia">Deuteranopia (vermelho-verde)</option>
+                    <option value="tritanopia">Tritanopia (azul-amarelo)</option>
+                    <option value="achromatopsia">Monocromacia (sem cor)</option>
+                </select>
+            </div>
+
+            <p class="a11y-menu__subtitle">Movimento e cursor</p>
+            <div class="a11y-menu__group" role="group" aria-label="Movimento e cursor">
+                <button type="button" data-a11y="motion" aria-pressed="false">Reduzir movimento <small>Pausa vídeos e animações</small></button>
+                <button type="button" data-a11y="cursor" aria-pressed="false">Cursor ampliado <small>Mais fácil de seguir</small></button>
+            </div>
+
+            <div class="a11y-size" role="group" aria-label="Tamanho do texto">
+                <span>Tamanho do texto</span>
+                <button type="button" data-text-size="decrease" aria-label="Diminuir texto" title="Diminuir texto">-</button>
+                <output id="a11yTextSize" aria-live="polite">100%</output>
+                <button type="button" data-text-size="increase" aria-label="Aumentar texto" title="Aumentar texto">+</button>
+            </div>
+
+            <button type="button" class="a11y-reset" data-a11y="reset">Redefinir tudo</button>
+        </div>
+    </aside>
+
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/shared-components.js"></script>
+    <script src="../js/accessibility.js"></script>
+    <script src="../js/legal.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            const overlay = document.getElementById('loadingOverlay');
+            if (!overlay) return;
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 300);
+        });
+    </script>
 </body>
 </html>

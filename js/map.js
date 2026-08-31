@@ -45,10 +45,10 @@ const BUENO_CENTER = {
     lng: -46.3511
 };
 
-// Limites do município (aproximado ±0.05 graus)
+// Limites do município e zona rural ao redor (aproximado ±0.15 graus)
 const BUENO_BOUNDS = [
-    [-22.4908, -46.4011], // sudoeste
-    [-22.3908, -46.3011]  // nordeste
+    [-22.5908, -46.5011], // sudoeste
+    [-22.2908, -46.2011]  // nordeste
 ];
 
 // Cores e ícones por categoria
@@ -409,7 +409,7 @@ function initMap() {
     map = L.map('map', {
         center: [BUENO_CENTER.lat, BUENO_CENTER.lng],
         zoom: 14,
-        minZoom: 12,
+        minZoom: 11,
         maxZoom: 21,
         maxBounds: BUENO_BOUNDS,
         maxBoundsViscosity: 1.0,
