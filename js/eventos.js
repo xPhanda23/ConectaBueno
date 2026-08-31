@@ -1225,16 +1225,6 @@ async function loadAttendeesPreview(ev) {
             .filter(Boolean);
         if (!nomes.length) return;
 
-        const extra = Number(ev.presencasCount || 0) - nomes.length;
-        let text;
-        if (extra > 0) {
-            text = `${nomes.join(', ')} e mais ${extra} confirmaram presença`;
-        } else if (nomes.length === 1) {
-            text = `${nomes[0]} confirmou presença`;
-        } else {
-            text = `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]} confirmaram presença`;
-        }
-
         box.textContent = `🎉 ${text}`;
         box.hidden = false;
     } catch (err) {
