@@ -1248,10 +1248,12 @@ const CV_FACTS = [
     { icon: '🐐', title: 'Queijos de Cabra', desc: 'Produção artesanal de laticínios caprinos, um saber-fazer passado de geração em geração.' }
 ];
 
+// `foto`: caminho/URL da imagem da pessoa (ex.: 'assets/images/cultura-viva/monique-leite.jpg').
+// Deixe em branco ('') para manter o avatar com as iniciais do nome.
 const CULTURA_VIVA_PROFILES = [
-    { nome: 'Seu Ronaldo', papel: 'Violeiro e Contador de Causos', bio: 'Há mais de 40 anos toca viola e reúne vizinhos nas tardes de domingo para contar as histórias antigas da Serra da Mantiqueira.', placeholder: true },
-    { nome: 'Dona Zélia', papel: 'Guardiã da Tradição do Queijo', bio: 'Aprendeu com a mãe o ofício dos queijos de cabra artesanais, uma receita que atravessa gerações na região.', placeholder: true },
-    { nome: 'Marina', papel: 'Poeta da Serra', bio: 'Escreve sobre as cachoeiras, as igrejas de torre única e a vida simples do interior mineiro em versos publicados em jornais locais.', placeholder: true }
+    { nome: 'Monique Leite', papel: 'Editora Plenavoz', bio: 'Fundadora, editora e escritora, mestre em Desenvolvimento Socioambiental e pós-graduada em Comunicação Social, lidera projetos voltados à educação, desenvolvimento humano e apoio a escritores.', foto: 'https://static.wixstatic.com/media/eae297_b181823a79b543d0afed007d1c14fb8c~mv2.jpeg/v1/crop/x_0,y_32,w_918,h_917/fill/w_688,h_688,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/WhatsApp%20Image%202026-04-20%20at%2010_06_23.jpeg', placeholder: true },
+    { nome: 'Lucas Constantini', papel: 'MasterChef Confeitaria 2025', bio: 'Confeiteiro experiente com 15 anos de carreira, trabalhou em cruzeiros internacionais e foi sous-chef na renomada Bachour Bakery em Miami ao lado de Antonio Bachour.', foto: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQpu_nmIPkqT17u3sOvSQr9SCduHPqE15UqzoppvwoKZRbiPTRPs1BMbQ&s=10', placeholder: true },
+    { nome: 'Zé Bagunça (José Coutinho dos Santos Júnior)', papel: 'Figura Histórica e Tradicional', bio: 'Morador ilustre de Bueno Brandão (1931–2010) que deu origem ao tradicional Arraiá do Zé Bagunça, festa junina icônica da região iniciada por ele na Rua Califórnia e que hoje faz parte do patrimônio cultural e turístico do município.', foto: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0eKS6cQ2nfjxwbH147WjfdBZZacYCD4kF_tjm_cW_VUMYzyDodgcS99c&s=10', placeholder: true }
 ];
 
 function initialsOf(name) {
@@ -1282,8 +1284,10 @@ function renderCulturaViva() {
             const card = document.createElement('div');
             card.className = 'cv-profile-card';
             card.innerHTML = `
-                ${p.placeholder ? '<span class="example-tag">Exemplo ilustrativo</span>' : ''}
-                <div class="cv-profile-avatar" aria-hidden="true">${esc(initialsOf(p.nome))}</div>
+                <div class="cv-profile-avatar" aria-hidden="true">
+                    ${p.foto ? `<img class="cv-profile-photo" src="${esc(p.foto)}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` : ''}
+                    <span class="cv-profile-initials"${p.foto ? ' style="display:none"' : ''}>${esc(initialsOf(p.nome))}</span>
+                </div>
                 <h4 class="cv-profile-name">${esc(p.nome)}</h4>
                 <span class="cv-profile-role">${esc(p.papel)}</span>
                 <p class="cv-profile-bio">${esc(p.bio)}</p>
