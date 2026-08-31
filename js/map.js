@@ -410,14 +410,15 @@ function initMap() {
         center: [BUENO_CENTER.lat, BUENO_CENTER.lng],
         zoom: 14,
         minZoom: 12,
-        maxZoom: 18,
+        maxZoom: 21,
         maxBounds: BUENO_BOUNDS,
         maxBoundsViscosity: 1.0,
         zoomControl: false
     });
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_29oc_1_8106c16c07bc5b3596bfab03', {
-    maxZoom: 19,
+    maxZoom: 21,
+    maxNativeZoom: 19, // provedor não tem tiles além do 19 — acima disso, o tile do 19 é escalado
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 }).addTo(map);
 
@@ -759,7 +760,10 @@ function createMarker(space) {
         })
     });
 
-    marker.on('click', () => openSpaceDetail(space, marker));
+    // pan:false — clique direto num marcador não deve mover o mapa,
+    // só abrir o painel lateral (diferente de focusOnSpace, que vem da
+    // lista/busca e precisa centralizar o marcador antes de abrir).
+    marker.on('click', () => openSpaceDetail(space, marker, { pan: false }));
 
     markerClusterGroup.addLayer(marker);
     return marker;
@@ -1099,7 +1103,7 @@ function panMapForDesktopPanel(latlng) {
     map.panTo(map.containerPointToLatLng(shifted), { animate: true });
 }
 
-function openSpaceDetail(space, marker) {
+function openSpaceDetail(space, marker, { pan = true } = {}) {
     const panel = document.getElementById('spaceDetail');
     const backdrop = document.getElementById('spaceDetailBackdrop');
     if (!panel) return;
@@ -1130,7 +1134,7 @@ function openSpaceDetail(space, marker) {
 
     setActiveMarker(marker);
     currentDetailSpaceId = space.id;
-    panMapForDesktopPanel(marker.getLatLng());
+    if (pan) panMapForDesktopPanel(marker.getLatLng());
 
     if (wasClosed) {
         detailReturnFocusEl = document.activeElement;
@@ -1222,6 +1226,14 @@ function setupSpaceDetailPanel() {
     document.getElementById('sdClose')?.addEventListener('click', closeSpaceDetail);
     backdrop?.addEventListener('click', closeSpaceDetail);
     document.addEventListener('keydown', handleDetailPanelKeydown);
+
+    // Desktop: clicar no mapa (fora de marcadores — cliques em marcador não
+    // borbulham até o mapa, bubblingMouseEvents é false por padrão no Leaflet)
+    // fecha o painel, sem precisar do X. No mobile isso já é coberto pelo backdrop.
+    map.on('click', () => {
+        if (isMobileDetailLayout()) return;
+        if (panel.classList.contains('is-open')) closeSpaceDetail();
+    });
 
     let wasMobile = isMobileDetailLayout();
     window.addEventListener('resize', () => {
