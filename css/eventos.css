@@ -1124,6 +1124,11 @@ main { flex: 1; }
            sem cortar a sombra do chip ativo durante a rolagem. */
         margin: 0 -14px;
         padding: 2px 14px;
+        /* Sem isto, align-items:stretch não é suficiente para conter a
+           linha (flex-wrap:nowrap dos chips) dentro do container: o item
+           assume a largura de conteúdo e estoura a página inteira para o
+           lado no celular. Compensa a margem negativa dos dois lados. */
+        width: calc(100% + 28px);
         scroll-snap-type: x proximity;
     }
     .ev-tabs::-webkit-scrollbar,
