@@ -1315,7 +1315,7 @@ const TESTIMONIALS_DATA = [
     { nome: 'Alessandra V. Beghini da Silva', papel: 'Professora da EESOO', texto: 'A possibilidade de estar em contato com a natureza e também a diversidade de eventos que atendem a vários públicos.', placeholder: true },
     { nome: 'Luiza Mariana Lopes', papel: 'Aluna da EESOO - 3° ano EMTI', texto: 'Gosto das tradições como o Arraiá do Zé Bagunça, que é natural da nossa cidade, e da Buenata, que traz grande visibilidade para os vendedores da feira do produtor.', placeholder: true },
     { nome: 'Estephane Fróes de Paula', papel: 'Aluna da EESOO - 1° ano EMTI', texto: 'A forma em que mostramos nossa cultura, através da cultura artística, da infraestrutura antiga, da culinária e principalmente da nossa hospitalidade.', placeholder: true },
-    { nome: 'Vanessa Marques Ribeiro', papel: 'Professora da EESOO', texto: 'A variedade de opções culturais durante o ano.', placeholder: true }
+    { nome: 'Milena da Silva Cardoso', papel: 'Aluna da EESOO - 3° ano EMTI', texto: 'Por ser uma cidade mais calma, com lugares aconchegantes para visitar tanto de dia quanto de noite, restaurantes que oferecem comidas muito boas, festivais interessantes como o Arraiá e a Buenata, além de suas cachoeiras bem conhecidas, que chamam a atenção do povo.', placeholder: true }
 ];
 
 function renderTestimonials() {

@@ -317,18 +317,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .highlight-item {
-    background: var(--creme);
-    border-radius: 10px;
     padding: 16px;
-    border-left: 3px solid var(--verde-folha);
+    border: 1px solid rgba(45, 90, 61, 0.16);
+    border-radius: 6px;
 }
 
 .highlight-item strong {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: calc(14px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
     margin-bottom: 4px;
+}
+
+.highlight-item strong::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--verde-folha);
+    flex-shrink: 0;
 }
 
 .highlight-item span {
@@ -385,19 +394,23 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===================================
    DOC SECTION
+   Nota de rodapé explicativa dentro do card branco — em vez de mais uma
+   caixinha colorida empilhada, é uma quebra tipográfica (rótulo pequeno
+   + régua fina), como uma legenda de mapa impresso.
 =================================== */
 .doc-section {
-    padding: 20px;
-    background: var(--creme);
-    border-radius: 10px;
-    border-left: 3px solid var(--verde-floresta);
+    padding: 18px 0 0;
+    border-top: 1px dashed rgba(45, 90, 61, 0.3);
 }
 
 .doc-section h4 {
-    font-size: calc(16px * var(--a11y-text-scale, 1));
-    font-weight: 600;
+    font-family: var(--font-body);
+    font-size: calc(11.5px * var(--a11y-text-scale, 1));
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     color: var(--verde-floresta);
-    margin: 0 0 12px 0;
+    margin: 0 0 10px 0;
 }
 
 .doc-section p {
@@ -477,10 +490,9 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 16px;
-    background: var(--creme);
-    border-radius: 10px;
-    border-left: 3px solid var(--verde-folha);
+    padding: 14px 16px;
+    border: 1px solid rgba(45, 90, 61, 0.16);
+    border-radius: 6px;
 }
 
 .insight-chip-icon {
@@ -614,11 +626,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .source-card {
-    background: var(--creme);
-    border-radius: 12px;
-    padding: 24px;
-    border-left: 4px solid var(--verde-folha);
-    transition: all 0.3s ease;
+    background: var(--off-white);
+    border: 1px solid rgba(45, 90, 61, 0.16);
+    border-radius: 8px;
+    padding: 22px 24px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
     display: grid;
     grid-template-columns: 48px 1fr;
     gap: 16px;
@@ -628,8 +640,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .source-card:hover {
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--verde-folha);
+    box-shadow: 0 6px 16px rgba(45, 90, 61, 0.1);
+    transform: translateY(-2px);
 }
 
 .source-icon {
@@ -706,29 +719,29 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    padding: 20px;
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
-    border-radius: 10px;
+    padding: 20px 22px;
+    background: var(--off-white);
+    border: 1px solid rgba(45, 90, 61, 0.16);
+    border-radius: 8px;
 }
 
 .alert-box svg {
-    color: #ff9800;
+    color: var(--verde-folha);
     flex-shrink: 0;
 }
 
 .alert-box strong {
     display: block;
     font-size: calc(14px * var(--a11y-text-scale, 1));
-    color: #856404;
-    font-weight: 600;
+    color: var(--verde-floresta);
+    font-weight: 700;
     margin-bottom: 6px;
 }
 
 .alert-box p {
     font-size: calc(13px * var(--a11y-text-scale, 1));
     line-height: 1.6;
-    color: #856404;
+    color: #666;
     margin: 0;
 }
 
@@ -888,11 +901,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ods-meta {
-    background: var(--creme);
-    border-left: 3px solid var(--verde-floresta);
-    border-radius: 8px;
-    padding: 16px;
     margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(45, 90, 61, 0.3);
     font-size: calc(13px * var(--a11y-text-scale, 1));
     line-height: 1.6;
     color: #666;
@@ -911,11 +922,11 @@ h1, h2, h3, h4, h5, h6 {
 =================================== */
 .ods-databox {
     margin-top: 16px;
-    padding: 16px;
+    padding: 16px 18px;
     background: #fff;
     border: 1px solid #e0e0e0;
-    border-left: 3px solid var(--ods-accent, var(--verde-folha));
-    border-radius: 8px;
+    border-top: 2px solid var(--ods-accent, var(--verde-folha));
+    border-radius: 6px;
 }
 
 .ods-databox-header {
@@ -998,18 +1009,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .impact-item {
-    background: var(--creme);
-    border-radius: 10px;
     padding: 18px;
-    border-left: 3px solid var(--verde-folha);
+    border: 1px solid rgba(45, 90, 61, 0.16);
+    border-radius: 6px;
 }
 
 .impact-item strong {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: calc(14px * var(--a11y-text-scale, 1));
     color: var(--verde-floresta);
     font-weight: 600;
     margin-bottom: 6px;
+}
+
+.impact-item strong::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--verde-folha);
+    flex-shrink: 0;
 }
 
 .impact-item span {

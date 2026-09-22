@@ -137,43 +137,20 @@ ConectaBueno/
 
 ## 🔒 Regras do Firestore
 
-Configure no Firebase Console > Firestore > Rules:
+⚠️ **Não copie um exemplo de regras daqui** — a versão que vale é sempre o
+arquivo [`firestore.rules`](firestore.rules) na raiz do projeto (mais completo
+e mais restrito que qualquer trecho de exemplo: nega tudo por padrão, valida
+campos obrigatórios e impede que um usuário comum se autopromova a admin).
+Para publicar:
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    
-    function isAdmin() {
-      return request.auth != null && 
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    
-    // Usuários
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    
-    // Espaços, Artistas e Eventos
-    // Leitura pública, escrita apenas admin
-    match /espacos/{doc} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    match /artistas/{doc} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    match /eventos/{doc} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-  }
-}
+```bash
+firebase deploy --only firestore:rules
+# ou cole o conteúdo de firestore.rules em:
+# Firebase Console > Firestore Database > Regras
 ```
+
+Depois de qualquer alteração em `firestore.rules`, republique — regras
+desatualizadas no Console não protegem nada.
 
 ---
 
@@ -196,6 +173,32 @@ firebase deploy
 ```
 
 Seu site estará em: `https://seu-projeto.web.app`
+
+### Discloud (hospedagem atual)
+
+O site é hospedado em produção na [Discloud](https://discloud.com), como um
+app do tipo `site` (arquivos estáticos, sem backend Node). Para hospedar um
+site estático lá, a Discloud exige um arquivo `discloud.config` na raiz do
+projeto (incluído dentro do .zip enviado), com no mínimo:
+
+```properties
+NAME=ConectaBueno
+TYPE=site
+MAIN=index.html
+RAM=512
+VERSION=latest
+ID=<subdominio-do-seu-app>
+```
+
+`TYPE=site` exige plano Platinum e no mínimo 512MB de RAM. Sem esse arquivo,
+o painel da Discloud não sabe como servir o projeto. Veja a
+[documentação oficial](https://docs.discloud.com/how-to-host/websites-and-apis)
+para o `ID` exato do seu app.
+
+⚠️ Depois de configurar o domínio definitivo (customizado ou
+`*.discloud.app`), atualize a URL em `robots.txt`, `sitemap.xml` e nas tags
+`canonical`/`og:url` de `index.html` e `pages/*.html` — hoje elas apontam
+para `https://conectabueno.discloud.app`.
 
 ---
 

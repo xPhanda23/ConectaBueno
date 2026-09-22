@@ -550,16 +550,15 @@ body {
 .lgpd-info {
     margin-top: 24px;
     padding: 22px;
-    background: #eaf4fb;
-    border-radius: var(--radius-md);
-    border-left: 4px solid var(--info-color);
+    background: white;
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius-lg);
     display: flex;
     gap: 16px;
-    box-shadow: var(--shadow-soft);
 }
 
 .lgpd-info svg {
-    color: var(--info-color);
+    color: var(--leaf-700);
     flex-shrink: 0;
 }
 

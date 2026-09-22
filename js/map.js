@@ -169,7 +169,14 @@ async function loadUserProfile(user) {
                 role: 'usuario',
                 isAdmin: false
             };
-            await db.collection('users').doc(user.uid).set(currentUser);
+            // Visitante anônimo: perfil só em memória, sem gravar no Firestore
+            // (evita criar um documento em "users" a cada visita — só passa a
+            // existir de verdade se a pessoa converter a conta, ver
+            // convertVisitorToAccount() em visitor-access.js). Conta real sem
+            // documento é caso raro/legado — aí sim vale gravar.
+            if (!user.isAnonymous) {
+                await db.collection('users').doc(user.uid).set(currentUser);
+            }
         }
 
         displayUserProfile();

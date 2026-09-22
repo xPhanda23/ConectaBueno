@@ -492,7 +492,6 @@ body {
     padding: 11px 13px;
     background: white;
     border: 1px solid var(--grey-200);
-    border-left: 3px solid var(--leaf-500);
     border-radius: 12px;
     cursor: pointer;
     transition: all .2s cubic-bezier(.4, 0, .2, 1);
@@ -1285,8 +1284,7 @@ body {
     margin-right: -18px;
     padding-left: 18px;
     padding-right: 18px;
-    border-top: none;
-    border-left: 3px solid var(--clay-400);
+    border-top: 1px solid var(--clay-400);
     background: var(--green-50);
 }
 

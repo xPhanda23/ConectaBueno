@@ -93,7 +93,11 @@ function displayUserInfo() {
     
     if (photoURL && photoURL.startsWith('data:image')) {
         // Tem foto - criar elemento img
-        avatarSmall.innerHTML = `<img src="${photoURL}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        avatarSmall.innerHTML = '';
+        const avatarImg = document.createElement('img');
+        avatarImg.src = photoURL;
+        avatarImg.style.cssText = 'width: 100%; height: 100%; border-radius: 50%; object-fit: cover;';
+        avatarSmall.appendChild(avatarImg);
     } else {
         // Sem foto - usar iniciais
         avatarSmall.textContent = iniciais;
@@ -326,17 +330,17 @@ async function loadLugares() {
             const tr = document.createElement('tr');
             
             tr.innerHTML = `
-                <td><strong>${data.nome}</strong></td>
-                <td><span class="badge badge-success">${data.categoria || 'Sem categoria'}</span></td>
-                <td>${data.endereco || '-'}</td>
-                <td><span class="badge ${data.status === 'ativo' ? 'badge-success' : 'badge-danger'}">${data.status}</span></td>
+                <td><strong>${escPanel(data.nome)}</strong></td>
+                <td><span class="badge badge-success">${escPanel(data.categoria || 'Sem categoria')}</span></td>
+                <td>${escPanel(data.endereco || '-')}</td>
+                <td><span class="badge ${data.status === 'ativo' ? 'badge-success' : 'badge-danger'}">${escPanel(data.status)}</span></td>
                 <td>
                     <button class="btn-icon-table" onclick="editLugar('${doc.id}')" title="Editar">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M12 3L15 6L6 15H3V12L12 3Z" stroke="currentColor" stroke-width="1.5"/>
                         </svg>
                     </button>
-                    <button class="btn-icon-table danger" onclick="deleteLugar('${doc.id}', '${data.nome}')" title="Excluir">
+                    <button class="btn-icon-table danger" onclick="deleteLugar('${doc.id}', '${escPanel(data.nome)}')" title="Excluir">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
@@ -746,8 +750,8 @@ async function loadUsuarios() {
             const tr = document.createElement('tr');
             
             tr.innerHTML = `
-                <td><strong>${data.nome}</strong></td>
-                <td>${data.email}</td>
+                <td><strong>${escPanel(data.nome)}</strong></td>
+                <td>${escPanel(data.email)}</td>
                 <td><span class="badge ${data.isAdmin ? 'badge-warning' : 'badge-success'}">${data.isAdmin ? 'Admin' : 'Usuário'}</span></td>
                 <td><span class="badge badge-success">Ativo</span></td>
                 <td>
@@ -756,7 +760,7 @@ async function loadUsuarios() {
                             <path d="M12 3L15 6L6 15H3V12L12 3Z" stroke="currentColor" stroke-width="1.5"/>
                         </svg>
                     </button>
-                    <button class="btn-icon-table danger" onclick="deleteUsuario('${doc.id}', '${data.nome}')" title="Excluir">
+                    <button class="btn-icon-table danger" onclick="deleteUsuario('${doc.id}', '${escPanel(data.nome)}')" title="Excluir">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
@@ -1226,18 +1230,18 @@ async function loadEventos() {
             const dataFim = data.dataFim ? new Date(data.dataFim).toLocaleDateString('pt-BR') : '-';
             
             tr.innerHTML = `
-                <td><strong>${data.titulo}</strong></td>
-                <td><span class="badge badge-success">${data.categoria || 'Sem categoria'}</span></td>
+                <td><strong>${escPanel(data.titulo)}</strong></td>
+                <td><span class="badge badge-success">${escPanel(data.categoria || 'Sem categoria')}</span></td>
                 <td>${dataInicio}</td>
                 <td>${dataFim}</td>
-                <td><span class="badge ${data.status === 'ativo' ? 'badge-success' : 'badge-danger'}">${data.status}</span></td>
+                <td><span class="badge ${data.status === 'ativo' ? 'badge-success' : 'badge-danger'}">${escPanel(data.status)}</span></td>
                 <td>
                     <button class="btn-icon-table" onclick="editEvento('${doc.id}')" title="Editar">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M12 3L15 6L6 15H3V12L12 3Z" stroke="currentColor" stroke-width="1.5"/>
                         </svg>
                     </button>
-                    <button class="btn-icon-table danger" onclick="deleteEvento('${doc.id}', '${data.titulo}')" title="Excluir">
+                    <button class="btn-icon-table danger" onclick="deleteEvento('${doc.id}', '${escPanel(data.titulo)}')" title="Excluir">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M3 5H15M7 8V13M11 8V13M4 5L5 15H13L14 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
@@ -1536,9 +1540,16 @@ function deleteNoticia(noticiaId, titulo) {
     );
 }
 
-// Helper para escapar strings em HTML inline (apenas aspas simples)
+// Helper para escapar strings usadas tanto como texto em innerHTML quanto
+// dentro de atributos onclick="...('...')" — precisa neutralizar '<' '>' (HTML),
+// '"' (quebra o atributo onclick="...") e "'" (quebra a string JS dentro dele).
 function escPanel(str) {
-    return String(str ?? '').replace(/'/g, "\\'").replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, "\\'");
 }
 
 // Expor funções globais de Notícias

@@ -53,7 +53,6 @@ function isVisitor() {
    sessão anônima. */
 async function garantirSessaoVisitante() {
     const auth = window.auth;
-    const db = window.db;
     if (!auth) return null;
 
     const usuarioRestaurado = await new Promise(resolve => {
@@ -68,29 +67,17 @@ async function garantirSessaoVisitante() {
     if (usuarioRestaurado) return usuarioRestaurado;
 
     try {
+        // Só autentica anonimamente (exigido pelas regras do Firestore pra
+        // ler conteúdo público). NÃO grava documento em "users" aqui —
+        // visitante que só navega e nunca favorita/confirma presença/converte
+        // a conta não precisa de um perfil salvo. Isso evitava um documento
+        // novo por visita (bots, abas anônimas, gente sem conta) empilhando
+        // no painel de usuários sem necessidade. Ver loadUserProfile() em
+        // cada página (cria só em memória pra visitante) e
+        // convertVisitorToAccount() (cria o documento de verdade no
+        // primeiro momento em que passa a ser necessário).
         const result = await auth.signInAnonymously();
-        const user = result.user;
-
-        if (db && user) {
-            const ref = db.collection('users').doc(user.uid);
-            const snap = await ref.get();
-            if (!snap.exists) {
-                await ref.set({
-                    uid: user.uid,
-                    nome: 'Visitante',
-                    email: null,
-                    tipoUsuario: 'anonimo',
-                    isAdmin: false,
-                    dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
-                    ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
-                    favoritosIds: [],
-                    roteirosIds: [],
-                    limitado: true
-                });
-            }
-        }
-
-        return user;
+        return result.user;
     } catch (error) {
         console.warn('⚠️ Não foi possível iniciar a sessão de visitante:', error);
         return null;
@@ -195,13 +182,25 @@ async function convertVisitorToAccount(nome, email, senha) {
         await user.linkWithCredential(credential);
         await user.updateProfile({ displayName: nome });
 
-        await firebase.firestore().collection('users').doc(user.uid).update({
+        // set(..., {merge:true}) em vez de update(): como o visitante pode
+        // nunca ter tido um documento em "users" (perfil agora só é criado
+        // sob demanda, não mais a cada visita — ver garantirSessaoVisitante()),
+        // isto pode ser tanto a primeira gravação quanto uma atualização.
+        // Os campos abaixo cobrem os dois casos (satisfazem a regra de
+        // "create" do Firestore quando o documento ainda não existe).
+        await firebase.firestore().collection('users').doc(user.uid).set({
+            uid: user.uid,
             nome,
             email,
             tipoUsuario: 'permanente',
+            isAdmin: false,
             limitado: false,
+            dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
+            ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
             dataConversao: firebase.firestore.FieldValue.serverTimestamp(),
-        });
+            favoritosIds: [],
+            roteirosIds: [],
+        }, { merge: true });
 
         _toast('Conta criada! Agora você tem acesso completo.', 'success');
         return true;

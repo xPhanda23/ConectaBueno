@@ -190,7 +190,11 @@ function setAvatar(id, initials, photoURL) {
     if (!el) return;
     
     if (photoURL && (photoURL.startsWith('data:image') || photoURL.startsWith('http'))) {
-        el.innerHTML = `<img src="${photoURL}" alt="${initials}">`;
+        el.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = photoURL;
+        img.alt = initials;
+        el.appendChild(img);
     } else {
         el.textContent = initials;
     }
