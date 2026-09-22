@@ -29,22 +29,14 @@ Bueno Brandão é um município no Sul de Minas Gerais, conhecido por:
 
 ### 2. Configure as Credenciais
 
-Edite **AMBOS** os arquivos:
+Edite **`js/firebase-config.js`** — é o único arquivo de configuração, usado por todas as páginas (login, mapa, eventos, observatório e painel admin):
 
-**`js/firebase-config.js`** (para login e mapa)
 ```javascript
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "seu-projeto.firebaseapp.com",
   projectId: "seu-projeto-id",
   // ... resto das credenciais
-};
-```
-
-**`js/firebase-config-panel.js`** (para painel admin)
-```javascript
-const firebaseConfig = {
-  // Mesmas credenciais aqui
 };
 ```
 
@@ -98,8 +90,7 @@ ConectaBueno/
 │   ├── auth.css            # Estilos de autenticação
 │   └── panel.css           # Estilos do painel
 ├── js/
-│   ├── firebase-config.js          # Config Firebase (compat)
-│   ├── firebase-config-panel.js    # Config Firebase (ES6)
+│   ├── firebase-config.js          # Config Firebase (única, usada por todas as páginas)
 │   ├── firebase-auth.js            # Funções de autenticação
 │   ├── map.js                      # Lógica do mapa
 │   ├── auth.js                     # UI de login

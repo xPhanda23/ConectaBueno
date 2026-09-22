@@ -1,0 +1,27 @@
+# .discloudignore — arquivos e pastas que NÃO devem ir para a hospedagem.
+# Sintaxe simples: um nome exato por linha, sem coringas (*) e sem "/" no final
+# de pastas (ex.: ".git", não ".git/"). Isso NÃO afeta o Git, só o upload
+# pro Discloud.
+
+# Controle de versão e histórico (pode conter coisas já removidas do código
+# mas que ainda existem nos commits antigos)
+.git
+.gitignore
+
+# Ferramentas de desenvolvimento (agentes, skills, specs) — não fazem parte
+# do site e não precisam estar publicamente acessíveis
+.agents
+.claude
+.github
+.kiro
+
+# Documentação interna do projeto
+README.md
+OBSERVATORIO-CULTURAL.md
+skills-lock.json
+
+# Regras de segurança do Firestore — isto é aplicado no Firebase Console
+# (firebase deploy --only firestore:rules), NUNCA deve ser servido pelo
+# próprio site. Publicá-lo entrega de bandeja pra um atacante o mapa exato
+# de como as permissões do banco de dados funcionam.
+firestore.rules
