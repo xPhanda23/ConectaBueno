@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://conectabueno.discloud.app/sitemap.xml
+Sitemap: https://conectabueno.com.br/sitemap.xml
